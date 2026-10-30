@@ -1,0 +1,246 @@
+{
+  "version": 1,
+  "note": "Kho trích dẫn pháp luật cho bảng pháp luật bên cạnh nhiệm vụ (docs/08 §6, ADR-011). verified: official = đã đối chiếu toàn văn trên cổng chính thức; secondary = đã đối chiếu nguồn thứ cấp uy tín; unverified = chưa đối chiếu, giao diện hiện nhãn 'chưa đối chiếu'. AI KHÔNG được nâng mức verified nếu chưa tự đối chiếu. summary viết bằng lời của mình, không chép nguyên văn dài.",
+  "refs": [
+    {
+      "id": "luatkt_chungtu",
+      "doc": "Luật Kế toán",
+      "docNo": "88/2015/QH13 (sửa đổi, bổ sung bởi Luật 56/2024/QH15)",
+      "article": "Điều 16–19",
+      "topic": "Chứng từ kế toán",
+      "summary": "Chứng từ phải có đủ nội dung chủ yếu (tên, số, ngày, bên lập và bên nhận, nội dung nghiệp vụ, số lượng, đơn giá, số tiền bằng số và bằng chữ) và đủ chữ ký của người có trách nhiệm. Thiếu nội dung hoặc chữ ký thì chưa đủ căn cứ ghi sổ.",
+      "tags": ["inspect"],
+      "verified": "unverified"
+    },
+    {
+      "id": "nd_hoadon",
+      "doc": "Nghị định quy định về hoá đơn, chứng từ",
+      "docNo": "123/2020/NĐ-CP (sửa đổi, bổ sung bởi NĐ 70/2025/NĐ-CP)",
+      "article": "Điều 10",
+      "topic": "Nội dung của hoá đơn",
+      "summary": "Hoá đơn ghi đủ tên, địa chỉ, mã số thuế của người bán và người mua, tên hàng hoá dịch vụ, đơn vị tính, số lượng, đơn giá, thành tiền, thuế suất, tiền thuế, tổng tiền thanh toán, và chữ ký số của người bán.",
+      "tags": ["inspect", "vat"],
+      "verified": "unverified"
+    },
+    {
+      "id": "gtgt_khautru",
+      "doc": "Luật Thuế giá trị gia tăng",
+      "docNo": "48/2024/QH15; hướng dẫn tại NĐ 181/2025/NĐ-CP",
+      "article": "Điều kiện khấu trừ thuế GTGT đầu vào",
+      "topic": "Khấu trừ thuế đầu vào",
+      "summary": "Muốn khấu trừ thuế GTGT đầu vào cần có hoá đơn hợp pháp và chứng từ thanh toán không dùng tiền mặt cho giao dịch từ ngưỡng luật định trở lên (game đang dùng 5 triệu đồng, đã gồm thuế).",
+      "tags": ["inspect", "entry", "vat"],
+      "verified": "unverified"
+    },
+    {
+      "id": "nq_giam_gtgt",
+      "doc": "Nghị quyết của Quốc hội về giảm thuế GTGT",
+      "docNo": "204/2025/QH15",
+      "article": "Toàn văn",
+      "topic": "Giảm 2% thuế GTGT",
+      "summary": "Nhiều nhóm hàng hoá, dịch vụ đang chịu thuế suất 10% được giảm còn 8% trong thời hạn nghị quyết. Một số nhóm (viễn thông, tài chính, bất động sản…) không được giảm.",
+      "tags": ["entry", "vat"],
+      "verified": "unverified"
+    },
+    {
+      "id": "tt99_htk",
+      "doc": "Thông tư hướng dẫn chế độ kế toán doanh nghiệp",
+      "docNo": "99/2025/TT-BTC (thay Thông tư 200/2014/TT-BTC)",
+      "article": "Phụ lục II — Hệ thống tài khoản",
+      "topic": "Hệ thống tài khoản và cách ghi",
+      "summary": "Áp dụng từ 01/01/2026. Quy định danh mục tài khoản, kết cấu Nợ/Có và nguyên tắc hạch toán từng tài khoản; doanh nghiệp được tự thiết kế tài khoản chi tiết nếu đáp ứng yêu cầu cơ bản.",
+      "tags": ["entry"],
+      "verified": "secondary"
+    },
+    {
+      "id": "luatdn_2025",
+      "doc": "Luật Doanh nghiệp",
+      "docNo": "59/2020/QH14 (sửa đổi, bổ sung bởi Luật 76/2025/QH15, hiệu lực 01/07/2025)",
+      "article": "Điều 4",
+      "topic": "Giải thích từ ngữ: cổ tức, chủ sở hữu hưởng lợi",
+      "summary": "Cổ tức là khoản lợi nhuận sau thuế được trả cho mỗi cổ phần bằng tiền hoặc tài sản khác. Luật sửa đổi 2025 bổ sung khái niệm chủ sở hữu hưởng lợi của doanh nghiệp.",
+      "tags": ["corporate"],
+      "verified": "secondary"
+    },
+    {
+      "id": "luatdn_dhdcd",
+      "doc": "Luật Doanh nghiệp",
+      "docNo": "59/2020/QH14",
+      "article": "Điều 138 (quyền và nghĩa vụ của Đại hội đồng cổ đông)",
+      "topic": "Thẩm quyền Đại hội đồng cổ đông",
+      "summary": "Đại hội đồng cổ đông quyết định mức cổ tức hằng năm của từng loại cổ phần, quyết định mua lại trên 10% tổng số cổ phần đã bán, và các khoản đầu tư hoặc bán tài sản lớn theo ngưỡng của Luật và Điều lệ.",
+      "tags": ["inspect", "corporate"],
+      "verified": "unverified"
+    },
+    {
+      "id": "luatdn_cotuc",
+      "doc": "Luật Doanh nghiệp",
+      "docNo": "59/2020/QH14",
+      "article": "Điều 135 (trả cổ tức)",
+      "topic": "Điều kiện và thời hạn trả cổ tức",
+      "summary": "Chỉ trả cổ tức cổ phần phổ thông khi đã hoàn thành nghĩa vụ thuế, trích lập các quỹ, bù lỗ trước đó, và sau khi trả vẫn bảo đảm thanh toán đủ các khoản nợ đến hạn. Phải trả trong thời hạn luật định kể từ ngày kết thúc họp Đại hội đồng cổ đông thường niên.",
+      "tags": ["corporate"],
+      "verified": "unverified"
+    },
+    {
+      "id": "luatdn_mualai",
+      "doc": "Luật Doanh nghiệp",
+      "docNo": "59/2020/QH14",
+      "article": "Điều 132–134 (mua lại cổ phần)",
+      "topic": "Công ty mua lại cổ phần của chính mình",
+      "summary": "Công ty được mua lại cổ phần theo quyết định của mình trong giới hạn luật định. Hội đồng quản trị quyết định mua lại không quá 10% mỗi 12 tháng, trên mức đó do Đại hội đồng cổ đông quyết định. Chỉ thanh toán khi sau đó vẫn trả đủ nợ đến hạn.",
+      "tags": ["corporate"],
+      "verified": "unverified"
+    },
+    {
+      "id": "luatdn_lienquan",
+      "doc": "Luật Doanh nghiệp",
+      "docNo": "59/2020/QH14",
+      "article": "Điều 167 (hợp đồng, giao dịch phải được chấp thuận)",
+      "topic": "Giao dịch với người có liên quan",
+      "summary": "Hợp đồng, giao dịch giữa công ty với cổ đông lớn, thành viên HĐQT, Giám đốc và người có liên quan của họ phải được Đại hội đồng cổ đông hoặc Hội đồng quản trị chấp thuận tuỳ giá trị.",
+      "tags": ["inspect", "corporate", "group"],
+      "verified": "unverified"
+    },
+    {
+      "id": "luatdn_congtyme",
+      "doc": "Luật Doanh nghiệp",
+      "docNo": "59/2020/QH14",
+      "article": "Điều 195–196 (công ty mẹ, công ty con)",
+      "topic": "Quan hệ công ty mẹ — công ty con",
+      "summary": "Công ty là công ty mẹ khi sở hữu trên 50% vốn điều lệ, hoặc có quyền bổ nhiệm đa số thành viên HĐQT, hoặc có quyền quyết định sửa đổi Điều lệ của công ty con. Công ty con không được đầu tư góp vốn ngược lại vào công ty mẹ.",
+      "tags": ["group"],
+      "verified": "unverified"
+    },
+    {
+      "id": "luatck_menhgia",
+      "doc": "Luật Chứng khoán",
+      "docNo": "54/2019/QH14 (sửa đổi, bổ sung bởi Luật 56/2024/QH15)",
+      "article": "Quy định về mệnh giá chứng khoán",
+      "topic": "Mệnh giá cổ phiếu",
+      "summary": "Cổ phiếu chào bán ra công chúng có mệnh giá 10.000 đồng. Phần tiền thu được cao hơn mệnh giá là thặng dư vốn cổ phần.",
+      "tags": ["corporate"],
+      "verified": "unverified"
+    },
+    {
+      "id": "tncn_cotuc",
+      "doc": "Luật Thuế thu nhập cá nhân",
+      "docNo": "Luật Thuế TNCN hiện hành; đối chiếu Luật 109/2025/QH15 cho kỳ tính thuế từ 2026",
+      "article": "Thu nhập từ đầu tư vốn",
+      "topic": "Khấu trừ thuế TNCN trên cổ tức",
+      "summary": "Cổ tức trả bằng tiền cho cá nhân là thu nhập từ đầu tư vốn; tổ chức trả có trách nhiệm khấu trừ thuế trước khi trả (game đang dùng thuế suất 5%).",
+      "tags": ["corporate", "pit"],
+      "verified": "unverified"
+    },
+    {
+      "id": "vas25_hopnhat",
+      "doc": "Chuẩn mực kế toán Việt Nam số 25",
+      "docNo": "QĐ 234/2003/QĐ-BTC; hướng dẫn lập BCTC hợp nhất tại TT 202/2014/TT-BTC [cần kiểm còn hiệu lực sau TT 99]",
+      "article": "VAS 25 — Báo cáo tài chính hợp nhất và kế toán khoản đầu tư vào công ty con",
+      "topic": "Hợp nhất báo cáo tài chính",
+      "summary": "Công ty mẹ lập báo cáo tài chính hợp nhất, loại trừ toàn bộ số dư và giao dịch nội bộ tập đoàn và lãi lỗ chưa thực hiện từ giao dịch nội bộ, trình bày lợi ích cổ đông không kiểm soát riêng.",
+      "tags": ["group", "consolidation"],
+      "verified": "unverified"
+    },
+    {
+      "id": "vas26_lienquan",
+      "doc": "Chuẩn mực kế toán Việt Nam số 26",
+      "docNo": "VAS 26",
+      "article": "Thông tin về các bên liên quan",
+      "topic": "Thuyết minh bên liên quan",
+      "summary": "Báo cáo tài chính phải thuyết minh mối quan hệ với các bên liên quan, bản chất và giá trị các giao dịch với họ.",
+      "tags": ["group", "audit"],
+      "verified": "unverified"
+    },
+    {
+      "id": "luat_ktdl",
+      "doc": "Luật Kiểm toán độc lập",
+      "docNo": "67/2011/QH12 (sửa đổi, bổ sung bởi Luật 56/2024/QH15); hướng dẫn tại NĐ 17/2012/NĐ-CP",
+      "article": "Toàn văn — kiểm toán bắt buộc, quyền và nghĩa vụ của đơn vị được kiểm toán",
+      "topic": "Kiểm toán độc lập",
+      "summary": "Doanh nghiệp thuộc diện kiểm toán bắt buộc phải thuê doanh nghiệp kiểm toán đủ điều kiện. Đơn vị được kiểm toán phải cung cấp đầy đủ, kịp thời tài liệu và giải trình theo yêu cầu của kiểm toán viên.",
+      "tags": ["audit"],
+      "verified": "unverified"
+    },
+    {
+      "id": "ktdl_luanchuyen",
+      "doc": "Nghị định hướng dẫn Luật Kiểm toán độc lập",
+      "docNo": "17/2012/NĐ-CP",
+      "article": "Quy định luân chuyển kiểm toán viên",
+      "topic": "Luân chuyển kiểm toán viên ký báo cáo",
+      "summary": "Kiểm toán viên hành nghề không được ký báo cáo kiểm toán cho cùng một đơn vị có lợi ích công chúng quá số năm liên tục luật định (game đang dùng 3 năm).",
+      "tags": ["audit"],
+      "verified": "unverified"
+    },
+    {
+      "id": "tt183_ltcc",
+      "doc": "Thông tư về kiểm toán độc lập đối với đơn vị có lợi ích công chúng",
+      "docNo": "183/2013/TT-BTC",
+      "article": "Toàn văn",
+      "topic": "Đơn vị có lợi ích công chúng",
+      "summary": "Doanh nghiệp kiểm toán và kiểm toán viên kiểm toán cho đơn vị có lợi ích công chúng (công ty niêm yết, tổ chức tín dụng…) phải được Bộ Tài chính hoặc Uỷ ban Chứng khoán chấp thuận.",
+      "tags": ["audit"],
+      "verified": "secondary"
+    },
+    {
+      "id": "vsa_320_450",
+      "doc": "Chuẩn mực kiểm toán Việt Nam",
+      "docNo": "Ban hành kèm TT 214/2012/TT-BTC",
+      "article": "VSA 320 (mức trọng yếu), VSA 450 (đánh giá sai sót phát hiện)",
+      "topic": "Trọng yếu và sai sót",
+      "summary": "Kiểm toán viên xác định mức trọng yếu cho tổng thể báo cáo tài chính, tổng hợp các sai sót phát hiện và đề nghị đơn vị điều chỉnh; sai sót chưa điều chỉnh vượt trọng yếu ảnh hưởng tới ý kiến kiểm toán.",
+      "tags": ["audit"],
+      "verified": "unverified"
+    },
+    {
+      "id": "vsa_505_530",
+      "doc": "Chuẩn mực kiểm toán Việt Nam",
+      "docNo": "Ban hành kèm TT 214/2012/TT-BTC",
+      "article": "VSA 505 (xác nhận từ bên ngoài), VSA 530 (lấy mẫu kiểm toán)",
+      "topic": "Thư xác nhận và chọn mẫu",
+      "summary": "Kiểm toán viên gửi thư xác nhận số dư cho ngân hàng, khách hàng, nhà cung cấp, và chọn mẫu nghiệp vụ để đối chiếu với chứng từ gốc.",
+      "tags": ["audit"],
+      "verified": "unverified"
+    },
+    {
+      "id": "vsa_580",
+      "doc": "Chuẩn mực kiểm toán Việt Nam",
+      "docNo": "Ban hành kèm TT 214/2012/TT-BTC",
+      "article": "VSA 580 (giải trình bằng văn bản)",
+      "topic": "Thư giải trình của Ban Giám đốc",
+      "summary": "Ban Giám đốc đơn vị được kiểm toán ký thư giải trình xác nhận trách nhiệm với báo cáo tài chính và việc đã cung cấp đầy đủ thông tin cho kiểm toán viên.",
+      "tags": ["audit"],
+      "verified": "unverified"
+    },
+    {
+      "id": "vsa_700_705",
+      "doc": "Chuẩn mực kiểm toán Việt Nam",
+      "docNo": "Ban hành kèm TT 214/2012/TT-BTC",
+      "article": "VSA 700, 705, 706 (ý kiến kiểm toán)",
+      "topic": "Các loại ý kiến kiểm toán",
+      "summary": "Ý kiến chấp nhận toàn phần; hoặc ý kiến không phải chấp nhận toàn phần gồm ngoại trừ, trái ngược và từ chối đưa ra ý kiến; có thể kèm đoạn nhấn mạnh vấn đề.",
+      "tags": ["audit"],
+      "verified": "unverified"
+    }
+  ],
+  "panels": [
+    { "match": { "step": "inspect", "kind": "*" },                       "refs": ["luatkt_chungtu"] },
+    { "match": { "step": "inspect", "kind": "invoice_out" },             "refs": ["luatkt_chungtu", "nd_hoadon"] },
+    { "match": { "step": "inspect", "kind": "invoice_in" },              "refs": ["luatkt_chungtu", "nd_hoadon", "gtgt_khautru"] },
+    { "match": { "step": "inspect", "kind": "resolution" },              "refs": ["luatkt_chungtu", "luatdn_dhdcd"] },
+    { "match": { "step": "entry", "kind": "*" },                         "refs": ["tt99_htk"] },
+    { "match": { "step": "entry", "kind": "invoice_out" },               "refs": ["tt99_htk", "nq_giam_gtgt"] },
+    { "match": { "step": "entry", "kind": "invoice_in" },                "refs": ["tt99_htk", "nq_giam_gtgt", "gtgt_khautru"] },
+    { "match": { "step": "entry", "template": "issue_shares" },          "refs": ["tt99_htk", "luatck_menhgia", "luatdn_2025"] },
+    { "match": { "step": "entry", "template": "declare_dividend" },      "refs": ["tt99_htk", "luatdn_2025", "luatdn_cotuc"] },
+    { "match": { "step": "entry", "template": "pay_dividend" },          "refs": ["tt99_htk", "luatdn_cotuc", "tncn_cotuc"] },
+    { "match": { "step": "entry", "template": "buyback_treasury" },      "refs": ["tt99_htk", "luatdn_mualai"] },
+    { "match": { "step": "entry", "template": "invest_subsidiary" },     "refs": ["tt99_htk", "luatdn_congtyme", "vas25_hopnhat"] },
+    { "match": { "step": "consolidation" },                              "refs": ["vas25_hopnhat", "vas26_lienquan", "luatdn_congtyme"] },
+    { "match": { "step": "audit_planning" },                             "refs": ["luat_ktdl", "tt183_ltcc", "ktdl_luanchuyen"] },
+    { "match": { "step": "audit_fieldwork" },                            "refs": ["vsa_505_530", "luat_ktdl"] },
+    { "match": { "step": "audit_adjustments" },                          "refs": ["vsa_320_450", "tt99_htk"] },
+    { "match": { "step": "audit_representation" },                       "refs": ["vsa_580", "vas26_lienquan"] },
+    { "match": { "step": "audit_opinion" },                              "refs": ["vsa_700_705"] }
+  ]
+}

@@ -1,0 +1,59 @@
+{
+  "version": 1,
+  "templates": [
+    {
+      "id": "sale_cash",
+      "kind": "invoice_out",
+      "title": "Bán hàng thu tiền mặt",
+      "giverRoles": ["sales", "cashier"],
+      "partner": "customers",
+      "item": "goods",
+      "params": { "qty": { "int": [1, 12] } },
+      "amounts": {
+        "sub": "qty * unitPrice",
+        "vat": "round(sub * vatRate / 100)",
+        "total": "sub + vat"
+      },
+      "paymentMethod": "cash",
+      "truth": [["N", "111", "total"], ["C", "511", "sub"], ["C", "3331", "vat"]],
+      "defects": ["missing_signature", "words_mismatch", "wrong_total", "date_out_of_period", "wrong_vat_rate", "bad_tax_id"],
+      "mentorTip": "Bán hàng thu tiền ngay: tiền mặt tăng (Nợ 111), ghi nhận doanh thu (Có 511) và thuế GTGT đầu ra phải nộp (Có 3331)."
+    },
+    {
+      "id": "sale_credit",
+      "kind": "invoice_out",
+      "title": "Bán hàng chưa thu tiền",
+      "giverRoles": ["sales"],
+      "partner": "customers",
+      "partnerFilter": { "hasTaxId": true },
+      "item": "goods",
+      "params": { "qty": { "int": [3, 40] } },
+      "amounts": {
+        "sub": "qty * unitPrice",
+        "vat": "round(sub * vatRate / 100)",
+        "total": "sub + vat"
+      },
+      "paymentMethod": "credit",
+      "truth": [["N", "131", "total"], ["C", "511", "sub"], ["C", "3331", "vat"]],
+      "defects": ["missing_signature", "words_mismatch", "wrong_total", "date_out_of_period", "wrong_vat_rate", "bad_tax_id"],
+      "mentorTip": "Khách nợ lại thì ghi tăng khoản phải thu (Nợ 131) thay cho tiền."
+    },
+    {
+      "id": "cogs",
+      "kind": "stock_out",
+      "title": "Phiếu xuất kho bán hàng (giá vốn)",
+      "giverRoles": ["warehouse"],
+      "partner": "customers",
+      "item": "goods",
+      "params": { "qty": { "int": [1, 20] } },
+      "amounts": {
+        "unitCost": "round(unitPrice * costRatio / 1000) * 1000",
+        "cost": "qty * unitCost"
+      },
+      "paymentMethod": null,
+      "truth": [["N", "632", "cost"], ["C", "156", "cost"]],
+      "defects": ["missing_signature", "date_out_of_period"],
+      "mentorTip": "Hàng rời kho để bán: hàng hoá giảm (Có 156), giá vốn tăng (Nợ 632). Ghi theo giá vốn, không theo giá bán."
+    }
+  ]
+}

@@ -1,0 +1,297 @@
+{
+  "version": 1,
+  "note": "Gói công ty cổ phần và tập đoàn — chỉ có ở Pro (docs/09). Mọi mẫu ở đây có modes: [\"pro\"].",
+  "templates": [
+    {
+      "id": "issue_shares",
+      "kind": "bank_credit",
+      "modes": [
+        "pro"
+      ],
+      "title": "Giấy báo Có: tiền mua cổ phần phát hành thêm",
+      "giverRoles": [
+        "courier"
+      ],
+      "partner": null,
+      "item": null,
+      "params": {
+        "shares": {
+          "step": [
+            50000,
+            500000,
+            10000
+          ]
+        },
+        "parValue": {
+          "rule": "jsc.parValue"
+        },
+        "issuePrice": {
+          "step": [
+            12000,
+            25000,
+            500
+          ]
+        }
+      },
+      "amounts": {
+        "total": "shares * issuePrice",
+        "capital": "shares * parValue",
+        "premium": "total - capital"
+      },
+      "paymentMethod": "bank",
+      "truth": [
+        [
+          "N",
+          "112",
+          "total"
+        ],
+        [
+          "C",
+          "4111",
+          "capital"
+        ],
+        [
+          "C",
+          "4112",
+          "premium"
+        ]
+      ],
+      "defects": [
+        "words_mismatch",
+        "date_out_of_period"
+      ],
+      "attachments": [
+        "resolution"
+      ],
+      "mentorTip": "Phần mệnh giá ghi vào vốn góp (Có 4111), phần chênh lệch giá phát hành cao hơn mệnh giá ghi vào thặng dư vốn (Có 4112)."
+    },
+    {
+      "id": "declare_dividend",
+      "kind": "resolution",
+      "modes": [
+        "pro"
+      ],
+      "title": "Nghị quyết ĐHĐCĐ: chia cổ tức bằng tiền",
+      "giverRoles": [
+        "boss"
+      ],
+      "partner": null,
+      "item": null,
+      "params": {
+        "outstanding": {
+          "step": [
+            1000000,
+            5000000,
+            100000
+          ]
+        },
+        "dps": {
+          "step": [
+            500,
+            2000,
+            100
+          ]
+        }
+      },
+      "amounts": {
+        "total": "outstanding * dps"
+      },
+      "paymentMethod": null,
+      "requires": {
+        "balanceAtLeast": {
+          "421": "total"
+        }
+      },
+      "truth": [
+        [
+          "N",
+          "421",
+          "total"
+        ],
+        [
+          "C",
+          "3388",
+          "total"
+        ]
+      ],
+      "defects": [
+        "missing_signature",
+        "date_out_of_period",
+        "wrong_approving_body"
+      ],
+      "mentorTip": "Khi có nghị quyết chia cổ tức, lợi nhuận chưa phân phối giảm (Nợ 421) và công ty có nghĩa vụ trả cổ đông (Có 3388)."
+    },
+    {
+      "id": "pay_dividend",
+      "kind": "bank_debit",
+      "modes": [
+        "pro"
+      ],
+      "title": "Uỷ nhiệm chi: trả cổ tức cho cổ đông cá nhân",
+      "giverRoles": [
+        "cashier"
+      ],
+      "partner": null,
+      "item": null,
+      "params": {
+        "gross": {
+          "step": [
+            100000000,
+            900000000,
+            10000000
+          ]
+        },
+        "pitRate": {
+          "rule": "pit.dividendRate"
+        }
+      },
+      "amounts": {
+        "total": "gross",
+        "pit": "round(gross * pitRate / 100)",
+        "net": "gross - pit"
+      },
+      "paymentMethod": "bank",
+      "requires": {
+        "balanceAtLeast": {
+          "3388": "total",
+          "112": "net"
+        }
+      },
+      "truth": [
+        [
+          "N",
+          "3388",
+          "total"
+        ],
+        [
+          "C",
+          "112",
+          "net"
+        ],
+        [
+          "C",
+          "3335",
+          "pit"
+        ]
+      ],
+      "defects": [
+        "missing_signature",
+        "words_mismatch",
+        "date_out_of_period"
+      ],
+      "mentorTip": "Trả cổ tức cho cá nhân: công ty khấu trừ thuế TNCN trước khi chuyển tiền (Có 3335), phần còn lại chuyển khoản (Có 112)."
+    },
+    {
+      "id": "buyback_treasury",
+      "kind": "bank_debit",
+      "modes": [
+        "pro"
+      ],
+      "title": "Uỷ nhiệm chi: mua lại cổ phiếu làm cổ phiếu quỹ",
+      "giverRoles": [
+        "cashier"
+      ],
+      "partner": null,
+      "item": null,
+      "params": {
+        "shares": {
+          "step": [
+            10000,
+            200000,
+            5000
+          ]
+        },
+        "price": {
+          "step": [
+            11000,
+            30000,
+            500
+          ]
+        }
+      },
+      "amounts": {
+        "total": "shares * price"
+      },
+      "paymentMethod": "bank",
+      "requires": {
+        "balanceAtLeast": {
+          "112": "total"
+        }
+      },
+      "truth": [
+        [
+          "N",
+          "419",
+          "total"
+        ],
+        [
+          "C",
+          "112",
+          "total"
+        ]
+      ],
+      "defects": [
+        "missing_signature",
+        "words_mismatch",
+        "date_out_of_period"
+      ],
+      "attachments": [
+        "resolution"
+      ],
+      "mentorTip": "Cổ phiếu mua lại ghi theo giá mua thực tế vào 419, là khoản giảm vốn chủ sở hữu, không phải tài sản."
+    },
+    {
+      "id": "invest_subsidiary",
+      "kind": "bank_debit",
+      "modes": [
+        "pro"
+      ],
+      "title": "Uỷ nhiệm chi: góp vốn vào công ty con",
+      "giverRoles": [
+        "boss",
+        "cashier"
+      ],
+      "partner": null,
+      "item": null,
+      "params": {
+        "amount": {
+          "step": [
+            500000000,
+            5000000000,
+            100000000
+          ]
+        }
+      },
+      "amounts": {
+        "total": "amount"
+      },
+      "paymentMethod": "bank",
+      "requires": {
+        "balanceAtLeast": {
+          "112": "total"
+        }
+      },
+      "truth": [
+        [
+          "N",
+          "221",
+          "total"
+        ],
+        [
+          "C",
+          "112",
+          "total"
+        ]
+      ],
+      "defects": [
+        "missing_signature",
+        "words_mismatch",
+        "date_out_of_period"
+      ],
+      "attachments": [
+        "resolution"
+      ],
+      "mentorTip": "Góp vốn để nắm quyền kiểm soát thì ghi Đầu tư vào công ty con (Nợ 221). Dưới mức kiểm soát nhưng có ảnh hưởng đáng kể thì là 222."
+    }
+  ]
+}

@@ -1,0 +1,21 @@
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+.pytest_cache/
+# Dữ liệu chạy
+backend/data/*.db
+*.sqlite3
+# Bí mật
+.env
+.env.*
+!.env.example
+# Hệ điều hành / editor
+.DS_Store
+Thumbs.db
+desktop.ini
+.vscode/
+.idea/
+# Node (nếu ai đó lỡ cài)
+node_modules/

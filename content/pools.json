@@ -1,0 +1,249 @@
+{
+  "version": 1,
+  "note": "Toàn bộ tên, địa chỉ, MST là HƯ CẤU. MST dùng dải đầu '99' và có chữ số kiểm tra hợp lệ theo công thức ở docs/04 §6 [cần kiểm công thức].",
+  "company": {
+    "name": "Công ty TNHH Thương mại Đông Hồ",
+    "taxId": "9952601811",
+    "address": "Số 12 ngõ Ba Gác, phường Giả Định, TP. Hư Cấu",
+    "bank": "Ngân hàng TMCP Đồng Xu – CN Giả Định",
+    "bankAccount": "0000123456789"
+  },
+  "customers": [
+    {
+      "id": "c_anphu",
+      "name": "Công ty CP Nội thất An Phú Giả",
+      "taxId": "9959083012",
+      "address": "45 đường Lá Me, TP. Hư Cấu"
+    },
+    {
+      "id": "c_minhkhoi",
+      "name": "Công ty TNHH Minh Khôi Ảo",
+      "taxId": "9909139090",
+      "address": "7 ngõ Sương Mù, TP. Hư Cấu"
+    },
+    {
+      "id": "c_hoasen",
+      "name": "Cửa hàng Hoa Sen Mộng",
+      "taxId": "9946281948",
+      "address": "88 phố Gió Bấc, TP. Hư Cấu"
+    },
+    {
+      "id": "c_le",
+      "name": "Khách lẻ (không lấy hoá đơn có MST)",
+      "taxId": "",
+      "address": ""
+    }
+  ],
+  "suppliers": [
+    {
+      "id": "s_baotin",
+      "name": "Công ty TNHH Bảo Tín Tưởng Tượng",
+      "taxId": "9982199350",
+      "address": "3 đường Mây Trắng, TP. Hư Cấu"
+    },
+    {
+      "id": "s_vietgiay",
+      "name": "Công ty CP Giấy Việt Mơ",
+      "taxId": "9918190939",
+      "address": "120 đại lộ Cầu Vồng, TP. Hư Cấu"
+    },
+    {
+      "id": "s_nhanh",
+      "name": "Công ty TNHH Nhanh Như Gió",
+      "taxId": "9978657978",
+      "address": "9 ngõ Đom Đóm, TP. Hư Cấu"
+    },
+    {
+      "id": "s_bomat",
+      "name": "Công ty TNHH Thoắt Ẩn",
+      "taxId": "9954323197",
+      "address": "Không xác định",
+      "abandoned": true
+    }
+  ],
+  "goods": [
+    {
+      "id": "g_ghe",
+      "name": "Ghế văn phòng xoay",
+      "unit": "chiếc",
+      "price": [
+        650000,
+        1500000,
+        50000
+      ],
+      "costRatio": 0.72,
+      "vatCategory": "goods"
+    },
+    {
+      "id": "g_ban",
+      "name": "Bàn làm việc gỗ ép",
+      "unit": "chiếc",
+      "price": [
+        1200000,
+        3500000,
+        100000
+      ],
+      "costRatio": 0.7,
+      "vatCategory": "goods"
+    },
+    {
+      "id": "g_ke",
+      "name": "Kệ hồ sơ 5 tầng",
+      "unit": "chiếc",
+      "price": [
+        450000,
+        950000,
+        50000
+      ],
+      "costRatio": 0.68,
+      "vatCategory": "goods"
+    },
+    {
+      "id": "g_den",
+      "name": "Đèn bàn LED",
+      "unit": "chiếc",
+      "price": [
+        180000,
+        420000,
+        10000
+      ],
+      "costRatio": 0.65,
+      "vatCategory": "goods"
+    }
+  ],
+  "expenses": [
+    {
+      "id": "e_vpp",
+      "name": "Văn phòng phẩm",
+      "unit": "bộ",
+      "price": [
+        80000,
+        600000,
+        10000
+      ],
+      "vatCategory": "goods",
+      "account": "642"
+    },
+    {
+      "id": "e_internet",
+      "name": "Cước internet tháng",
+      "unit": "tháng",
+      "price": [
+        300000,
+        900000,
+        10000
+      ],
+      "vatCategory": "standard",
+      "account": "642"
+    },
+    {
+      "id": "e_nuoc",
+      "name": "Nước uống văn phòng",
+      "unit": "bình",
+      "price": [
+        50000,
+        90000,
+        5000
+      ],
+      "vatCategory": "goods",
+      "account": "642"
+    },
+    {
+      "id": "e_quangcao",
+      "name": "In tờ rơi quảng cáo",
+      "unit": "gói",
+      "price": [
+        1500000,
+        7000000,
+        100000
+      ],
+      "vatCategory": "standard",
+      "account": "641"
+    }
+  ],
+  "npcs": [
+    {
+      "id": "n_mentor",
+      "name": "Chị Mơ",
+      "role": "mentor",
+      "note": "Kế toán trưởng, người hướng dẫn ở Normal"
+    },
+    {
+      "id": "n_thuquy",
+      "name": "Anh Tâm",
+      "role": "cashier"
+    },
+    {
+      "id": "n_sale",
+      "name": "Bé Na",
+      "role": "sales"
+    },
+    {
+      "id": "n_kho",
+      "name": "Chú Bền",
+      "role": "warehouse"
+    },
+    {
+      "id": "n_sep",
+      "name": "Ông Thịnh",
+      "role": "boss"
+    },
+    {
+      "id": "n_shipper",
+      "name": "Cậu Lẹ",
+      "role": "courier"
+    },
+    {
+      "id": "n_chutich",
+      "name": "Bà Diệu",
+      "role": "chair",
+      "note": "Chủ tịch HĐQT (hư cấu)"
+    },
+    {
+      "id": "n_ktv1",
+      "name": "Chị Ngân",
+      "role": "auditor_senior",
+      "note": "Trưởng nhóm kiểm toán (hư cấu, làm việc cho hãng Big Four được chọn)"
+    },
+    {
+      "id": "n_ktv2",
+      "name": "Anh Khải",
+      "role": "auditor_partner",
+      "note": "Thành viên Ban Giám đốc hãng kiểm toán ký báo cáo (hư cấu)"
+    },
+    {
+      "id": "n_ktv3",
+      "name": "Bạn Thư",
+      "role": "auditor_junior",
+      "note": "Trợ lý kiểm toán (hư cấu)"
+    }
+  ],
+  "companies": {
+    "jsc": {
+      "name": "Công ty Cổ phần Tập đoàn Đông Hồ",
+      "shortName": "Đông Hồ Group",
+      "taxId": "9952601811",
+      "note": "Cùng pháp nhân với công ty TNHH ở cấp thấp, sau khi chuyển đổi thành công ty cổ phần (hư cấu)",
+      "charterCapital": 80000000000,
+      "subsidiaries": [
+        {
+          "id": "sub_logistics",
+          "name": "Công ty TNHH Một thành viên Vận tải Đông Hồ",
+          "ownership": 100
+        },
+        {
+          "id": "sub_noithat",
+          "name": "Công ty Cổ phần Nội thất Đông Hồ Miền Nam",
+          "ownership": 65
+        }
+      ],
+      "associates": [
+        {
+          "id": "as_giay",
+          "name": "Công ty Cổ phần Bao bì Giấy Mơ",
+          "ownership": 30
+        }
+      ]
+    }
+  }
+}

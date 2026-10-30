@@ -1,0 +1,51 @@
+{
+  "version": 1,
+  "templates": [
+    {
+      "id": "deposit_cash_bank",
+      "kind": "payment",
+      "title": "Phiếu chi nộp tiền mặt vào ngân hàng",
+      "giverRoles": ["cashier"],
+      "partner": null,
+      "item": null,
+      "params": { "amount": { "step": [5000000, 50000000, 1000000] } },
+      "amounts": { "total": "amount" },
+      "paymentMethod": "cash",
+      "truth": [["N", "112", "total"], ["C", "111", "total"]],
+      "defects": ["missing_signature", "words_mismatch", "date_out_of_period"],
+      "mentorTip": "Chuyển tiền từ két sang tài khoản ngân hàng: 112 tăng (Nợ), 111 giảm (Có). Không ảnh hưởng doanh thu hay chi phí."
+    },
+    {
+      "id": "collect_customer_bank",
+      "kind": "bank_credit",
+      "title": "Giấy báo Có: khách trả nợ",
+      "giverRoles": ["courier"],
+      "partner": "customers",
+      "partnerFilter": { "hasTaxId": true },
+      "item": null,
+      "params": { "amount": { "step": [2000000, 60000000, 500000] } },
+      "amounts": { "total": "amount" },
+      "paymentMethod": "bank",
+      "requires": { "balanceAtLeast": { "131": "total" } },
+      "truth": [["N", "112", "total"], ["C", "131", "total"]],
+      "defects": ["words_mismatch", "date_out_of_period"],
+      "mentorTip": "Tiền về tài khoản (Nợ 112), khoản khách nợ giảm (Có 131)."
+    },
+    {
+      "id": "pay_supplier_bank",
+      "kind": "bank_debit",
+      "title": "Uỷ nhiệm chi: trả nợ nhà cung cấp",
+      "giverRoles": ["cashier"],
+      "partner": "suppliers",
+      "partnerFilter": { "abandoned": false },
+      "item": null,
+      "params": { "amount": { "step": [3000000, 80000000, 500000] } },
+      "amounts": { "total": "amount" },
+      "paymentMethod": "bank",
+      "requires": { "balanceAtLeast": { "331": "total", "112": "total" } },
+      "truth": [["N", "331", "total"], ["C", "112", "total"]],
+      "defects": ["missing_signature", "words_mismatch", "date_out_of_period"],
+      "mentorTip": "Trả nợ người bán: nợ phải trả giảm (Nợ 331), tiền gửi giảm (Có 112)."
+    }
+  ]
+}

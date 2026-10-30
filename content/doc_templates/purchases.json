@@ -1,0 +1,46 @@
+{
+  "version": 1,
+  "templates": [
+    {
+      "id": "purchase_credit",
+      "kind": "invoice_in",
+      "title": "Mua hàng nhập kho, chưa trả tiền",
+      "giverRoles": ["warehouse", "courier"],
+      "partner": "suppliers",
+      "item": "goods",
+      "params": { "qty": { "int": [5, 50] } },
+      "amounts": {
+        "unitCost": "round(unitPrice * costRatio / 1000) * 1000",
+        "sub": "qty * unitCost",
+        "vat": "round(sub * vatRate / 100)",
+        "total": "sub + vat"
+      },
+      "paymentMethod": "credit",
+      "truth": [["N", "156", "sub"], ["N", "1331", "vat"], ["C", "331", "total"]],
+      "defects": ["missing_signature", "words_mismatch", "wrong_total", "date_out_of_period", "wrong_vat_rate", "bad_tax_id", "duplicate_invoice", "abandoned_address"],
+      "mentorTip": "Nhập hàng chưa trả: hàng hoá tăng (Nợ 156), thuế đầu vào được khấu trừ (Nợ 1331), nợ người bán tăng (Có 331)."
+    },
+    {
+      "id": "expense_cash",
+      "kind": "invoice_in",
+      "title": "Chi phí văn phòng trả tiền mặt",
+      "giverRoles": ["cashier", "courier"],
+      "partner": "suppliers",
+      "partnerFilter": { "abandoned": false },
+      "item": "expenses",
+      "params": { "qty": { "int": [1, 4] } },
+      "amounts": {
+        "sub": "qty * unitPrice",
+        "vat": "round(sub * vatRate / 100)",
+        "total": "sub + vat"
+      },
+      "paymentMethod": "cash",
+      "truth": [["N", "$item.account", "sub"], ["N", "1331", "vat"], ["C", "111", "total"]],
+      "variants": {
+        "vat_not_deductible": [["N", "$item.account", "total"], ["C", "111", "total"]]
+      },
+      "defects": ["missing_signature", "words_mismatch", "wrong_total", "date_out_of_period", "cash_over_threshold", "bad_tax_id", "duplicate_invoice"],
+      "mentorTip": "Chi phí quản lý (Nợ 642) hoặc bán hàng (Nợ 641), thuế đầu vào (Nợ 1331), tiền mặt giảm (Có 111)."
+    }
+  ]
+}

@@ -1,0 +1,197 @@
+{
+  "version": 1,
+  "note": "Mở khoá cộng dồn: cấp N có mọi thứ của cấp < N. xp = XP tích luỹ cần để đạt cấp. accounts: thẻ hiện ở Normal (Pro luôn gõ được mọi TK không proOnly, và proOnly từ cấp mở). modes: cấp chỉ tồn tại ở các chế độ được liệt kê (thiếu khoá = mọi chế độ).",
+  "levels": [
+    {
+      "level": 1,
+      "xp": 0,
+      "title": "Thực tập sinh",
+      "templates": [
+        "sale_cash",
+        "expense_cash"
+      ],
+      "accounts": [
+        "111",
+        "511",
+        "3331",
+        "642",
+        "1331"
+      ],
+      "defects": [
+        "missing_signature",
+        "words_mismatch"
+      ],
+      "features": [
+        "desk",
+        "cash"
+      ]
+    },
+    {
+      "level": 2,
+      "xp": 300,
+      "title": "Kế toán viên tập sự",
+      "templates": [
+        "deposit_cash_bank"
+      ],
+      "accounts": [
+        "112"
+      ],
+      "defects": [
+        "wrong_total"
+      ],
+      "features": []
+    },
+    {
+      "level": 3,
+      "xp": 800,
+      "title": "Kế toán bán hàng",
+      "templates": [
+        "sale_credit",
+        "collect_customer_bank"
+      ],
+      "accounts": [
+        "131"
+      ],
+      "defects": [
+        "date_out_of_period"
+      ],
+      "features": [
+        "close"
+      ]
+    },
+    {
+      "level": 4,
+      "xp": 1500,
+      "title": "Kế toán mua hàng",
+      "templates": [
+        "purchase_credit",
+        "pay_supplier_bank"
+      ],
+      "accounts": [
+        "156",
+        "331"
+      ],
+      "defects": [
+        "cash_over_threshold"
+      ],
+      "features": [
+        "urgent_cards"
+      ]
+    },
+    {
+      "level": 5,
+      "xp": 2500,
+      "title": "Kế toán kho",
+      "templates": [
+        "cogs"
+      ],
+      "accounts": [
+        "632"
+      ],
+      "defects": [
+        "wrong_vat_rate"
+      ],
+      "features": []
+    },
+    {
+      "level": 6,
+      "xp": 4000,
+      "title": "Kế toán tổng hợp",
+      "templates": [],
+      "accounts": [
+        "153",
+        "641"
+      ],
+      "defects": [
+        "bad_tax_id",
+        "duplicate_invoice"
+      ],
+      "features": [
+        "trial_balance_by_player"
+      ]
+    },
+    {
+      "level": 9,
+      "xp": 9000,
+      "title": "Kế toán trưởng",
+      "templates": [],
+      "accounts": [
+        "152",
+        "157",
+        "242",
+        "3383",
+        "341",
+        "821"
+      ],
+      "defects": [
+        "abandoned_address"
+      ],
+      "features": []
+    },
+    {
+      "level": 10,
+      "xp": 12000,
+      "title": "Kế toán trưởng công ty cổ phần",
+      "modes": [
+        "pro"
+      ],
+      "templates": [
+        "issue_shares",
+        "declare_dividend",
+        "pay_dividend",
+        "buyback_treasury"
+      ],
+      "accounts": [
+        "4111",
+        "4112",
+        "419",
+        "3388",
+        "414"
+      ],
+      "defects": [
+        "wrong_approving_body"
+      ],
+      "features": [
+        "corporate"
+      ]
+    },
+    {
+      "level": 11,
+      "xp": 16000,
+      "title": "Kế toán trưởng công ty mẹ",
+      "modes": [
+        "pro"
+      ],
+      "templates": [
+        "invest_subsidiary"
+      ],
+      "accounts": [
+        "221",
+        "222",
+        "228",
+        "343"
+      ],
+      "defects": [
+        "related_party_unapproved"
+      ],
+      "features": [
+        "group"
+      ]
+    },
+    {
+      "level": 12,
+      "xp": 21000,
+      "title": "Giám đốc tài chính tập đoàn",
+      "modes": [
+        "pro"
+      ],
+      "templates": [],
+      "accounts": [],
+      "defects": [],
+      "features": [
+        "audit",
+        "consolidation"
+      ]
+    }
+  ]
+}

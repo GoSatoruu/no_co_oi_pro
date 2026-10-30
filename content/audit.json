@@ -1,0 +1,64 @@
+{
+  "version": 1,
+  "note": "Gói kiểm toán độc lập — chỉ Pro, từ cấp 12 (docs/10). Hãng kiểm toán chỉ gồm Big Four (ADR-012). Bốn hãng có CƠ CHẾ GIỐNG HỆT NHAU; không gán tính cách, độ khó, điểm mạnh yếu hay hành vi sai trái cho hãng thật. Nhân sự kiểm toán là NPC hư cấu (pools.npcs role auditor_*).",
+  "firms": [
+    { "id": "deloitte", "brand": "Deloitte", "legalName": "Công ty TNHH Deloitte Việt Nam [cần kiểm tên pháp nhân]" },
+    { "id": "pwc",      "brand": "PwC",      "legalName": "Công ty TNHH PwC (Việt Nam) [cần kiểm tên pháp nhân]" },
+    { "id": "ey",       "brand": "EY",       "legalName": "Công ty TNHH Ernst & Young Việt Nam [cần kiểm tên pháp nhân]" },
+    { "id": "kpmg",     "brand": "KPMG",     "legalName": "Công ty TNHH KPMG [cần kiểm tên pháp nhân]" }
+  ],
+  "portrayalRules": [
+    "Không dùng logo, màu thương hiệu, phông chữ hay khẩu hiệu của hãng. Chỉ hiện tên chữ thường trong giao diện.",
+    "Hãng và nhân sự kiểm toán luôn hành xử chuyên nghiệp. Mọi tình huống sai trái (hối lộ, che giấu, ép ký) chỉ xuất phát từ nhân vật hư cấu phía khách hàng, và người chơi phải từ chối.",
+    "Không có lựa chọn nào giúp 'mua' ý kiến kiểm toán tốt hơn. Lựa chọn gian lận luôn dẫn tới hậu quả nặng hơn (GDD §7)."
+  ],
+  "engagement": {
+    "rotationYears": 3,
+    "rotationRuleRef": "ktdl_luanchuyen",
+    "feeRangeVnd": [450000000, 1200000000],
+    "deadlineDaysAfterYearEnd": 90,
+    "deadlineNote": "Hạn công bố BCTC năm đã kiểm toán của công ty đại chúng — game dùng 90 ngày [cần kiểm theo quy định công bố thông tin hiện hành]"
+  },
+  "materiality": {
+    "note": "Game đơn giản hoá VSA 320: chọn tiêu chí nhỏ hơn trong hai mức sau. Trọng yếu thực hiện = 75% trọng yếu tổng thể. Sai sót dưới ngưỡng bỏ qua = 5% trọng yếu tổng thể.",
+    "benchmarks": [
+      { "id": "pbt",     "label": "Lợi nhuận trước thuế", "percent": 5 },
+      { "id": "revenue", "label": "Doanh thu thuần",      "percent": 1 }
+    ],
+    "performancePercent": 75,
+    "clearlyTrivialPercent": 5
+  },
+  "stages": [
+    { "id": "audit_planning",       "title": "Lập kế hoạch",           "player": "Chọn hãng (một trong Big Four, theo luân chuyển), ký hợp đồng, nộp danh mục tài liệu cần chuẩn bị." },
+    { "id": "audit_fieldwork",      "title": "Kiểm toán tại đơn vị",   "player": "Đáp ứng yêu cầu tài liệu trong thời hạn, xử lý thư xác nhận số dư không khớp, giải thích nghiệp vụ được chọn mẫu." },
+    { "id": "audit_adjustments",    "title": "Bút toán điều chỉnh",    "player": "Xem danh sách sai sót kiểm toán phát hiện; với mỗi sai sót: đồng ý ghi bút toán điều chỉnh, hoặc giải trình có chứng cứ nếu kiểm toán viên hiểu sai." },
+    { "id": "audit_representation", "title": "Thư giải trình",         "player": "Rà và trình Ban Giám đốc ký thư giải trình; thuyết minh đủ giao dịch bên liên quan." },
+    { "id": "audit_opinion",        "title": "Ý kiến kiểm toán",       "player": "Nhận báo cáo kiểm toán và hậu quả của loại ý kiến." }
+  ],
+  "requests": [
+    { "id": "bank_confirm",   "title": "Thư xác nhận số dư ngân hàng",          "accounts": ["112", "341"], "ruleRef": "vsa_505_530" },
+    { "id": "ar_confirm",     "title": "Thư xác nhận công nợ phải thu",         "accounts": ["131"],        "ruleRef": "vsa_505_530" },
+    { "id": "ap_confirm",     "title": "Thư xác nhận công nợ phải trả",         "accounts": ["331"],        "ruleRef": "vsa_505_530" },
+    { "id": "vouching",       "title": "Chọn mẫu nghiệp vụ đối chiếu chứng từ",  "accounts": ["*"],          "ruleRef": "vsa_505_530" },
+    { "id": "cash_count",     "title": "Chứng kiến kiểm kê quỹ",                "accounts": ["111"] },
+    { "id": "stock_count",    "title": "Chứng kiến kiểm kê hàng tồn kho",       "accounts": ["156"] },
+    { "id": "equity_minutes", "title": "Biên bản, nghị quyết ĐHĐCĐ và HĐQT",    "accounts": ["4111", "4112", "419", "421", "3388"] },
+    { "id": "related_party",  "title": "Danh sách bên liên quan và giao dịch",  "accounts": ["*"],          "ruleRef": "vas26_lienquan" }
+  ],
+  "findings": {
+    "note": "Sai sót kiểm toán = các sai sót ẩn còn trong sổ người chơi (bút toán lệch đáp án) cộng các thiếu sót thủ tục. Mỗi sai sót mang chênh lệch theo tài khoản; kiểm toán đề xuất bút toán điều chỉnh đưa sổ về đáp án.",
+    "procedural": [
+      { "id": "late_request",       "title": "Nộp tài liệu trễ hạn",                    "effect": "scope_limitation_risk" },
+      { "id": "unconfirmed_balance","title": "Số dư không được xác nhận, chưa giải thích","effect": "scope_limitation_risk" },
+      { "id": "rp_undisclosed",     "title": "Giao dịch bên liên quan chưa thuyết minh",  "effect": "misstatement" }
+    ]
+  },
+  "opinions": [
+    { "id": "unmodified",  "title": "Chấp nhận toàn phần",       "when": "Sai sót chưa điều chỉnh ≤ trọng yếu tổng thể và không bị giới hạn phạm vi",                     "reputation": 10,  "share": 0 },
+    { "id": "emphasis",    "title": "Chấp nhận toàn phần, có đoạn nhấn mạnh", "when": "Như trên nhưng có vấn đề cần lưu ý (vd hoạt động liên tục, sự kiện sau ngày khoá sổ)", "reputation": 5,   "share": -2 },
+    { "id": "qualified",   "title": "Ngoại trừ",                 "when": "Sai sót chưa điều chỉnh vượt trọng yếu nhưng không lan toả, hoặc giới hạn phạm vi một phần",      "reputation": -15, "share": -8 },
+    { "id": "adverse",     "title": "Trái ngược",                "when": "Sai sót chưa điều chỉnh trọng yếu và lan toả",                                                  "reputation": -40, "share": -25 },
+    { "id": "disclaimer",  "title": "Từ chối đưa ra ý kiến",     "when": "Giới hạn phạm vi trọng yếu và lan toả (không cung cấp tài liệu, từ chối ký thư giải trình)",     "reputation": -50, "share": -30 }
+  ],
+  "opinionNote": "reputation: thay đổi uy tín người chơi; share: % thay đổi giá cổ phiếu trong game của công ty (nếu niêm yết). Số liệu là cân chỉnh trò chơi, không phải thống kê thật."
+}

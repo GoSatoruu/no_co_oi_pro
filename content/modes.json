@@ -1,0 +1,145 @@
+{
+  "version": 1,
+  "note": "Mỗi chế độ là một bộ tham số. Code chỉ đọc cờ, không if (mode.id === 'pro'). Thời gian tính bằng giây. hints.legalPanel: bảng pháp luật bên cạnh nhiệm vụ (docs/08 §6). features: gói nội dung mở thêm cho chế độ (docs/09, docs/10).",
+  "modes": [
+    {
+      "id": "normal",
+      "name": "Thường",
+      "description": "Có người hướng dẫn, thẻ tài khoản theo cấp, chọn số tiền từ nút gợi ý.",
+      "flow": [
+        "morning",
+        "desk",
+        "cash",
+        "close"
+      ],
+      "hints": {
+        "mentor": true,
+        "mentorLevels": 2,
+        "softWarnOnWrongEntry": true,
+        "legalPanel": {
+          "enabled": true,
+          "showMentorTips": true,
+          "defaultOpen": false
+        }
+      },
+      "input": {
+        "account": "cards",
+        "amount": "buttons",
+        "multiLine": false,
+        "decoyAmounts": 3
+      },
+      "queue": {
+        "size": 5,
+        "patienceSec": 75,
+        "shiftSec": 240,
+        "urgentCardsFromLevel": 4
+      },
+      "defects": {
+        "rate": 0.25,
+        "tiers": [
+          "basic"
+        ]
+      },
+      "hiddenErrors": {
+        "reveal": "cash_and_close"
+      },
+      "scoring": {
+        "multiplier": 1.0,
+        "points": {
+          "inspectCorrect": 40,
+          "entryCorrect": 100,
+          "speedBonusMax": 30
+        },
+        "penalties": {
+          "walkout": 20,
+          "wrongReject": 30,
+          "hiddenErrorRevealed": 60
+        },
+        "reputation": {
+          "walkout": -3,
+          "hiddenErrorRevealed": -5,
+          "cleanMonth": 5
+        }
+      },
+      "startLevels": [
+        1
+      ],
+      "leaderboard": "normal",
+      "serverVerified": false,
+      "features": []
+    },
+    {
+      "id": "pro",
+      "name": "Pro",
+      "description": "Không gợi ý. Gõ số hiệu tài khoản và số tiền, bút toán nhiều dòng, lỗi khó, sai sót ẩn chỉ lộ khi kiểm quỹ hay khoá sổ.",
+      "flow": [
+        "morning",
+        "desk",
+        "cash",
+        "close"
+      ],
+      "hints": {
+        "mentor": false,
+        "mentorLevels": 0,
+        "softWarnOnWrongEntry": false,
+        "legalPanel": {
+          "enabled": true,
+          "showMentorTips": false,
+          "defaultOpen": true
+        }
+      },
+      "input": {
+        "account": "typed",
+        "amount": "typed",
+        "multiLine": true,
+        "decoyAmounts": 0
+      },
+      "queue": {
+        "size": 7,
+        "patienceSec": 50,
+        "shiftSec": 240,
+        "urgentCardsFromLevel": 1
+      },
+      "defects": {
+        "rate": 0.35,
+        "tiers": [
+          "basic",
+          "advanced"
+        ]
+      },
+      "hiddenErrors": {
+        "reveal": "cash_and_close"
+      },
+      "scoring": {
+        "multiplier": 1.5,
+        "points": {
+          "inspectCorrect": 40,
+          "entryCorrect": 100,
+          "speedBonusMax": 50
+        },
+        "penalties": {
+          "walkout": 30,
+          "wrongReject": 50,
+          "hiddenErrorRevealed": 120
+        },
+        "reputation": {
+          "walkout": -5,
+          "hiddenErrorRevealed": -10,
+          "cleanMonth": 5
+        }
+      },
+      "startLevels": [
+        1,
+        5,
+        9
+      ],
+      "leaderboard": "pro",
+      "serverVerified": true,
+      "features": [
+        "corporate",
+        "group",
+        "audit"
+      ]
+    }
+  ]
+}

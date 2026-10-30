@@ -1,0 +1,1 @@
+{ "version": 1, "note": "Chữ hiển thị. Khoá dạng nhóm.tên. Chưa dùng ở MVP — xem ROADMAP M2.", "strings": { "app.title": "Nợ Có Ơi Pro", "mode.normal": "Thường", "mode.pro": "Pro", "desk.valid": "Hợp lệ", "desk.reject": "Trả lại", "desk.stamp": "Đóng dấu", "desk.post": "Ghi sổ", "side.N": "Nợ", "side.C": "Có" } }

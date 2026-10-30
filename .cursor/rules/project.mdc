@@ -1,0 +1,9 @@
+---
+description: Luật dự án Nợ Có Ơi Pro (game kế toán) — luôn áp dụng
+globs: ["**/*"]
+alwaysApply: true
+---
+
+Đọc `AGENTS.md` ở thư mục gốc và làm theo. Đó là nguồn luật duy nhất.
+Trước khi sửa: nhận việc trong `ai/TASKS.md`. Sau khi sửa: thêm mục vào cuối `ai/HANDOFF.md`.
+Không framework, không build. Lõi `frontend/js/core/` không đụng DOM. Tiền là số nguyên VND.

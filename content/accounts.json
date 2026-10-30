@@ -1,0 +1,324 @@
+{
+  "version": 1,
+  "standard": "TT 99/2025/TT-BTC (thay TT 200/2014) [cần kiểm danh mục chi tiết]",
+  "note": "Chỉ gồm tài khoản game dùng. normal: bên số dư thông thường. contra: tài khoản điều chỉnh giảm. proOnly: chỉ hiện ở Pro trước cấp mở khoá. Tên TK cấp 2 của 411 theo TT 99 (4111 Vốn góp của chủ sở hữu, 4112 Thặng dư vốn) [cần kiểm toàn văn].",
+  "accounts": [
+    {
+      "code": "111",
+      "name": "Tiền mặt",
+      "type": "asset",
+      "normal": "N"
+    },
+    {
+      "code": "112",
+      "name": "Tiền gửi ngân hàng",
+      "type": "asset",
+      "normal": "N"
+    },
+    {
+      "code": "131",
+      "name": "Phải thu của khách hàng",
+      "type": "asset",
+      "normal": "N"
+    },
+    {
+      "code": "133",
+      "name": "Thuế GTGT được khấu trừ",
+      "type": "asset",
+      "normal": "N"
+    },
+    {
+      "code": "1331",
+      "name": "Thuế GTGT được khấu trừ của hàng hoá, dịch vụ",
+      "type": "asset",
+      "normal": "N",
+      "parent": "133"
+    },
+    {
+      "code": "141",
+      "name": "Tạm ứng",
+      "type": "asset",
+      "normal": "N"
+    },
+    {
+      "code": "152",
+      "name": "Nguyên liệu, vật liệu",
+      "type": "asset",
+      "normal": "N",
+      "proOnly": true
+    },
+    {
+      "code": "153",
+      "name": "Công cụ, dụng cụ",
+      "type": "asset",
+      "normal": "N"
+    },
+    {
+      "code": "156",
+      "name": "Hàng hoá",
+      "type": "asset",
+      "normal": "N"
+    },
+    {
+      "code": "157",
+      "name": "Hàng gửi đi bán",
+      "type": "asset",
+      "normal": "N",
+      "proOnly": true
+    },
+    {
+      "code": "211",
+      "name": "Tài sản cố định hữu hình",
+      "type": "asset",
+      "normal": "N"
+    },
+    {
+      "code": "214",
+      "name": "Hao mòn tài sản cố định",
+      "type": "asset",
+      "normal": "C",
+      "contra": true
+    },
+    {
+      "code": "221",
+      "name": "Đầu tư vào công ty con",
+      "type": "asset",
+      "normal": "N",
+      "proOnly": true
+    },
+    {
+      "code": "222",
+      "name": "Đầu tư vào công ty liên doanh, liên kết",
+      "type": "asset",
+      "normal": "N",
+      "proOnly": true
+    },
+    {
+      "code": "228",
+      "name": "Đầu tư khác",
+      "type": "asset",
+      "normal": "N",
+      "proOnly": true
+    },
+    {
+      "code": "242",
+      "name": "Chi phí chờ phân bổ",
+      "type": "asset",
+      "normal": "N",
+      "proOnly": true
+    },
+    {
+      "code": "331",
+      "name": "Phải trả cho người bán",
+      "type": "liability",
+      "normal": "C"
+    },
+    {
+      "code": "333",
+      "name": "Thuế và các khoản phải nộp Nhà nước",
+      "type": "liability",
+      "normal": "C"
+    },
+    {
+      "code": "3331",
+      "name": "Thuế GTGT phải nộp",
+      "type": "liability",
+      "normal": "C",
+      "parent": "333"
+    },
+    {
+      "code": "3334",
+      "name": "Thuế thu nhập doanh nghiệp",
+      "type": "liability",
+      "normal": "C",
+      "parent": "333"
+    },
+    {
+      "code": "3335",
+      "name": "Thuế thu nhập cá nhân",
+      "type": "liability",
+      "normal": "C",
+      "parent": "333"
+    },
+    {
+      "code": "334",
+      "name": "Phải trả người lao động",
+      "type": "liability",
+      "normal": "C"
+    },
+    {
+      "code": "338",
+      "name": "Phải trả, phải nộp khác",
+      "type": "liability",
+      "normal": "C"
+    },
+    {
+      "code": "3383",
+      "name": "Bảo hiểm xã hội",
+      "type": "liability",
+      "normal": "C",
+      "parent": "338",
+      "proOnly": true
+    },
+    {
+      "code": "3388",
+      "name": "Phải trả, phải nộp khác",
+      "type": "liability",
+      "normal": "C",
+      "parent": "338",
+      "proOnly": true
+    },
+    {
+      "code": "341",
+      "name": "Vay và nợ thuê tài chính",
+      "type": "liability",
+      "normal": "C",
+      "proOnly": true
+    },
+    {
+      "code": "343",
+      "name": "Trái phiếu phát hành",
+      "type": "liability",
+      "normal": "C",
+      "proOnly": true
+    },
+    {
+      "code": "411",
+      "name": "Vốn đầu tư của chủ sở hữu",
+      "type": "equity",
+      "normal": "C"
+    },
+    {
+      "code": "4111",
+      "name": "Vốn góp của chủ sở hữu",
+      "type": "equity",
+      "normal": "C",
+      "parent": "411",
+      "proOnly": true
+    },
+    {
+      "code": "4112",
+      "name": "Thặng dư vốn",
+      "type": "equity",
+      "normal": "C",
+      "parent": "411",
+      "proOnly": true
+    },
+    {
+      "code": "414",
+      "name": "Quỹ đầu tư phát triển",
+      "type": "equity",
+      "normal": "C",
+      "proOnly": true
+    },
+    {
+      "code": "419",
+      "name": "Cổ phiếu mua lại của chính mình",
+      "type": "equity",
+      "normal": "N",
+      "contra": true,
+      "proOnly": true
+    },
+    {
+      "code": "421",
+      "name": "Lợi nhuận sau thuế chưa phân phối",
+      "type": "equity",
+      "normal": "C"
+    },
+    {
+      "code": "511",
+      "name": "Doanh thu bán hàng và cung cấp dịch vụ",
+      "type": "revenue",
+      "normal": "C"
+    },
+    {
+      "code": "515",
+      "name": "Doanh thu hoạt động tài chính",
+      "type": "revenue",
+      "normal": "C"
+    },
+    {
+      "code": "632",
+      "name": "Giá vốn hàng bán",
+      "type": "expense",
+      "normal": "N"
+    },
+    {
+      "code": "635",
+      "name": "Chi phí tài chính",
+      "type": "expense",
+      "normal": "N"
+    },
+    {
+      "code": "641",
+      "name": "Chi phí bán hàng",
+      "type": "expense",
+      "normal": "N"
+    },
+    {
+      "code": "642",
+      "name": "Chi phí quản lý doanh nghiệp",
+      "type": "expense",
+      "normal": "N"
+    },
+    {
+      "code": "711",
+      "name": "Thu nhập khác",
+      "type": "revenue",
+      "normal": "C"
+    },
+    {
+      "code": "811",
+      "name": "Chi phí khác",
+      "type": "expense",
+      "normal": "N"
+    },
+    {
+      "code": "821",
+      "name": "Chi phí thuế thu nhập doanh nghiệp",
+      "type": "expense",
+      "normal": "N",
+      "proOnly": true
+    },
+    {
+      "code": "911",
+      "name": "Xác định kết quả kinh doanh",
+      "type": "closing",
+      "normal": "C"
+    }
+  ],
+  "opening": {
+    "date": "2026-01-01",
+    "note": "Số dư đầu kỳ của công ty trong game (Nợ dương, Có âm). Tổng phải bằng 0.",
+    "balances": {
+      "111": 80000000,
+      "112": 450000000,
+      "131": 60000000,
+      "156": 210000000,
+      "211": 300000000,
+      "214": -90000000,
+      "331": -110000000,
+      "411": -800000000,
+      "421": -100000000
+    }
+  },
+  "openingProfiles": {
+    "note": "Hồ sơ số dư đầu kỳ theo giai đoạn nghề. 'default' = khối opening ở trên. Pro từ cấp 10 chuyển sang công ty cổ phần (docs/09 §2).",
+    "jsc_group": {
+      "date": "2026-01-01",
+      "company": "jsc",
+      "balances": {
+        "111": 2000000000,
+        "112": 40000000000,
+        "131": 15000000000,
+        "156": 25000000000,
+        "211": 60000000000,
+        "214": -18000000000,
+        "331": -12000000000,
+        "4111": -80000000000,
+        "4112": -12000000000,
+        "421": -20000000000
+      }
+    }
+  }
+}

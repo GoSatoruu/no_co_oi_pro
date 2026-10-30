@@ -1,0 +1,143 @@
+{
+  "version": 1,
+  "note": "Loại lỗi chứng từ. op: cách làm hỏng chứng từ (mỗi op có hàm cùng tên ở core/defects.js và engine/defects.py). action: reject = trả lại, không ghi sổ; stamp = vẫn ghi sổ nhưng phải đóng dấu và dùng bút toán variant.",
+  "defects": [
+    {
+      "code": "missing_signature",
+      "tier": "basic",
+      "kinds": [
+        "*"
+      ],
+      "field": "signature",
+      "op": "clear",
+      "action": "reject",
+      "explain": "Chứng từ thiếu chữ ký của người có trách nhiệm thì chưa đủ căn cứ ghi sổ."
+    },
+    {
+      "code": "words_mismatch",
+      "tier": "basic",
+      "kinds": [
+        "*"
+      ],
+      "field": "amountInWords",
+      "op": "words_of_other_amount",
+      "action": "reject",
+      "explain": "Số tiền bằng chữ phải khớp số tiền bằng số."
+    },
+    {
+      "code": "wrong_total",
+      "tier": "basic",
+      "kinds": [
+        "invoice_out",
+        "invoice_in"
+      ],
+      "field": "total",
+      "op": "total_off_by",
+      "params": {
+        "deltas": [
+          1000,
+          10000,
+          100000
+        ]
+      },
+      "action": "reject",
+      "explain": "Tổng thanh toán phải bằng tiền hàng cộng thuế GTGT."
+    },
+    {
+      "code": "date_out_of_period",
+      "tier": "basic",
+      "kinds": [
+        "*"
+      ],
+      "field": "date",
+      "op": "date_shift_out_of_period",
+      "action": "reject",
+      "explain": "Ngày chứng từ nằm ngoài kỳ đang ghi sổ."
+    },
+    {
+      "code": "cash_over_threshold",
+      "tier": "basic",
+      "kinds": [
+        "invoice_in"
+      ],
+      "field": "paymentMethod",
+      "op": "force_cash_over_threshold",
+      "action": "stamp",
+      "variant": "vat_not_deductible",
+      "explain": "Mua từ ngưỡng luật định trở lên mà trả tiền mặt thì thuế GTGT đầu vào không được khấu trừ, tính vào chi phí.",
+      "ruleRef": "vat.cashPaymentMaxForDeduction"
+    },
+    {
+      "code": "wrong_vat_rate",
+      "tier": "advanced",
+      "kinds": [
+        "invoice_out",
+        "invoice_in"
+      ],
+      "field": "vatRate",
+      "op": "swap_vat_rate",
+      "action": "reject",
+      "explain": "Thuế suất trên hoá đơn không đúng với mặt hàng tại ngày lập."
+    },
+    {
+      "code": "bad_tax_id",
+      "tier": "advanced",
+      "kinds": [
+        "invoice_out",
+        "invoice_in"
+      ],
+      "field": "partnerTaxId",
+      "op": "break_tax_id_checksum",
+      "action": "reject",
+      "explain": "Mã số thuế sai chữ số kiểm tra."
+    },
+    {
+      "code": "duplicate_invoice",
+      "tier": "advanced",
+      "kinds": [
+        "invoice_in"
+      ],
+      "field": "invoiceNo",
+      "op": "reuse_posted_invoice_no",
+      "action": "reject",
+      "explain": "Hoá đơn này đã ghi sổ trước đó. Ghi lần nữa là ghi trùng."
+    },
+    {
+      "code": "abandoned_address",
+      "tier": "advanced",
+      "kinds": [
+        "invoice_in"
+      ],
+      "field": "seller",
+      "op": "use_abandoned_partner",
+      "action": "reject",
+      "explain": "Người bán thuộc danh sách bỏ địa chỉ kinh doanh, hoá đơn không được dùng để khấu trừ."
+    },
+    {
+      "code": "wrong_approving_body",
+      "tier": "advanced",
+      "kinds": [
+        "resolution"
+      ],
+      "field": "approvedBy",
+      "op": "swap_approving_body",
+      "action": "reject",
+      "explain": "Việc này phải do đúng cơ quan có thẩm quyền thông qua (Đại hội đồng cổ đông hay Hội đồng quản trị theo Luật Doanh nghiệp và Điều lệ). Nghị quyết của cơ quan không có thẩm quyền chưa đủ căn cứ ghi sổ."
+    },
+    {
+      "code": "related_party_unapproved",
+      "tier": "advanced",
+      "kinds": [
+        "invoice_in",
+        "invoice_out"
+      ],
+      "field": "approvalRef",
+      "op": "strip_related_party_approval",
+      "action": "reject",
+      "explain": "Giao dịch với người có liên quan vượt ngưỡng phải được ĐHĐCĐ hoặc HĐQT chấp thuận trước. Thiếu văn bản chấp thuận thì trả lại để bổ sung.",
+      "modes": [
+        "pro"
+      ]
+    }
+  ]
+}

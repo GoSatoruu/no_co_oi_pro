@@ -1,0 +1,61 @@
+{
+  "version": 1,
+  "note": "Luật có ngày hiệu lực. Mỗi khoá là danh sách mốc {from, to?, value, source}. Code chỉ đọc qua ruleAt(key, date). Chưa chắc thì ghi [cần kiểm] trong source.",
+  "rules": {
+    "vat.rate.goods": [
+      {
+        "from": "2025-07-01",
+        "to": "2026-12-31",
+        "value": 8,
+        "source": "NQ 204/2025/QH15 giảm 2% thuế GTGT [cần kiểm phạm vi hàng hoá]"
+      },
+      {
+        "from": "2027-01-01",
+        "value": 10,
+        "source": "Luật Thuế GTGT 48/2024/QH15 — mức thông thường"
+      }
+    ],
+    "vat.rate.standard": [
+      {
+        "from": "2025-07-01",
+        "value": 10,
+        "source": "Luật Thuế GTGT 48/2024/QH15 — dịch vụ không thuộc diện giảm"
+      }
+    ],
+    "vat.rate.reduced5": [
+      {
+        "from": "2025-07-01",
+        "value": 5,
+        "source": "Luật Thuế GTGT 48/2024/QH15 điều 9 (nước sạch, sách…)"
+      }
+    ],
+    "vat.cashPaymentMaxForDeduction": [
+      {
+        "from": "2025-07-01",
+        "value": 5000000,
+        "source": "Luật Thuế GTGT 48/2024/QH15 + NĐ 181/2025: từ 5 triệu (gồm thuế) phải thanh toán không dùng tiền mặt mới được khấu trừ [cần kiểm]"
+      }
+    ],
+    "money.rounding": [
+      {
+        "from": "2000-01-01",
+        "value": "half_up",
+        "source": "Quy ước game: làm tròn tới đồng, .5 lên"
+      }
+    ],
+    "jsc.parValue": [
+      {
+        "from": "2020-01-01",
+        "value": 10000,
+        "source": "Luật Chứng khoán 54/2019/QH14: mệnh giá cổ phiếu chào bán ra công chúng 10.000 đ [cần kiểm điều khoản]"
+      }
+    ],
+    "pit.dividendRate": [
+      {
+        "from": "2009-01-01",
+        "value": 5,
+        "source": "Thuế TNCN từ đầu tư vốn (cổ tức) 5% — Luật TNCN; cần đối chiếu Luật TNCN 109/2025/QH15 áp dụng từ 2026 [cần kiểm]"
+      }
+    ]
+  }
+}
