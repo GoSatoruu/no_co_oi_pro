@@ -171,3 +171,49 @@
 
 **Cần người khác**
 - Làn A: CORE-003…007 để mở khoá PY-002/003/006.
+
+## 2026-10-31 · CORE-003 (+ phần money_words của PY-002, QA-001) · claude-opus-5.5 · review
+
+**Tóm tắt**
+- Có hàm đọc số tiền VND thành chữ ở cả JS và Python, khớp nhau trên golden 21 ca; đề xuất cách đọc nhóm 000 cho OWN-003.
+
+**File đã đổi**
+
+| File | Thêm / Sửa / Xoá | Đổi gì |
+|---|---|---|
+| `frontend/js/core/money-words.js` | Thêm | `moneyToWords(n)`: số nguyên 0…2^53−1, ném `RangeError` khi sai kiểu/âm/thực |
+| `backend/app/engine/money_words.py` | Thêm | `money_to_words(n)` song sinh, ném `ValueError` (kể cả `bool`) |
+| `tests/golden/money_words.json` | Thêm | `{note, cases:[{amount, words}]}`, 21 ca: 4 ca docs/07 §6, mốt/tư/lăm/linh, nhóm 000, nghìn tỷ |
+| `tests/js/golden.test.js` | Sửa | Thêm test golden `moneyToWords` |
+| `tests/js/money-words.test.js` | Thêm | Từ chối đầu vào xấu; chuỗi của `MAX_SAFE_INTEGER` |
+| `backend/tests/test_golden.py` | Sửa | `test_money_words_matches_golden`, `test_money_words_rejects_bad_input` |
+| `docs/07_ACCOUNTING_RULES.md` | Sửa | §6 ghi đề xuất nhóm 000 đang dùng |
+| `backend/README.md` | Sửa | engine có thêm `money_words.py` |
+| `ai/TASKS.md` | Sửa | CORE-003 → review, khai thêm file golden và Python |
+
+**Hành vi thay đổi**
+- Trước: chưa có cách đọc số thành chữ; op `words_of_other_amount` (CORE-006) chưa làm được.
+- Giờ: `moneyToWords(15008000)` → "Mười lăm triệu không trăm linh tám nghìn đồng". Nhóm 000 ở giữa bị bỏ: 1.000.250.000 → "Một tỷ hai trăm năm mươi nghìn đồng". Nhóm đứng sau nhóm khác 0 luôn đọc đủ "không trăm"/"linh". Trên tỷ đọc lồng: 10^12 → "Một nghìn tỷ đồng".
+
+**Kiểm tra**
+- `node --test tests/js/` → 19 pass, 0 fail.
+- `python tools/validate_content.py` → 0 lỗi, 0 cảnh báo.
+- `python -m pytest` **chưa chạy được**: máy này (Python 3.15) không có pytest. Đã chạy thay bằng `python -c` gọi `money_to_words` trên 21 ca golden → 0 lệch; 5 đầu vào xấu đều ném `ValueError`.
+
+**README**
+- Đã cập nhật: bảng Tính năng (thêm dòng đọc số thành chữ), Nhật ký thay đổi.
+
+**Quyết định / giả định**
+- Bỏ nhóm 000 ở giữa (cách đọc phổ biến trên chứng từ), chờ OWN-003. Đổi thì chỉ sửa golden + `group(…, full)` hai bên.
+- "lăm" dùng cả sau "mười" (15) và sau "mươi"; "tư" chỉ sau "mươi" (14 = "mười bốn"), đúng docs/07 §6.
+
+**⚠ Đổi hợp đồng**
+- Không.
+
+**Chưa xong / rủi ro**
+- PY-002 còn `rules.py`, `ledger.py`, `grader.py` (chờ CORE-004/005).
+- CORE-001, CORE-002, FE-001 đã có code từ commit trước nhưng TASKS vẫn ghi `todo`; không sửa vì không phải việc của tôi — lead nên đối chiếu.
+
+**Cần người khác**
+- Chủ dự án: duyệt OWN-003 dựa trên `tests/golden/money_words.json`.
+- Chạy `cd backend && python -m pytest -q` ở máy có pytest.

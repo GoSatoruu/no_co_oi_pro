@@ -44,7 +44,7 @@ Trường người chơi có thể chạm để bắt lỗi:
 - 15.008.000 → "Mười lăm triệu không trăm linh tám nghìn đồng"
 - 21.000.000 → "Hai mươi mốt triệu đồng"
 - 105.000 → "Một trăm linh năm nghìn đồng"
-- Số có cả một nhóm 000 ở giữa (vd 1.000.250.000): **chưa chốt** bỏ nhóm hay đọc "không trăm". QA-001 đề xuất trong `tests/golden/money_words.json`, chủ dự án duyệt.
+- Số có cả một nhóm 000 ở giữa (vd 1.000.250.000): **chưa chốt** bỏ nhóm hay đọc "không trăm". Đề xuất (CORE-003) đang dùng trong `tests/golden/money_words.json`: **bỏ nhóm** → "Một tỷ hai trăm năm mươi nghìn đồng"; nhóm sau một nhóm khác 0 vẫn đọc đủ "không trăm"/"linh" (1.000.000.001 → "Một tỷ không trăm linh một đồng"). Trên nghìn tỷ đọc lồng: "Một nghìn tỷ đồng". Chờ chủ dự án duyệt (OWN-003).
 
 > Chú thích: cách đọc "linh"/"lẻ", "mốt", "lăm", "tư" có biến thể vùng miền. Game dùng **"linh", "mốt", "lăm", "tư" (sau hai mươi trở đi)** và ghi rõ trong golden.
 

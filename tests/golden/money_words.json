@@ -1,0 +1,89 @@
+{
+  "note": "docs/07 §6. Nhóm 000 ở giữa (vd 1.000.250.000) được BỎ QUA, không đọc \"không trăm triệu\" — đề xuất của QA-001, chờ OWN-003 duyệt.",
+  "cases": [
+    {
+      "amount": 0,
+      "words": "Không đồng"
+    },
+    {
+      "amount": 5,
+      "words": "Năm đồng"
+    },
+    {
+      "amount": 10,
+      "words": "Mười đồng"
+    },
+    {
+      "amount": 14,
+      "words": "Mười bốn đồng"
+    },
+    {
+      "amount": 15,
+      "words": "Mười lăm đồng"
+    },
+    {
+      "amount": 21,
+      "words": "Hai mươi mốt đồng"
+    },
+    {
+      "amount": 24,
+      "words": "Hai mươi tư đồng"
+    },
+    {
+      "amount": 25,
+      "words": "Hai mươi lăm đồng"
+    },
+    {
+      "amount": 101,
+      "words": "Một trăm linh một đồng"
+    },
+    {
+      "amount": 111,
+      "words": "Một trăm mười một đồng"
+    },
+    {
+      "amount": 1005,
+      "words": "Một nghìn không trăm linh năm đồng"
+    },
+    {
+      "amount": 1050,
+      "words": "Một nghìn không trăm năm mươi đồng"
+    },
+    {
+      "amount": 105000,
+      "words": "Một trăm linh năm nghìn đồng"
+    },
+    {
+      "amount": 1100000,
+      "words": "Một triệu một trăm nghìn đồng"
+    },
+    {
+      "amount": 15008000,
+      "words": "Mười lăm triệu không trăm linh tám nghìn đồng"
+    },
+    {
+      "amount": 21000000,
+      "words": "Hai mươi mốt triệu đồng"
+    },
+    {
+      "amount": 1000250000,
+      "words": "Một tỷ hai trăm năm mươi nghìn đồng"
+    },
+    {
+      "amount": 1000050000,
+      "words": "Một tỷ không trăm năm mươi nghìn đồng"
+    },
+    {
+      "amount": 1000000001,
+      "words": "Một tỷ không trăm linh một đồng"
+    },
+    {
+      "amount": 1000000000000,
+      "words": "Một nghìn tỷ đồng"
+    },
+    {
+      "amount": 2000000005000,
+      "words": "Hai nghìn tỷ không trăm linh năm nghìn đồng"
+    }
+  ]
+}

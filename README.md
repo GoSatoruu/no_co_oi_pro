@@ -31,6 +31,7 @@ Lấy cảm hứng về cơ chế từ "Nợ Có Ơi" (JoyUp); toàn bộ code, 
 | Bảng xếp hạng và điểm Thường (`/api/leaderboard`, `/api/scores`, giới hạn 30 lần/giờ/IP; chưa có giao diện) | Thường, Pro | Chạy được | docs/05 §3 |
 | Ván xếp hạng Pro: xin đề `/api/runs` (chưa có giao diện) | Pro | Chạy được | docs/05 §2 |
 | Máy chủ chấm lại ván Pro (`/api/runs/{id}/submit`; hiện trả 501, chờ PY-003) | Pro | Mới có thiết kế | docs/05 §2 |
+| Đọc số tiền thành chữ (`moneyToWords`, JS và Python cho cùng chuỗi; cách đọc nhóm 000 chờ OWN-003) | — | Chạy được | docs/07 §6, `tests/golden/money_words.json` |
 | Kiểm tra nội dung tự động (`tools/validate_content.py`) | — | Chạy được | docs/04 |
 
 ## Chạy thử
@@ -79,6 +80,9 @@ cd backend && python -m pytest -q     # Python
 > Chi tiết kỹ thuật đầy đủ nằm ở `ai/HANDOFF.md`; README chỉ ghi điều người đọc repo cần biết.
 
 <!-- CHANGELOG:START — thêm mục mới ngay dưới dòng này -->
+
+### 2026-10-31 · CORE-003 · claude-opus-5.5
+- **Thêm:** đọc số tiền thành chữ tiếng Việt ("Mười lăm triệu không trăm linh tám nghìn đồng"), sẽ dùng cho chứng từ và lỗi "số tiền bằng chữ không khớp"; bản JS và Python khớp nhau trên 21 ca golden.
 
 ### 2026-10-31 · PY-001/004/005/007/008 · claude-sonnet-5.5
 - **Thêm:** máy chủ Python chạy được (`uvicorn app.main:app`): mở game tại `/`, cấp nội dung ở `/api/content` (có ETag), `/api/health`.

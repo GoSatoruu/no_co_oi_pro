@@ -26,7 +26,7 @@ backend/
 │  ├─ timeutil.py    # giờ Việt Nam UTC+7
 │  ├─ routes/        # system.py, runs.py, leaderboard.py
 │  ├─ services/      # runs.py, scores.py, ratelimit.py
-│  ├─ engine/        # rng.py, expr.py (song sinh frontend/js/core, ADR-004); còn thiếu: money_words, rules, ledger, grader, defects, generator
+│  ├─ engine/        # rng.py, expr.py, money_words.py (song sinh frontend/js/core, ADR-004); còn thiếu: rules, ledger, grader, defects, generator
 │  └─ migrations/    # 001_init.sql
 └─ tests/            # pytest: golden JS↔Python, system, runs, leaderboard
 ```

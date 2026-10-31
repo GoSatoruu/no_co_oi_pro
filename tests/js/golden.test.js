@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import { createRng } from '../../frontend/js/core/rng.js';
 import { evalExpr } from '../../frontend/js/core/expr.js';
+import { moneyToWords } from '../../frontend/js/core/money-words.js';
 
 describe('Bộ kiểm thử Golden chung (QA-001)', () => {
   test('Golden RNG: khớp 1000 số đầu của seed "nocooi"', () => {
@@ -38,6 +39,15 @@ describe('Bộ kiểm thử Golden chung (QA-001)', () => {
         c.expected,
         `Ca '${c.name}': '${c.expr}' ra ${actual}, mong đợi ${c.expected}`
       );
+    }
+  });
+
+  test('Golden moneyToWords: khớp tests/golden/money_words.json', () => {
+    const golden = JSON.parse(
+      fs.readFileSync(new URL('../golden/money_words.json', import.meta.url), 'utf-8')
+    );
+    for (const c of golden.cases) {
+      assert.equal(moneyToWords(c.amount), c.words, `Số ${c.amount}`);
     }
   });
 });

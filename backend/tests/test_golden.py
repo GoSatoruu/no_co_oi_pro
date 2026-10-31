@@ -5,6 +5,7 @@ from pathlib import Path
 import pytest
 
 from app.engine.expr import eval_expr, round_half_up
+from app.engine.money_words import money_to_words
 from app.engine.rng import create_rng
 
 GOLDEN = Path(__file__).resolve().parents[2] / "tests" / "golden"
@@ -54,3 +55,13 @@ def test_expr_rejects_bad_input(src, vars_):
 
 def test_round_half_up():
     assert [round_half_up(x) for x in (0.5, 1.5, 2.5, -0.5, -2.5, 10.49)] == [1, 2, 3, -1, -3, 10]
+
+@pytest.mark.parametrize("case", _load("money_words.json")["cases"], ids=lambda c: str(c["amount"]))
+def test_money_words_matches_golden(case):
+    assert money_to_words(case["amount"]) == case["words"]
+
+
+@pytest.mark.parametrize("bad", [-1, 1.5, True, "100", 2**53])
+def test_money_words_rejects_bad_input(bad):
+    with pytest.raises(ValueError):
+        money_to_words(bad)
