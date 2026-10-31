@@ -72,3 +72,102 @@
 **Người sau nên biết**
 - `core/legal.js` cố ý không nhận `doc` hay `defect`; đừng "tối ưu" bằng cách truyền cả chứng từ vào.
 - Mẫu `declare_dividend` cần 421 đủ lớn, nên chỉ sinh được với `openingProfiles.jsc_group`.
+
+## 2026-10-31 01:20 · DOC-001 · claude-opus-5.5 · done
+
+**Tóm tắt**
+- Mọi AI giờ phải ghi rõ đã làm gì khi bàn giao, và phải cập nhật README (bảng Tính năng, Nhật ký thay đổi) khi có tính năng mới hoặc thay đổi.
+
+**File đã đổi**
+
+| File | Thêm / Sửa / Xoá | Đổi gì |
+|---|---|---|
+| `AGENTS.md` | Sửa | §1 bước 3 thêm đọc README; §2 bước 4 tách thành a/b/c; thêm §2.1 (ghi rõ đã làm gì) và §2.2 (cập nhật README); thêm luật cứng 14 |
+| `README.md` | Sửa | Thêm dòng *Trạng thái*, bảng *Tính năng* (11 dòng), mục *Nhật ký thay đổi* có mốc `CHANGELOG:START` và 4 mục lịch sử; bước 3 của *Làm việc với nhiều AI* |
+| `CLAUDE.md`, `GEMINI.md` | Sửa | Thêm khối "Bắt buộc khi bàn giao" |
+| `.github/copilot-instructions.md` | Sửa | Thêm gạch đầu dòng về HANDOFF và README (file này cần chủ dự án tự chép vì máy chặn `.github`) |
+| `.cursor/rules/project.mdc` | Sửa | Câu "Sau khi sửa" nêu rõ HANDOFF và README |
+| `ai/prompts/_START_HERE.md` | Sửa | Bàn giao gồm (a) HANDOFF chi tiết, (b) README; câu trả lời cuối phiên liệt kê theo file |
+| `ai/prompts/qa_review.md` | Sửa | Bước 3 kiểm cả HANDOFF và README |
+| `ai/prompts/lead.md` | Sửa | Lead rà README khớp HANDOFF và TASKS |
+| `ai/templates/handoff_entry.md` | Sửa | Viết lại: thêm Tóm tắt, bảng *File đã đổi*, *Hành vi thay đổi*, *README*, *Chưa xong / rủi ro* |
+| `ai/templates/review.md` | Sửa | Thêm nhóm "Bàn giao" (5 ô) |
+| `ai/templates/pr_checklist.md` | Sửa | Thêm ô README |
+| `ai/ROLES.md` | Sửa | Luật phối hợp số 6 "Ghi rõ và công khai" |
+| `ai/README.md` | Sửa | Thêm đoạn nhắc luật bàn giao |
+| `ai/TASKS.md` | Sửa | Thêm bảng *Việc tài liệu* với DOC-001 |
+
+**Hành vi thay đổi**
+- Trước: bàn giao chỉ cần một mục HANDOFF tự do; README không theo dõi tính năng.
+- Giờ: mục HANDOFF phải theo mẫu có bảng file và kết quả kiểm tra thật; có tính năng mới hay thay đổi thì README phải cập nhật; thiếu thì bị trả lại (luật 14).
+
+**Kiểm tra**
+- `python tools/validate_content.py` → 0 lỗi, 0 cảnh báo (không đổi content).
+- Đọc lại AGENTS.md §2 và README sau khi sửa: các mục đã có, mốc `CHANGELOG:START` có đúng một dòng.
+
+**README**
+- Đã cập nhật: thêm dòng Trạng thái, bảng Tính năng, Nhật ký thay đổi (kể cả mục DOC-001).
+
+**Quyết định / giả định**
+- Nhật ký thay đổi đặt ngay trong README (chủ dự án yêu cầu "ghi vào Readme của GitHub"), không tách `CHANGELOG.md`.
+- `README.md` được coi là thuộc phạm vi mọi việc, không cần khai trong cột Files.
+
+**⚠ Đổi hợp đồng**
+- Không (chỉ quy trình).
+
+**Chưa xong / rủi ro**
+- `.github/copilot-instructions.md` không ghi được thẳng vào máy: chủ dự án tự chép bản mới.
+
+## 2026-10-31 · PY-001, PY-004, PY-005, PY-007, PY-008 (một phần) · claude-sonnet-5.5 · review
+
+**Tóm tắt**
+- Backend FastAPI chạy được: phục vụ game, `/api/content`, `/api/health`, SQLite có migrations, bảng xếp hạng, nộp điểm Normal, xin đề ván Pro; kèm bản Python của PRNG và bộ đọc biểu thức khớp golden.
+
+**File đã đổi**
+
+| File | Thêm / Sửa / Xoá | Đổi gì |
+|---|---|---|
+| `backend/app/main.py` | Thêm | `create_app(settings)`; header `X-Api-Version`; mount `/frontend`, `/content`; `/` chuyển về `/frontend/` |
+| `backend/app/config.py` | Thêm | `Settings`, `load_settings()` đọc env và `backend/.env` |
+| `backend/app/content.py` | Thêm | `load_bundle()` gộp content + sha1; `run_validator()` chạy `tools/validate_content.py` lúc khởi động |
+| `backend/app/db.py`, `migrations/001_init.sql` | Thêm | `connect`, `migrate` (mỗi migration trong một giao dịch, ghi `schema_migrations`); bảng `runs`, `scores` |
+| `backend/app/errors.py`, `deps.py`, `timeutil.py` | Thêm | Lỗi dạng `{error:{code,message}}`; phụ thuộc route; giờ UTC+7 |
+| `backend/app/routes/{system,runs,leaderboard}.py` | Thêm | `/api/health`, `/api/content` (ETag, 304), `/api/runs`, `/api/runs/{id}/submit`, `/api/leaderboard`, `/api/scores` |
+| `backend/app/services/{runs,scores,ratelimit}.py` | Thêm | Tạo ván, kiểm 404/409/410, bảng xếp hạng, giới hạn 30 lần/giờ/IP |
+| `backend/app/engine/{rng,expr}.py` | Thêm | Bản Python của `core/rng.js`, `core/expr.js` |
+| `backend/tests/*` (5 file) | Thêm | 41 test: golden rng/expr, health/content/ETag/tĩnh/migration, runs, leaderboard |
+| `backend/app/**/__init__.py`; xoá `.gitkeep` ×2 | Thêm / Xoá | Biến thư mục thành package |
+| `backend/README.md`, `docs/05_API_CONTRACT.md` | Sửa | Xem "Đổi hợp đồng" |
+| `ai/TASKS.md` | Sửa | PY-001/004/005/007 → review; PY-008 ghi phần còn thiếu |
+
+**Hành vi thay đổi**
+- Trước: không có backend, chỉ chạy offline bằng `http.server`. Giờ: `uvicorn app.main:app` mở game ở `/` và các API ở trên; frontend cũ vẫn chạy offline.
+- `POST /api/runs/{id}/submit` đi qua 400→404→409→410 đúng hợp đồng, rồi trả **501 `not_implemented`** vì chưa có generator để chấm lại. Không đánh dấu đã nộp, không tin `clientScore`.
+
+**Kiểm tra**
+- `cd backend && python -m pytest -q` → 41 passed.
+- `python tools/validate_content.py` → 0 lỗi, 0 cảnh báo.
+- `node --test tests/js/` → 16 pass, 0 fail.
+- Khởi động app với validator bật qua TestClient: `/api/health`, `/frontend/`, `/content/modes.json` đều 200. **Chưa chạy** `uvicorn` thật bằng tay trong trình duyệt.
+
+**README**
+- Đã cập nhật: bảng Tính năng (thay 1 dòng bằng 4), Trạng thái, Chạy thử, Nhật ký thay đổi.
+
+**Quyết định / giả định**
+- `period=week` = từ thứ Hai 00:00 giờ VN (không phải 7 ngày trượt). Cùng điểm thì ai đạt trước xếp trên. Không gộp theo người chơi.
+- `/api/runs` chỉ nhận `mode=pro` và `level` ∈ `startLevels`.
+- Dùng múi cố định UTC+7 thay `zoneinfo` (Windows thiếu tzdata). Rate limit đếm thẳng từ bảng, không dùng bộ nhớ.
+- Import `app.main` tạo luôn `backend/data/nocooi.db` (do `app = create_app()` ở cấp module); đã nằm trong `.gitignore`.
+
+**⚠ Đổi hợp đồng**
+- `docs/05` sửa: thêm cột `ip` ở `runs` và `scores`; `/api/content` có thêm `legalRefs`, `audit`, `i18n`; `POST /api/scores` trả `{id}`; mã `501 not_implemented`; định nghĩa `day`/`week`; ràng buộc `mode`, `level`, `limit`; backend phục vụ `/frontend/` và `/content/`.
+
+**Chưa xong / rủi ro**
+- PY-006: chấm lại ván Pro cần PY-003 (generator) ← PY-002 (money_words, rules, ledger, grader) ← CORE-003/005/006/007, hiện chưa có bên JS.
+- PY-008: thiếu test chấm lại ván; `GET/PUT /api/saves` (docs/05 §4, "tuỳ chọn") chưa làm.
+- Board `daily` chưa có đường ghi điểm nào.
+- Không có CORS vì frontend cùng nguồn; nếu mở frontend từ nơi khác sẽ cần thêm.
+- `X-Forwarded-For` không được tin; sau proxy thì mọi người cùng một IP.
+
+**Cần người khác**
+- Làn A: CORE-003…007 để mở khoá PY-002/003/006.

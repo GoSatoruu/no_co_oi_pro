@@ -1,0 +1,223 @@
+/**
+ * BASE CSS — Nợ Có Ơi Pro
+ * Nguồn sự thật: docs/08_DESIGN_SYSTEM.md & docs/03_CONVENTIONS.md
+ */
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  width: 100%;
+  min-height: 100%;
+  background-color: var(--desk);
+  color: var(--paper);
+  font-family: var(--font-ui);
+  font-size: 16px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+/* Tabular nums cho toàn bộ số liệu kế toán */
+.num, .amount, [data-num] {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Khung chứa ứng dụng toàn màn hình */
+#app {
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  background-color: var(--desk);
+  background-image: 
+    radial-gradient(ellipse at 50% 0%, rgba(255, 255, 255, 0.05) 0%, rgba(0, 0, 0, 0.25) 100%);
+  overflow-x: hidden;
+}
+
+/* Quầng sáng đèn bàn ở chế độ Pro */
+[data-mode="pro"] #app::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 5%;
+  width: 500px;
+  height: 500px;
+  max-width: 80vw;
+  max-height: 80vw;
+  background: radial-gradient(circle, rgba(232, 176, 75, 0.16) 0%, rgba(232, 176, 75, 0) 70%);
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Thanh điều hướng nhanh trên đỉnh (thời gian, uy tín, công cụ test/switch) */
+.topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--space-8) var(--space-16);
+  background: rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(4px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  font-size: var(--font-xs);
+  z-index: 10;
+}
+
+.topbar__brand {
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  color: var(--paper);
+  display: flex;
+  align-items: center;
+  gap: var(--space-8);
+}
+
+.topbar__actions {
+  display: flex;
+  gap: var(--space-8);
+  align-items: center;
+}
+
+/* Nút bấm giao diện */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  min-width: 44px;
+  padding: var(--space-8) var(--space-16);
+  font-family: var(--font-ui);
+  font-size: var(--font-sm);
+  font-weight: 600;
+  border-radius: var(--radius-btn);
+  border: 1px solid transparent;
+  cursor: pointer;
+  user-select: none;
+  transition: background var(--transition-fast), transform var(--transition-fast), border-color var(--transition-fast);
+  text-decoration: none;
+}
+
+.btn:active {
+  transform: scale(0.98);
+}
+
+.btn--primary {
+  background-color: var(--paper);
+  color: var(--ink);
+  border-color: var(--ruling);
+}
+
+.btn--primary:hover {
+  background-color: #ffffff;
+}
+
+.btn--ballpoint {
+  background-color: var(--ballpoint);
+  color: #ffffff;
+}
+
+.btn--ballpoint:hover {
+  filter: brightness(1.1);
+}
+
+.btn--ghost {
+  background: transparent;
+  color: var(--paper);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.btn--ghost:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+/* Thẻ giấy chứng từ / bảng làm việc (đặc trưng docs/08) */
+.paper {
+  background-color: var(--paper);
+  color: var(--ink);
+  border-radius: var(--radius-paper);
+  box-shadow: var(--shadow-paper);
+  transform: rotate(-0.35deg);
+  transition: transform var(--transition-fast);
+  padding: var(--space-16);
+  border: 1px solid var(--ruling);
+}
+
+.paper--flat {
+  transform: none;
+}
+
+/* Bảng chữ T định khoản: Nợ bên trái, Có bên phải (không dùng đỏ/xanh) */
+.t-account {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  border: 1px solid var(--ruling);
+  background: var(--paper);
+  color: var(--ink);
+}
+
+.t-account__header {
+  padding: var(--space-8);
+  font-weight: 700;
+  text-align: center;
+  border-bottom: 2px solid var(--ink);
+}
+
+.t-account__side-debit {
+  border-right: 2px solid var(--ink);
+  padding: var(--space-8);
+}
+
+.t-account__side-credit {
+  padding: var(--space-8);
+}
+
+/* Con dấu đóng lên giấy */
+.seal {
+  display: inline-block;
+  color: var(--seal);
+  border: 2px solid var(--seal);
+  border-radius: var(--radius-seal);
+  padding: var(--space-4) var(--space-12);
+  font-weight: 800;
+  text-transform: uppercase;
+  font-size: var(--font-sm);
+  letter-spacing: 1px;
+  transform: rotate(-3deg);
+  user-select: none;
+}
+
+/* Bảng pháp luật cạnh nhiệm vụ (docs/08 §6) */
+.legal-panel {
+  background-color: var(--gazette);
+  color: var(--ink);
+  border-left: 3px solid var(--ink);
+  padding: var(--space-12);
+  font-family: var(--font-serif);
+  font-size: var(--font-xs);
+  line-height: 1.55;
+  border-radius: var(--radius-paper);
+}
+
+/* Bố cục đáp ứng Desktop (docs/08 §4.2) */
+@media (min-width: 1024px) {
+  .desk-layout {
+    grid-template-columns: 2fr 1fr !important;
+  }
+}
+
+/* Hỗ trợ prefers-reduced-motion */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  .paper {
+    transform: none !important;
+  }
+}

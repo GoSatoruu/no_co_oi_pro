@@ -1,0 +1,56 @@
+[
+  {
+    "name": "phép gán đơn giản",
+    "expr": "amount",
+    "vars": { "amount": 1500000 },
+    "expected": 1500000
+  },
+  {
+    "name": "phép nhân cơ bản",
+    "expr": "qty * unitPrice",
+    "vars": { "qty": 5, "unitPrice": 200000 },
+    "expected": 1000000
+  },
+  {
+    "name": "phép tính thuế và làm tròn half-up",
+    "expr": "round(sub * vatRate / 100)",
+    "vars": { "sub": 1250000, "vatRate": 8 },
+    "expected": 100000
+  },
+  {
+    "name": "làm tròn .5 lên (half-up) với số lẻ",
+    "expr": "round(10.5)",
+    "vars": {},
+    "expected": 11
+  },
+  {
+    "name": "làm tròn .4 xuống",
+    "expr": "round(10.49)",
+    "vars": {},
+    "expected": 10
+  },
+  {
+    "name": "tính giá vốn làm tròn đến nghìn",
+    "expr": "round(unitPrice * costRatio / 1000) * 1000",
+    "vars": { "unitPrice": 450000, "costRatio": 0.72 },
+    "expected": 324000
+  },
+  {
+    "name": "biểu thức phức có ngoặc và thứ tự ưu tiên",
+    "expr": "(a + b) * c - d / e",
+    "vars": { "a": 10, "b": 20, "c": 3, "d": 100, "e": 4 },
+    "expected": 65
+  },
+  {
+    "name": "các hàm floor ceil min max",
+    "expr": "max(min(floor(x), ceil(y)), z)",
+    "vars": { "x": 10.9, "y": 14.1, "z": 8 },
+    "expected": 10
+  },
+  {
+    "name": "unary minus",
+    "expr": "-a + (-b * -c)",
+    "vars": { "a": 5, "b": 3, "c": 4 },
+    "expected": 7
+  }
+]

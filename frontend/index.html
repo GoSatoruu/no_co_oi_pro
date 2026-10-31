@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Nợ Có Ơi Pro — Game mô phỏng nghề kế toán Việt Nam">
+  <title>Nợ Có Ơi Pro</title>
+
+  <!-- Design System & Tokens -->
+  <link rel="stylesheet" href="css/tokens.css">
+  <link rel="stylesheet" href="css/base.css">
+</head>
+<body>
+  <div id="app">
+    <!-- Topbar: Thời gian, thanh công cụ nhanh và đổi theme -->
+    <header class="topbar">
+      <div class="topbar__brand">
+        <span>📋</span>
+        <span>NỢ CÓ ƠI PRO</span>
+      </div>
+      <div class="topbar__actions">
+        <button id="btn-toggle-theme" class="btn btn--ghost" style="min-height: 32px; padding: 4px 10px; font-size: var(--font-xs);" aria-label="Chuyển chế độ sáng tối">
+          🌙 Tối
+        </button>
+      </div>
+    </header>
+
+    <!-- Khu vực hiển thị màn hình chính của trò chơi -->
+    <main id="screen-root" style="flex: 1; display: flex; flex-direction: column;"></main>
+  </div>
+
+  <!-- Entry Point Javascript Module -->
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>

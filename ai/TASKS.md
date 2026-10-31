@@ -38,7 +38,7 @@ Làn D  Kiểm thử    QA-001 (song song với A) → QA-002
 | CORE-007 | `generateShift(content, {seed, level, mode, date, ledger})` | 001–006 | `frontend/js/core/generator.js`, test | todo | | Cùng seed ra cùng ca; tôn trọng `requires.balanceAtLeast`, `partnerFilter`, `defects.rate/tiers` |
 | CORE-008 | Máy trạng thái ca `session.js` + `scoring.js` | 005, 007 | `frontend/js/core/session.js`, `frontend/js/core/scoring.js`, test | todo | | Chơi trọn một ca giả lập trong test, điểm khớp công thức GDD §5 |
 | QA-001 | Bộ golden chung JS↔Python + trình chạy | — | `tests/golden/*`, `tests/js/golden.test.js`, `backend/tests/test_golden.py` | todo | | Có golden cho rng, expr, money_words, grader; đề xuất cách đọc nhóm 000 (OWN-003) |
-| PY-001 | `engine/rng.py`, `engine/expr.py` song sinh CORE-001/002 | CORE-001, 002 | `backend/app/engine/rng.py`, `backend/app/engine/expr.py` | todo | | Qua golden rng, expr |
+| PY-001 | `engine/rng.py`, `engine/expr.py` song sinh CORE-001/002 | CORE-001, 002 | `backend/app/engine/rng.py`, `backend/app/engine/expr.py` | review | claude-sonnet-5.5@2026-10-31 | Qua golden rng, expr |
 | PY-002 | `engine/money_words.py`, `rules.py`, `ledger.py`, `grader.py` | CORE-003, 005 | `backend/app/engine/…` (các file đã nêu) | todo | | Qua golden tương ứng |
 | PY-003 | `engine/defects.py`, `generator.py` | CORE-006, 007 | `backend/app/engine/defects.py`, `generator.py` | todo | | 20 seed sinh ra ca **giống hệt** bản JS (so JSON) |
 
@@ -63,11 +63,11 @@ Làn D  Kiểm thử    QA-001 (song song với A) → QA-002
 
 | ID | Việc | Phụ thuộc | Files | Status | Owner | Xong khi |
 |---|---|---|---|---|---|---|
-| PY-004 | Khung FastAPI: `main.py`, `config.py`, phục vụ `frontend/` tĩnh, `/api/health`, `/api/content` + ETag | — | `backend/app/main.py`, `config.py`, `content.py`, `routes/system.py`, `backend/requirements.txt` | todo | | `uvicorn app.main:app` mở được game và `/api/content` |
-| PY-005 | `db.py` + migrations sqlite | PY-004 | `backend/app/db.py`, `backend/app/migrations/*` | todo | | Khởi động lần 2 không chạy lại migration |
+| PY-004 | Khung FastAPI: `main.py`, `config.py`, phục vụ `frontend/` tĩnh, `/api/health`, `/api/content` + ETag | — | `backend/app/main.py`, `config.py`, `content.py`, `routes/system.py`, `backend/requirements.txt` | review | claude-sonnet-5.5@2026-10-31 | `uvicorn app.main:app` mở được game và `/api/content` |
+| PY-005 | `db.py` + migrations sqlite | PY-004 | `backend/app/db.py`, `backend/app/migrations/*` | review | claude-sonnet-5.5@2026-10-31 | Khởi động lần 2 không chạy lại migration |
 | PY-006 | `/api/runs` + `/submit`, chấm lại phía server | PY-003, PY-005 | `backend/app/routes/runs.py`, `backend/app/services/runs.py` | todo | | Ván giả lập nộp lên: điểm server = điểm JS |
-| PY-007 | Bảng xếp hạng, `/api/scores`, giới hạn tần suất | PY-005 | `backend/app/routes/leaderboard.py` | todo | | Đúng hợp đồng docs/05 §3 |
-| PY-008 | Test backend (pytest + TestClient) | PY-004…007 | `backend/tests/*` | todo | | Phủ mọi route ở docs/05 |
+| PY-007 | Bảng xếp hạng, `/api/scores`, giới hạn tần suất | PY-005 | `backend/app/routes/leaderboard.py` | review | claude-sonnet-5.5@2026-10-31 | Đúng hợp đồng docs/05 §3 |
+| PY-008 | Test backend (pytest + TestClient) | PY-004…007 | `backend/tests/*` | doing | claude-sonnet-5.5@2026-10-31 | Phủ mọi route ở docs/05 (còn thiếu: test chấm lại ván, chờ PY-006; `/api/saves` chưa làm) |
 | FE-011 | Nhập Pro: gõ số hiệu tài khoản (tự hoàn thành), gõ số tiền, bút toán nhiều dòng, phím tắt | FE-004 | `frontend/js/ui/entry-board-pro.js`, css | todo | | Làm được cả ca chỉ bằng bàn phím |
 | FE-012 | Chọn chế độ và hồ sơ nghề Pro (cấp bắt đầu) | FE-008 | `frontend/js/screens/title.js` | todo | | Đọc `modes[].startLevels` |
 | FE-013 | `services/api.js` + màn bảng xếp hạng | PY-007 | `frontend/js/services/api.js`, `frontend/js/screens/leaderboard.js` | todo | | Offline thì ẩn nút, không vỡ |
@@ -95,3 +95,9 @@ Làn D  Kiểm thử    QA-001 (song song với A) → QA-002
 | FE-019 | Giấy thư kiểm toán: thư xác nhận, thư quản lý, báo cáo kiểm toán (không logo) | FE-003 | `frontend/js/ui/paper/audit-letter.js` | todo | | Đủ 5 loại ý kiến |
 | CNT-002 | Thẻ tình huống mùa kiểm toán và tập đoàn (docs/09 §6, docs/10 §6) | — | `content/cards/*.json` (định dạng mới: viết spec trong docs/04 cùng việc) | todo | | Mỗi thẻ có lựa chọn đúng; validator kiểm không thẻ nào thiếu đáp án |
 | PY-010 | Song sinh CORE-011 | CORE-011 | `backend/app/engine/audit.py` | todo | | Qua golden QA-003 |
+
+## Việc tài liệu
+
+| ID | Việc | Phụ thuộc | Files | Status | Owner | Xong khi |
+|---|---|---|---|---|---|---|
+| DOC-001 | Bắt buộc AI ghi rõ đã làm gì và cập nhật README khi có tính năng mới hay thay đổi | — | `AGENTS.md`, `CLAUDE.md`, `GEMINI.md`, `.github/copilot-instructions.md`, `.cursor/rules/project.mdc`, `ai/prompts/*`, `ai/templates/*`, `ai/ROLES.md`, `ai/README.md`, `README.md` | done | claude-opus-5.5@2026-10-31 | Luật có trong AGENTS §2.1–2.2 và luật 14; README có bảng Tính năng và Nhật ký thay đổi |

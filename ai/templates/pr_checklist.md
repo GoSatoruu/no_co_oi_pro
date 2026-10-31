@@ -6,5 +6,6 @@
 **Ảnh chụp** (nếu đổi giao diện): …
 **Đổi hợp đồng?** không | có: …
 
-- [ ] Đã cập nhật ai/TASKS.md và thêm mục ai/HANDOFF.md
+- [ ] Đã cập nhật ai/TASKS.md và thêm mục ai/HANDOFF.md ghi rõ đã làm gì (AGENTS.md §2.1)
+- [ ] README.md: đã cập nhật bảng Tính năng và Nhật ký thay đổi, hoặc ghi lý do không cần (AGENTS.md §2.2)
 - [ ] Đã qua ai/templates/review.md (tự rà trước khi nhờ người khác duyệt)

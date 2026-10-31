@@ -8,6 +8,13 @@
 - [ ] Không có gì chép từ game gốc
 - [ ] Tài liệu liên quan đã cập nhật
 
+## Bàn giao (AGENTS.md §2.1–§2.2): thiếu là trả lại
+- [ ] Mục HANDOFF dùng đúng mẫu, có bảng *File đã đổi* khớp với thay đổi thật (không thiếu, không thừa file)
+- [ ] *Hành vi thay đổi* nói rõ trước → sau, không chỉ ghi "cải thiện" hay "refactor"
+- [ ] *Kiểm tra* có lệnh và kết quả cụ thể; người duyệt chạy lại ra cùng kết quả
+- [ ] Có tính năng mới hay thay đổi: README đã sửa bảng *Tính năng* và thêm mục *Nhật ký thay đổi* đúng định dạng, ngay dưới dòng CHANGELOG:START
+- [ ] Không cần sửa README: HANDOFF ghi rõ lý do và lý do hợp lệ
+
 ## Lõi / Python
 - [ ] Hàm thuần, không đột biến đầu vào, không ngẫu nhiên không seed
 - [ ] Tiền là số nguyên, làm tròn half-up

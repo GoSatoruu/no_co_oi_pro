@@ -20,7 +20,8 @@
 3. **Hợp đồng trước, cài đặt sau.** Đổi API, schema hay kiểu dữ liệu chung thì sửa tài liệu (docs/02, 04, 05) trước, ghi HANDOFF "⚠ đổi hợp đồng", rồi mới code.
 4. **Song sinh:** việc CORE xong thì việc PY tương ứng mới được nhận (bảng TASKS có cột Phụ thuộc).
 5. **Xung đột file:** người đến sau dừng, ghi HANDOFF, chờ Lead hoặc chủ dự án.
-6. **Câu hỏi cho chủ dự án** gom vào HANDOFF mục "Câu hỏi". Không chặn việc: chọn giả định hợp lý, ghi rõ, làm tiếp.
+6. **Ghi rõ và công khai:** mỗi việc kết thúc bằng mục HANDOFF chi tiết (AGENTS.md §2.1) và, nếu có tính năng mới hay thay đổi, một dòng trong README (§2.2). Người duyệt kiểm cả hai.
+7. **Câu hỏi cho chủ dự án** gom vào HANDOFF mục "Câu hỏi". Không chặn việc: chọn giả định hợp lý, ghi rõ, làm tiếp.
 
 ## 3. Gợi ý ghép đôi (tuỳ chọn)
 

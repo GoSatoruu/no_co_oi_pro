@@ -5,5 +5,5 @@ alwaysApply: true
 ---
 
 Đọc `AGENTS.md` ở thư mục gốc và làm theo. Đó là nguồn luật duy nhất.
-Trước khi sửa: nhận việc trong `ai/TASKS.md`. Sau khi sửa: thêm mục vào cuối `ai/HANDOFF.md`.
+Trước khi sửa: nhận việc trong `ai/TASKS.md`. Sau khi sửa: ghi rõ đã làm gì vào cuối `ai/HANDOFF.md` (bảng file đã đổi, hành vi trước/sau, kết quả kiểm tra thật); có tính năng mới hoặc thay đổi thì cập nhật bảng Tính năng và Nhật ký thay đổi trong `README.md` (AGENTS.md §2.1–§2.2).
 Không framework, không build. Lõi `frontend/js/core/` không đụng DOM. Tiền là số nguyên VND.

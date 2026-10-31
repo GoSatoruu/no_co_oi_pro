@@ -9,4 +9,6 @@
 | `prompts/` | Prompt mở đầu: `_START_HERE.md` + một file cho mỗi vai |
 | `templates/` | Mẫu việc, bàn giao, ADR, checklist duyệt, mô tả PR |
 
+**Mọi AI khi xong việc** phải ghi rõ đã làm gì vào `HANDOFF.md` và, nếu có tính năng mới hay thay đổi, cập nhật `README.md` ở thư mục gốc (bảng Tính năng và Nhật ký thay đổi). Xem `AGENTS.md` §2.1–§2.2.
+
 **Bắt đầu nhanh cho chủ dự án:** mở `prompts/_START_HERE.md`, thay `<TASK-ID>` và `<vai>`, rồi dán vào AI bạn muốn giao việc.

@@ -10,3 +10,5 @@ Mỗi phiên:
 5. Kiểm tài liệu lệch thực tế (docs nói A, code làm B) → mở việc DOC-xxx.
 
 Không được: sửa code trong phạm vi một việc đang `doing` của người khác; lật ADR đã `accepted`.
+
+Mỗi phiên Lead: rà README (bảng *Tính năng*, dòng *Trạng thái*, *Nhật ký thay đổi*) có khớp HANDOFF và TASKS không. Lệch thì sửa README và ghi vào HANDOFF.

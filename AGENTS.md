@@ -20,7 +20,7 @@
 
 1. `AGENTS.md` (file này)
 2. `ai/TASKS.md`: chọn việc
-3. `ai/HANDOFF.md`: đọc **3 mục cuối** để biết người trước làm tới đâu
+3. `ai/HANDOFF.md`: đọc **3 mục cuối** để biết người trước làm tới đâu; `README.md` mục *Tính năng* để biết hiện trạng
 4. `ai/DECISIONS.md`: các quyết định đã chốt, **không tự lật lại**
 5. Tài liệu chuyên đề theo việc của bạn:
 
@@ -44,7 +44,46 @@ NHẬN → LÀM → KIỂM → BÀN GIAO
 1. **Nhận việc:** trong `ai/TASKS.md`, đổi dòng việc từ `todo` sang `doing`, điền `Owner` = tên mô hình + ngày (vd `claude-opus@2026-10-31`), điền cột `Files` = các file/thư mục bạn sẽ sửa. **Không nhận việc có `Files` chồng lên một việc khác đang `doing`.**
 2. **Làm:** chỉ sửa trong phạm vi `Files` đã khai. Cần sửa ngoài phạm vi thì ghi vào `ai/HANDOFF.md` mục "Cần người khác" hoặc tách thành việc mới, không lấn sang.
 3. **Kiểm:** chạy các lệnh ở §5. Có lỗi thì sửa xong mới bàn giao. Không chạy được (thiếu môi trường) thì ghi rõ trong bàn giao.
-4. **Bàn giao:** thêm một mục vào **cuối** `ai/HANDOFF.md` theo `ai/templates/handoff_entry.md`, rồi đổi việc sang `review` (hoặc `done` nếu việc là tài liệu nhỏ). Ra quyết định kiến trúc mới thì thêm ADR vào `ai/DECISIONS.md`.
+4. **Bàn giao:** làm **đủ cả ba** rồi mới đổi việc sang `review` (hoặc `done` nếu việc là tài liệu nhỏ):
+   - a. Thêm mục vào **cuối** `ai/HANDOFF.md`, **ghi rõ đã làm gì** theo §2.1.
+   - b. Có tính năng mới, hoặc đổi hành vi, giao diện, dữ liệu hay cách chạy → cập nhật `README.md` theo §2.2.
+   - c. Ra quyết định kiến trúc mới → thêm ADR vào `ai/DECISIONS.md`.
+
+### 2.1 Ghi rõ đã làm gì (bắt buộc, mọi việc)
+
+Mục HANDOFF dùng đúng mẫu `ai/templates/handoff_entry.md`, và phải có:
+
+| Phần | Phải ghi | Không chấp nhận |
+|---|---|---|
+| **File đã đổi** | Bảng: mỗi file một dòng, kèm *Thêm / Sửa / Xoá* và một câu nói đổi gì (tên hàm, khoá JSON, mục tài liệu) | "sửa vài file", "cập nhật code" |
+| **Hành vi thay đổi** | Trước thế nào, giờ thế nào, nhìn từ phía người chơi hoặc người gọi hàm | "cải thiện", "tối ưu", "refactor" không kèm hệ quả |
+| **Kiểm tra** | Lệnh đã chạy và **kết quả thật** (số test pass, số lỗi validator). Không chạy được thì ghi lý do. | "đã test", "chạy ổn" |
+| **README** | `đã cập nhật` (nêu mục nào) hoặc `không cần` (nêu lý do) | Bỏ trống |
+| **Chưa xong / rủi ro** | Phần còn dở, giả định, chỗ có thể sai | Bỏ trống khi thật ra còn dở |
+
+Không bịa kết quả. Chưa chạy thì viết "chưa chạy".
+
+### 2.2 Cập nhật README.md (khi có tính năng mới hoặc thay đổi)
+
+README là trang đầu của repo trên GitHub, nên nó phải luôn đúng với hiện trạng.
+
+**Phải cập nhật khi:** thêm hay bỏ tính năng; tính năng đổi trạng thái (vd từ *Có dữ liệu, chưa code* sang *Chơi được*); đổi cách chạy, cài đặt hay lệnh kiểm tra; đổi cấu trúc thư mục; sửa lỗi người chơi nhìn thấy được.
+**Không cần khi:** chỉ refactor nội bộ không đổi hành vi, chỉ thêm test, chỉ sửa chính tả trong tài liệu. Vẫn ghi "README: không cần — <lý do>" trong HANDOFF.
+
+Cách cập nhật:
+1. **Bảng Tính năng:** thêm dòng mới, hoặc sửa cột *Trạng thái* hay *Tài liệu* của dòng có sẵn. Chỉ dùng ba trạng thái: `Chơi được`, `Có dữ liệu, chưa code`, `Mới có thiết kế` (thêm `Chạy được` cho công cụ).
+2. **Nhật ký thay đổi:** thêm mục mới **ngay dưới** dòng `<!-- CHANGELOG:START … -->` (mới nhất ở trên):
+   ```markdown
+   ### YYYY-MM-DD · <TASK-ID> · <model>
+   - **Thêm:** … (tính năng mới, nói bằng lời người chơi hoặc người phát triển hiểu)
+   - **Sửa:** … (thay đổi hành vi, sửa lỗi)
+   - **Xoá:** … (bỏ gì, vì sao)
+   ```
+   Chỉ giữ các dòng có nội dung. Mỗi dòng một ý, không dán chi tiết kỹ thuật (chi tiết để ở HANDOFF).
+3. Sửa dòng **Trạng thái** đầu README khi xong một mốc (M1, M2…).
+4. Đổi lệnh chạy hay kiểm tra → sửa mục *Chạy thử* và *Kiểm tra* trong README **và** §5 của file này.
+
+`README.md` được coi là thuộc phạm vi của **mọi** việc (không cần khai trong cột `Files`). Hai AI cùng thêm mục nhật ký thì người sau giữ nguyên mục của người trước và chèn mục của mình lên trên.
 
 Mỗi việc nên gọn trong **một phiên** (≈ 1–3 giờ người). Việc to hơn thì chia nhỏ trước khi làm.
 
@@ -77,6 +116,7 @@ Mỗi việc nên gọn trong **một phiên** (≈ 1–3 giờ người). Việ
 11. **Bảng pháp luật không lộ đáp án** (ADR-011). Bảng chọn theo loại việc, không theo lỗi có trong chứng từ. Không nâng mức `verified` của một trích dẫn nếu chưa tự đối chiếu toàn văn trên nguồn chính thức (vbpl.vn, congbao.chinhphu.vn, cổng Bộ Tài chính).
 12. **Big Four** (ADR-012): chỉ dùng tên chữ; không logo hay màu thương hiệu; bốn hãng cơ chế như nhau; hãng và kiểm toán viên luôn chuyên nghiệp, hành vi sai trái chỉ đến từ nhân vật hư cấu phía khách hàng.
 13. **Thiết kế** theo `docs/08_DESIGN_SYSTEM.md`: Nợ/Có không tô xanh đỏ; màu bút bi chỉ cho thứ người chơi nhập; con dấu là chuyển động nổi bật duy nhất.
+14. **Không bàn giao "câm":** việc không có mục HANDOFF theo §2.1, hoặc có tính năng mới hay thay đổi mà README chưa cập nhật theo §2.2, thì người duyệt **trả lại**, dù code đúng.
 
 ## 5. Lệnh kiểm tra
 
