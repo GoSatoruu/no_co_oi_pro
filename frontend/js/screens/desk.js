@@ -9,10 +9,10 @@
  * - Bảng Cân đối Tài khoản Tổng (Master Trial Balance 6 cột, Tài sản = Nguồn vốn, kết chuyển 911 ➔ 421).
  * - Tư vấn Chiến lược CFO Thế giới mở (Open-World Strategic Advisory).
  */
-import { loadBundle } from '../services/content.js?v=20261101_v3';
-import { defaultStore } from '../services/store.js?v=20261101_v3';
-import { defaultLogger } from '../services/logger.js?v=20261101_v3';
-import { buildShift, gradeInspect, gradeEntry } from '../core/shift.js?v=20261101_v3';
+import { loadBundle } from '../services/content.js?v=20261102_v1';
+import { defaultStore } from '../services/store.js?v=20261102_v1';
+import { defaultLogger } from '../services/logger.js?v=20261102_v1';
+import { buildShift, gradeInspect, gradeEntry } from '../core/shift.js?v=20261102_v1';
 import {
   createFinanceState,
   computeMetrics,
@@ -33,13 +33,20 @@ import {
   expandBusinessSector,
   harvestSectorCycle,
   buildCfoContextSnapshot,
-} from '../core/finance.js?v=20261101_v3';
+  STAFF_DIRECTIVES_CATALOG,
+  ensureStaffAndChatsState,
+  getStaffRoster,
+  issueExecutiveDirective,
+  appendNpcChatMessage,
+} from '../core/finance.js?v=20261102_v1';
 import {
   DEFAULT_LLM_CONFIG,
   CFO_PERSONAS,
+  NPC_ROLEPLAY_PROFILES,
   askCfoAdvisor,
+  askNpcRoleplay,
   testLlmConnection,
-} from '../services/llm-cfo.js?v=20261101_v3';
+} from '../services/llm-cfo.js?v=20261102_v1';
 import {
   playSlackKnock,
   playSlackSend,
@@ -48,7 +55,7 @@ import {
   playAlertBuzzer,
   isSoundEnabled,
   toggleSound,
-} from '../ui/sound.js?v=20261101_v3';
+} from '../ui/sound.js?v=20261102_v1';
 
 let timer = null;
 let screenRoot = null;
@@ -228,6 +235,18 @@ function sanitizeState(s, bundle) {
 
   if (!Array.isArray(s.cfoChatHistory)) {
     s.cfoChatHistory = [];
+  }
+
+  ensureStaffAndChatsState(fin);
+
+  if (!s.selectedNpcId || !NPC_DIRECTORY[s.selectedNpcId]) {
+    s.selectedNpcId = 'n_sale';
+  }
+  if (!s.slackViewMode) {
+    s.slackViewMode = 'npc_roleplay'; // 'npc_roleplay' | 'slack_events'
+  }
+  if (typeof s.isNpcThinking !== 'boolean') {
+    s.isNpcThinking = false;
   }
 
   if (!s.selectedSlackId && fin.slackEvents && fin.slackEvents[0]) {
@@ -1209,7 +1228,7 @@ function renderCenterWorkstation(s, isPro) {
     { id: 'workstation', label: '📨 01 // CHỨNG TỪ PUSH & HẠCH TOÁN', keyHint: '1' },
     {
       id: 'slack_chat',
-      label: `💬 02 // TIN NHẮN SLACK & LỆNH ĐỘT XUẤT ${pendingSlackCount > 0 ? `(${pendingSlackCount})` : ''}`,
+      label: `💬 02 // NHẮN TIN & CHỈ ĐẠO NPC (ROLEPLAY LLM) ${pendingSlackCount > 0 ? `(${pendingSlackCount})` : ''}`,
       keyHint: '2',
     },
     { id: 'treasury', label: '🏦 03 // CÂN ĐỐI NGUỒN TIỀN (TREASURY)', keyHint: '3' },
@@ -1397,6 +1416,25 @@ function renderVoucherAndLedgerTab(s, isPro) {
     }
     replyBtnGrid.append(rBtn);
   }
+
+  // Nút mở trực tiếp phòng Nhắn tin Roleplay & Giao Chỉ đạo cho NPC gửi chứng từ này
+  const matchNpc = Object.values(NPC_DIRECTORY).find((n) => n.name === doc.push.npcName) || NPC_DIRECTORY.n_mentor;
+  const openRoleplayBtn = el(
+    'button',
+    'btn btn--ballpoint',
+    `🎭 Nhắn tin Roleplay & Giao Chỉ đạo trực tiếp cho ${doc.push.npcName} (LLM)`
+  );
+  openRoleplayBtn.style.cssText =
+    'min-height: 26px; padding: 4px 12px; font-size: 11px; font-family: var(--font-mono); font-weight: 800; border-radius: 3px;';
+  openRoleplayBtn.addEventListener('click', () => {
+    s.selectedNpcId = matchNpc.id;
+    s.slackViewMode = 'npc_roleplay';
+    s.activeTab = 'slack_chat';
+    persistCurrentSession(s);
+    render(screenRoot, s);
+  });
+  replyBtnGrid.append(openRoleplayBtn);
+
   quickRepliesBox.append(replyBtnGrid);
   slackDocCard.append(quickRepliesBox);
 
@@ -1917,13 +1955,576 @@ function commitVoucherToLedger(s, doc) {
 }
 
 // ============================================================================
-// TAB 2: BẢNG TIN NHẮN SLACK & LỆNH ĐỘT XUẤT TỪ CÁC NPC (INTERACTIVE SLACK CHAT)
+// TAB 2: TRUNG TÂM NHẮN TIN ROLE-PLAYING (LLM) & GIAO CHỈ ĐẠO NHÂN SỰ CỦA CEO
 // ============================================================================
 function renderSlackChatTab(s, isPro) {
+  ensureStaffAndChatsState(s.fin);
   const wrap = el('div', '');
   wrap.style.cssText = 'display: flex; flex-direction: column; gap: 14px;';
 
   const events = s.fin.slackEvents || [];
+  const pendingSlackCount = events.filter((e) => e.status === 'PENDING').length;
+  const staffRoster = getStaffRoster(s.fin);
+  const totalDirectivesCount = s.fin.directivesLog?.length || 0;
+
+  // 1. BANNER CHỈ HUY NHÂN SỰ & ROLE-PLAYING LLM
+  const topBanner = el('div', '');
+  topBanner.style.cssText = `
+    padding: 12px 16px; background: rgba(56, 189, 248, 0.08); border: 1px solid rgba(56, 189, 248, 0.35);
+    border-left: 4px solid #38BDF8; border-radius: 4px;
+    display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;
+  `;
+  topBanner.innerHTML = `
+    <div>
+      <div style="font-family: var(--font-mono); font-size: 11px; color: #38BDF8; font-weight: 800;">
+        👑 CEO COMMAND & LLM ROLE-PLAYING MESSENGER // ĐIỀU HÀNH ĐỘI NGŨ NHÂN SỰ CẤP DƯỚI
+      </div>
+      <div style="font-size: 12px; color: #E2E8F0; margin-top: 2px;">
+        Bạn là <strong>CEO (Tổng Giám đốc)</strong>. Hãy chọn nhân viên bên dưới để <strong>Nhắn tin Role-Playing trực tiếp (vận hành bởi LLM)</strong> hoặc <strong>Phát Lệnh Chỉ Đạo Điều Hành</strong> tác động ngay lên Doanh thu, Dòng tiền & Sổ cái!
+      </div>
+    </div>
+  `;
+
+  // Nút chuyển chế độ xem trong Tab 02: [Nhắn tin & Chỉ đạo 8 NPC] <-> [Tờ trình Lệnh chi/thu đột xuất]
+  const modeSwitchRow = el('div', '');
+  modeSwitchRow.style.cssText = 'display: flex; gap: 8px; flex-wrap: wrap;';
+
+  const isRoleplayMode = (s.slackViewMode || 'npc_roleplay') === 'npc_roleplay';
+
+  const btnRoleplayMode = el(
+    'button',
+    'btn',
+    `👥 Nhắn tin Roleplay & Chỉ đạo Nhân viên (8 NPC · ${totalDirectivesCount} Lệnh đã giao)`
+  );
+  btnRoleplayMode.style.cssText = `
+    min-height: 32px; padding: 6px 12px; font-family: var(--font-mono); font-size: 11px; font-weight: 800;
+    background: ${isRoleplayMode ? '#0284C7' : '#111927'};
+    color: ${isRoleplayMode ? '#FFFFFF' : '#94A3B8'};
+    border: 1px solid ${isRoleplayMode ? '#38BDF8' : '#334155'};
+  `;
+  btnRoleplayMode.addEventListener('click', () => {
+    s.slackViewMode = 'npc_roleplay';
+    render(screenRoot, s);
+  });
+
+  const btnEventsMode = el(
+    'button',
+    'btn',
+    `🔔 Tờ trình Lệnh Chi / Thu Đột xuất (${pendingSlackCount} Chờ duyệt)`
+  );
+  btnEventsMode.style.cssText = `
+    min-height: 32px; padding: 6px 12px; font-family: var(--font-mono); font-size: 11px; font-weight: 800;
+    background: ${!isRoleplayMode ? '#0284C7' : '#111927'};
+    color: ${!isRoleplayMode ? '#FFFFFF' : pendingSlackCount > 0 ? '#FBBF24' : '#94A3B8'};
+    border: 1px solid ${!isRoleplayMode ? '#38BDF8' : pendingSlackCount > 0 ? '#F59E0B' : '#334155'};
+  `;
+  btnEventsMode.addEventListener('click', () => {
+    s.slackViewMode = 'slack_events';
+    render(screenRoot, s);
+  });
+
+  modeSwitchRow.append(btnRoleplayMode, btnEventsMode);
+  topBanner.append(modeSwitchRow);
+  wrap.append(topBanner);
+
+  if (isRoleplayMode) {
+    wrap.append(renderNpcRoleplayWorkspace(s, staffRoster, isPro));
+  } else {
+    wrap.append(renderIncomingSlackEventsWorkspace(s, events, isPro));
+  }
+
+  // Bảng Nhật ký Chỉ đạo của CEO ở phía dưới
+  wrap.append(renderDirectivesLogSection(s, isPro));
+
+  return wrap;
+}
+
+/**
+ * Không gian Nhắn tin Role-Playing & Giao Chỉ đạo Điều hành cho 8 Nhân viên dưới quyền CEO.
+ */
+function renderNpcRoleplayWorkspace(s, staffRoster, isPro) {
+  const selectedId = s.selectedNpcId || 'n_sale';
+  const currentNpc = staffRoster.find((n) => n.id === selectedId) || staffRoster[0];
+  const chatMessages = s.fin.npcChats?.[currentNpc.id] || [];
+  const rpProfile = NPC_ROLEPLAY_PROFILES[currentNpc.id] || NPC_ROLEPLAY_PROFILES.n_mentor;
+
+  const layout = el('div', '');
+  layout.style.cssText = `
+    display: grid; grid-template-columns: minmax(250px, 320px) 1fr; gap: 14px;
+    min-height: 580px;
+  `;
+
+  // CỘT TRÁI: DANH SÁCH 8 NHÂN VIÊN & CỐ VẤN BÊN CẠNH CEO
+  const leftRoster = el('div', '');
+  leftRoster.style.cssText = `
+    display: flex; flex-direction: column; gap: 8px; max-height: 75vh; overflow-y: auto;
+    background: #0B111E; padding: 10px; border: 1px solid #1E293B; border-radius: 4px;
+  `;
+
+  const rosterHeader = el('div', '');
+  rosterHeader.style.cssText =
+    'font-family: var(--font-mono); font-size: 11px; font-weight: 800; color: #38BDF8; padding: 4px 6px; border-bottom: 1px solid #1E293B; display: flex; justify-content: space-between;';
+  rosterHeader.innerHTML = `
+    <span>👥 ĐỘI NGŨ NHÂN SỰ CỦA CEO (${staffRoster.length})</span>
+    <span style="color: #34D399;">● ONLINE</span>
+  `;
+  leftRoster.append(rosterHeader);
+
+  for (const emp of staffRoster) {
+    const isSel = emp.id === currentNpc.id;
+    const card = el('button', '');
+    card.setAttribute('type', 'button');
+    card.style.cssText = `
+      text-align: left; padding: 10px 12px; border-radius: 4px; cursor: pointer;
+      background: ${isSel ? 'rgba(56, 189, 248, 0.16)' : '#111927'};
+      border: 1px solid ${isSel ? '#38BDF8' : '#1E293B'};
+      border-left: 4px solid ${emp.color || '#38BDF8'};
+      display: flex; flex-direction: column; gap: 5px; color: #F8FAFC; transition: all 0.14s ease;
+    `;
+
+    const lastPreview = emp.lastMessage?.text
+      ? emp.lastMessage.text.slice(0, 62) + (emp.lastMessage.text.length > 62 ? '…' : '')
+      : 'Sẵn sàng nhận chỉ đạo...';
+
+    card.innerHTML = `
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <div style="display: flex; align-items: center; gap: 7px;">
+          <span style="font-size: 20px;">${emp.avatar}</span>
+          <div>
+            <div style="font-weight: 800; font-size: 13px; color: #FFFFFF;">${emp.name}</div>
+            <div style="font-size: 10px; color: ${emp.color}; font-family: var(--font-mono); font-weight: 700;">${emp.role}</div>
+          </div>
+        </div>
+        <span style="font-family: var(--font-mono); font-size: 10px; padding: 2px 6px; border-radius: 3px; background: rgba(16,185,129,0.14); color: #34D399; font-weight: 800;">
+          ⚡ ${emp.efficiency}%
+        </span>
+      </div>
+      <div style="font-size: 11px; color: #94A3B8; line-height: 1.35;">
+        ${lastPreview}
+      </div>
+      <div style="display: flex; justify-content: space-between; font-family: var(--font-mono); font-size: 10px; color: #64748B; border-top: 1px dashed #1E293B; padding-top: 4px;">
+        <span>Tinh thần: <strong style="color: #FBBF24;">${emp.morale}%</strong></span>
+        <span>Chỉ đạo: <strong style="color: #38BDF8;">${emp.directivesCompleted} lệnh</strong></span>
+      </div>
+    `;
+
+    card.addEventListener('click', () => {
+      s.selectedNpcId = emp.id;
+      render(screenRoot, s);
+    });
+    leftRoster.append(card);
+  }
+  layout.append(leftRoster);
+
+  // CỘT PHẢI: HỒ SƠ NHÂN VIÊN + BẢNG GIAO CHỈ ĐẠO + LUỒNG CHAT ROLEPLAY LLM
+  const rightPane = el('div', '');
+  rightPane.style.cssText = `
+    display: flex; flex-direction: column; justify-content: space-between;
+    background: #090F1B; border: 1px solid #1E293B; border-radius: 4px; overflow: hidden;
+  `;
+
+  // 1. Header Thông tin Nhân viên & Trạng thái LLM Roleplay
+  const empHead = el('div', '');
+  empHead.style.cssText = `
+    padding: 12px 16px; background: #111A29; border-bottom: 1px solid #1E293B;
+    display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 10px;
+  `;
+  const llmBadgeText =
+    s.llmConfig?.provider === 'offline_heuristic' || !s.llmConfig?.apiKey
+      ? `ROLEPLAY ENGINE (${currentNpc.name.toUpperCase()})`
+      : `LLM ONLINE: ${s.llmConfig.model}`;
+
+  empHead.innerHTML = `
+    <div style="display: flex; gap: 12px; align-items: center;">
+      <div style="font-size: 34px; background: #0B111E; border: 2px solid ${currentNpc.color}; border-radius: 8px; padding: 6px 10px;">
+        ${currentNpc.avatar}
+      </div>
+      <div>
+        <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+          <span style="font-size: 16px; font-weight: 900; color: #FFFFFF;">${currentNpc.name}</span>
+          <span style="font-family: var(--font-mono); font-size: 11px; color: ${currentNpc.color}; font-weight: 800; background: rgba(255,255,255,0.06); padding: 2px 8px; border-radius: 3px;">
+            ${currentNpc.role}
+          </span>
+          <span style="font-family: var(--font-mono); font-size: 10px; color: #94A3B8;">${currentNpc.channel}</span>
+        </div>
+        <div style="font-size: 11px; color: #CBD5E1; margin-top: 3px;">
+          <strong>Chuyên môn:</strong> ${currentNpc.specialty}
+        </div>
+        <div style="font-size: 11px; color: #94A3B8; margin-top: 2px; font-style: italic;">
+          🎭 Tính cách Roleplay: "${currentNpc.personality}"
+        </div>
+      </div>
+    </div>
+    <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 4px; font-family: var(--font-mono); font-size: 10px;">
+      <span style="padding: 3px 8px; border-radius: 3px; background: rgba(56,189,248,0.15); color: #38BDF8; border: 1px solid #38BDF8; font-weight: 800;">
+        🤖 ${llmBadgeText}
+      </span>
+      <div style="color: #CBD5E1;">
+        Tinh thần: <strong style="color:#FBBF24;">${currentNpc.morale}%</strong> ·
+        Hiệu suất: <strong style="color:#34D399;">${currentNpc.efficiency}%</strong> ·
+        Tín nhiệm: <strong style="color:#38BDF8;">${currentNpc.trust}%</strong>
+      </div>
+    </div>
+  `;
+  rightPane.append(empHead);
+
+  // 2. Bảng Giao Chỉ đạo Điều hành Nhanh cho Nhân viên này (Preset Executive Directives)
+  const dirBox = el('div', '');
+  dirBox.style.cssText = `
+    padding: 12px 16px; background: #0D1524; border-bottom: 1px solid #1E293B;
+    display: flex; flex-direction: column; gap: 8px;
+  `;
+  dirBox.innerHTML = `
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 6px;">
+      <span style="font-family: var(--font-mono); font-size: 11px; font-weight: 800; color: #FBBF24;">
+        ⚡ BẢNG GIAO CHỈ ĐẠO ĐIỀU HÀNH CỦA CEO CHO ${currentNpc.name.toUpperCase()} (${currentNpc.dept.toUpperCase()}):
+      </span>
+      <span style="font-family: var(--font-mono); font-size: 10px; color: #94A3B8;">
+        Bấm giao việc 1 chạm hoặc tự gõ mệnh lệnh chỉ đạo ở khung chat bên dưới
+      </span>
+    </div>
+  `;
+
+  const dirGrid = el('div', '');
+  dirGrid.style.cssText =
+    'display: grid; grid-template-columns: repeat(auto-fit, minmax(235px, 1fr)); gap: 8px;';
+
+  for (const d of currentNpc.presetDirectives || []) {
+    const dCard = el('div', '');
+    dCard.style.cssText = `
+      background: #111C2E; border: 1px solid #26354D; border-top: 2px solid ${currentNpc.color};
+      border-radius: 4px; padding: 10px 12px; display: flex; flex-direction: column; justify-content: space-between; gap: 8px;
+    `;
+    dCard.innerHTML = `
+      <div>
+        <div style="display: flex; justify-content: space-between; font-family: var(--font-mono); font-size: 10px; color: #38BDF8; font-weight: 800;">
+          <span>${d.code}</span>
+          <span style="color: #34D399;">+${d.scoreDelta} ĐIỂM CEO</span>
+        </div>
+        <div style="font-weight: 800; font-size: 12px; color: #FFFFFF; margin-top: 3px; line-height: 1.35;">
+          ${d.title}
+        </div>
+        <div style="font-size: 11px; color: #34D399; margin-top: 4px; line-height: 1.35; font-family: var(--font-mono);">
+          📈 ${d.impactSummary}
+        </div>
+      </div>
+    `;
+
+    const issueBtn = el('button', 'btn btn--ballpoint', `⚡ Giao Chỉ đạo cho ${currentNpc.name}`);
+    issueBtn.style.cssText =
+      'width: 100%; justify-content: center; min-height: 28px; padding: 5px 10px; font-family: var(--font-mono); font-size: 11px; font-weight: 800;';
+    issueBtn.disabled = s.isNpcThinking;
+    issueBtn.addEventListener('click', () => {
+      handleIssueDirectiveToNpc(s, currentNpc.id, { directiveId: d.id });
+    });
+    dCard.append(issueBtn);
+    dirGrid.append(dCard);
+  }
+  dirBox.append(dirGrid);
+  rightPane.append(dirBox);
+
+  // 3. Luồng Tin nhắn Role-Playing giữa CEO và Nhân viên
+  const chatStream = el('div', 'npc-roleplay-stream');
+  chatStream.style.cssText = `
+    flex: 1; padding: 14px 16px; display: flex; flex-direction: column; gap: 12px;
+    min-height: 250px; max-height: 44vh; overflow-y: auto; background: #070B12;
+  `;
+
+  for (const msg of chatMessages) {
+    const isPlayer = msg.sender === 'player';
+    const bubbleWrap = el('div', '');
+    bubbleWrap.style.cssText = `
+      display: flex; gap: 10px; align-items: flex-start;
+      padding: 11px 14px; border-radius: 6px;
+      background: ${
+        isPlayer
+          ? msg.isDirective
+            ? 'rgba(245, 158, 11, 0.14)'
+            : 'rgba(56, 189, 248, 0.12)'
+          : msg.isWarning
+            ? 'rgba(244, 63, 94, 0.14)'
+            : '#111927'
+      };
+      border: 1px solid ${
+        isPlayer
+          ? msg.isDirective
+            ? '#F59E0B'
+            : '#38BDF8'
+          : msg.isWarning
+            ? '#F43F5E'
+            : '#1E293B'
+      };
+      border-left: 4px solid ${
+        isPlayer
+          ? msg.isDirective
+            ? '#F59E0B'
+            : '#38BDF8'
+          : msg.isWarning
+            ? '#F43F5E'
+            : currentNpc.color || '#10B981'
+      };
+    `;
+
+    const impactHtml = msg.impactSummary
+      ? `<div style="margin-top: 8px; padding: 6px 10px; background: rgba(16, 185, 129, 0.12); border: 1px solid rgba(16, 185, 129, 0.35); border-radius: 4px; font-family: var(--font-mono); font-size: 11px; color: #34D399; font-weight: 700;">
+           📊 KẾT QUẢ THỰC THI LÊN SỔ CÁI: ${msg.impactSummary}
+         </div>`
+      : '';
+
+    bubbleWrap.innerHTML = `
+      <div style="font-size: 22px; line-height: 1;">${msg.avatar || (isPlayer ? '👑' : currentNpc.avatar)}</div>
+      <div style="flex: 1;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; flex-wrap: wrap; gap: 6px;">
+          <div style="font-size: 12px; font-weight: 800; color: ${isPlayer ? (msg.isDirective ? '#FBBF24' : '#38BDF8') : '#FFFFFF'};">
+            ${msg.authorName}
+            <span style="font-weight: 400; color: #94A3B8; font-size: 11px;">(${msg.authorRole})</span>
+            ${msg.isDirective ? `<span style="margin-left: 6px; padding: 1px 6px; border-radius: 3px; background: rgba(245,158,11,0.2); color: #FBBF24; font-family: var(--font-mono); font-size: 9px;">CHỈ ĐẠO ĐIỀU HÀNH</span>` : ''}
+          </div>
+          <div style="font-family: var(--font-mono); font-size: 10px; color: #64748B;">${msg.time || 'Vừa xong'}</div>
+        </div>
+        <div style="font-size: 13px; color: #F8FAFC; line-height: 1.55; white-space: pre-wrap;">${msg.text}</div>
+        ${impactHtml}
+      </div>
+    `;
+    chatStream.append(bubbleWrap);
+  }
+
+  if (s.isNpcThinking) {
+    const thinkingEl = el('div', '');
+    thinkingEl.style.cssText =
+      'padding: 10px 14px; font-family: var(--font-mono); font-size: 11px; color: #38BDF8; font-style: italic; background: #111927; border-radius: 4px; border: 1px dashed #38BDF8;';
+    thinkingEl.textContent = `🎭 ${currentNpc.avatar} ${currentNpc.name} (${currentNpc.role}) đang suy nghĩ và soạn báo cáo phản hồi cho CEO...`;
+    chatStream.append(thinkingEl);
+  }
+
+  rightPane.append(chatStream);
+
+  // 4. Các gợi ý câu nói Roleplay & Chỉ đạo nhanh (Quick Chips)
+  const quickRow = el('div', '');
+  quickRow.style.cssText = `
+    padding: 8px 14px; background: #0D1422; border-top: 1px solid #1E293B;
+    display: flex; gap: 6px; overflow-x: auto; align-items: center;
+  `;
+  const quickLabel = el('span', '', '💡 Gợi ý nhanh:');
+  quickLabel.style.cssText = 'font-family: var(--font-mono); font-size: 10px; color: #94A3B8; white-space: nowrap;';
+  quickRow.append(quickLabel);
+
+  for (const qp of rpProfile.quickPrompts || []) {
+    const isDirPrompt = qp.toLowerCase().startsWith('chỉ đạo');
+    const chip = el('button', 'btn btn--ghost', qp);
+    chip.style.cssText = `
+      min-height: 26px; padding: 3px 9px; font-size: 11px; white-space: nowrap; border-radius: 3px;
+      border: 1px solid ${isDirPrompt ? '#F59E0B' : '#334155'};
+      color: ${isDirPrompt ? '#FBBF24' : '#CBD5E1'};
+    `;
+    chip.addEventListener('click', () => {
+      if (isDirPrompt) {
+        handleIssueDirectiveToNpc(s, currentNpc.id, { customDirectiveText: qp });
+      } else {
+        handleSendNpcRoleplayChat(s, currentNpc.id, qp);
+      }
+    });
+    quickRow.append(chip);
+  }
+  rightPane.append(quickRow);
+
+  // 5. Khung Nhập Tin nhắn Roleplay & Chỉ đạo Tự do của CEO
+  const composer = el('div', '');
+  composer.style.cssText = `
+    padding: 12px 16px; background: #111A29; border-top: 1px solid #1E293B;
+    display: flex; gap: 8px; flex-wrap: wrap; align-items: center;
+  `;
+
+  const chatInp = el('input', '');
+  chatInp.placeholder = `Nhắn tin Roleplay hoặc gõ lệnh chỉ đạo cho ${currentNpc.name} (${currentNpc.role})...`;
+  chatInp.style.cssText = `
+    flex: 1; min-width: 240px; padding: 10px 14px; background: #070B11; border: 1px solid #38BDF8;
+    color: #FFFFFF; font-size: 13px; border-radius: 4px; outline: none;
+  `;
+
+  chatInp.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && chatInp.value.trim()) {
+      const txt = chatInp.value.trim();
+      chatInp.value = '';
+      handleSendNpcRoleplayChat(s, currentNpc.id, txt);
+    }
+  });
+
+  const sendChatBtn = el('button', 'btn', '💬 Nhắn tin Roleplay [Enter]');
+  sendChatBtn.style.cssText = `
+    padding: 9px 14px; font-family: var(--font-mono); font-size: 11px; font-weight: 800;
+    background: #0284C7; color: #FFFFFF; border: 1px solid #38BDF8; cursor: pointer;
+  `;
+  sendChatBtn.disabled = s.isNpcThinking;
+  sendChatBtn.addEventListener('click', () => {
+    if (chatInp.value.trim()) {
+      const txt = chatInp.value.trim();
+      chatInp.value = '';
+      handleSendNpcRoleplayChat(s, currentNpc.id, txt);
+    }
+  });
+
+  const sendDirectiveBtn = el('button', 'btn btn--ballpoint', '⚡ Phát Chỉ đạo Điều hành');
+  sendDirectiveBtn.style.cssText = `
+    padding: 9px 14px; font-family: var(--font-mono); font-size: 11px; font-weight: 800;
+    background: #D97706; color: #FFFFFF; border: 1px solid #FBBF24; cursor: pointer;
+  `;
+  sendDirectiveBtn.disabled = s.isNpcThinking;
+  sendDirectiveBtn.addEventListener('click', () => {
+    const txt = chatInp.value.trim();
+    if (!txt) {
+      s.toast = `✍️ Hãy gõ mệnh lệnh chỉ đạo vào ô nhập hoặc bấm một trong 3 nút Chỉ đạo phía trên cho ${currentNpc.name}!`;
+      render(screenRoot, s);
+      return;
+    }
+    chatInp.value = '';
+    handleIssueDirectiveToNpc(s, currentNpc.id, { customDirectiveText: txt });
+  });
+
+  composer.append(chatInp, sendChatBtn, sendDirectiveBtn);
+  rightPane.append(composer);
+
+  setTimeout(() => {
+    chatStream.scrollTop = chatStream.scrollHeight;
+  }, 40);
+
+  layout.append(rightPane);
+  return layout;
+}
+
+/**
+ * Xử lý khi CEO gửi tin nhắn trò chuyện Role-Playing tự do cho một NPC.
+ */
+async function handleSendNpcRoleplayChat(s, npcId, messageText) {
+  if (!messageText || s.isNpcThinking) return;
+  ensureStaffAndChatsState(s.fin);
+  const npc = NPC_DIRECTORY[npcId] || NPC_DIRECTORY.n_mentor;
+
+  appendNpcChatMessage(s.fin, npcId, {
+    sender: 'player',
+    text: messageText,
+    isDirective: false,
+  });
+
+  s.isNpcThinking = true;
+  playSlackSend();
+  persistCurrentSession(s);
+  render(screenRoot, s);
+
+  try {
+    const res = await askNpcRoleplay({
+      npcId,
+      playerMessage: messageText,
+      isDirective: false,
+      state: s.fin,
+      activeDoc: s.stream[s.selectedIdx],
+      llmConfig: s.llmConfig,
+    });
+
+    appendNpcChatMessage(s.fin, npcId, {
+      sender: 'npc',
+      text: res.reply,
+      isDirective: false,
+      model: res.model,
+    });
+    playSlackReply();
+    s.toast = `💬 ${npc.avatar} ${npc.name} vừa phản hồi tin nhắn của CEO!`;
+  } catch (err) {
+    appendNpcChatMessage(s.fin, npcId, {
+      sender: 'npc',
+      text: `Dạ thưa CEO, đường truyền nội bộ có chút gián đoạn (${err.message}), nhưng bộ phận của ${npc.name} vẫn đang bám sát kế hoạch ạ!`,
+    });
+  } finally {
+    s.isNpcThinking = false;
+    persistCurrentSession(s);
+    render(screenRoot, s);
+  }
+}
+
+/**
+ * Xử lý khi CEO giao một Chỉ đạo Điều hành (Preset hoặc Custom) cho nhân viên cấp dưới (`npcId`).
+ */
+async function handleIssueDirectiveToNpc(s, npcId, { directiveId = null, customDirectiveText = '' } = {}) {
+  if (s.isNpcThinking) return;
+  ensureStaffAndChatsState(s.fin);
+  const npc = NPC_DIRECTORY[npcId] || NPC_DIRECTORY.n_mentor;
+
+  playSlackSend();
+  const res = issueExecutiveDirective(s.fin, {
+    npcId,
+    directiveId,
+    customDirectiveText,
+  });
+
+  if (!res.ok) {
+    s.toast = `⚠️ ${res.message}`;
+    render(screenRoot, s);
+    return;
+  }
+
+  s.score += res.scoreDelta || 150;
+  if (res.ethical) {
+    s.ok += 1;
+    playSuccessLedger();
+    s.toast = `⚡ Đã phát chỉ đạo cho ${npc.name}: ${res.directiveTitle} (+${res.scoreDelta} điểm)!`;
+    s.feedback = {
+      type: 'success',
+      title: `⚡ CHỈ ĐẠO CỦA CEO ĐÃ ĐƯỢC ${npc.name.toUpperCase()} THỰC THI (+${res.scoreDelta} ĐIỂM)`,
+      message: res.npcReply,
+      deltaText: res.impactSummary,
+    };
+  } else {
+    s.bad += 1;
+    playAlertBuzzer();
+    s.toast = `🚨 Chỉ đạo vi phạm pháp luật thuế! Bị phạt hành chính và trừ điểm tuân thủ.`;
+    s.feedback = {
+      type: 'error',
+      title: `🚨 CẢNH BÁO PHÁP CHẾ KHI GIAO CHỈ ĐẠO (${res.scoreDelta} ĐIỂM)`,
+      message: res.npcReply,
+      deltaText: res.impactSummary,
+    };
+  }
+
+  // Nếu người chơi đang cấu hình LLM trực tuyến (có API key), gọi thêm LLM để NPC bổ sung lời báo cáo nhập vai sống động
+  if (s.llmConfig && s.llmConfig.provider !== 'offline_heuristic' && s.llmConfig.apiKey?.trim()) {
+    s.isNpcThinking = true;
+    persistCurrentSession(s);
+    render(screenRoot, s);
+    try {
+      const llmRes = await askNpcRoleplay({
+        npcId,
+        playerMessage: customDirectiveText || res.directiveTitle,
+        isDirective: true,
+        directiveResult: res,
+        state: s.fin,
+        activeDoc: s.stream[s.selectedIdx],
+        llmConfig: s.llmConfig,
+      });
+      const chatArr = s.fin.npcChats[npcId];
+      if (Array.isArray(chatArr) && chatArr.length > 0) {
+        chatArr[chatArr.length - 1].text = llmRes.reply;
+      }
+      playSlackReply();
+    } catch {
+      // Giữ nguyên câu trả lời mặc định từ issueExecutiveDirective
+    } finally {
+      s.isNpcThinking = false;
+    }
+  } else {
+    setTimeout(() => playSlackReply(), 140);
+  }
+
+  persistCurrentSession(s);
+  render(screenRoot, s);
+}
+
+/**
+ * Không gian xử lý các Tờ trình & Sự kiện Lệnh Chi / Thông báo Thu đột xuất từ NPC.
+ */
+function renderIncomingSlackEventsWorkspace(s, events, isPro) {
+  const wrap = el('div', '');
+  wrap.style.cssText = 'display: flex; flex-direction: column; gap: 12px;';
+
   const channels = ['all', '#ban-giam-doc', '#kinh-doanh-thu-tien', '#kho-van-mua-hang', '#lenh-thu-chi-quy', '#doi-soat-cod-opex', '#hdqt-chien-luoc'];
 
   const filteredEvents = s.activeSlackChannel === 'all'
@@ -1935,7 +2536,6 @@ function renderSlackChatTab(s, isPro) {
   }
   const currentEvent = events.find((e) => e.id === s.selectedSlackId) || filteredEvents[0];
 
-  // Thanh bộ lọc Kênh Slack Workspace
   const channelBar = el('div', '');
   channelBar.style.cssText = `
     display: flex; gap: 6px; overflow-x: auto; padding-bottom: 4px;
@@ -1964,14 +2564,12 @@ function renderSlackChatTab(s, isPro) {
   }
   wrap.append(channelBar);
 
-  // Không gian chat 2 cột: Danh sách cuộc trò chuyện bên trái + Khung chat & Trả lời NPC bên phải
   const chatLayout = el('div', '');
   chatLayout.style.cssText = `
     display: grid; grid-template-columns: minmax(240px, 310px) 1fr; gap: 14px;
-    min-height: 520px;
+    min-height: 500px;
   `;
 
-  // Cột trái: Danh sách các tin nhắn / sự kiện ngẫu nhiên từ NPC
   const leftList = el('div', '');
   leftList.style.cssText = `
     display: flex; flex-direction: column; gap: 8px; max-height: 65vh; overflow-y: auto;
@@ -1979,11 +2577,12 @@ function renderSlackChatTab(s, isPro) {
   `;
 
   if (filteredEvents.length === 0) {
-    leftList.innerHTML = `<div style="color: #64748B; font-size: 12px; text-align: center; padding: 30px 10px;">Chưa có tin nhắn trong kênh này. Hãy bấm "Nhận Tin nhắn Lệnh chi / Thu ngẫu nhiên" ở cột trái!</div>`;
+    leftList.innerHTML = `<div style="color: #64748B; font-size: 12px; text-align: center; padding: 30px 10px;">Chưa có tờ trình trong kênh này. Hãy bấm "Nhận Tin nhắn Lệnh chi / Thu ngẫu nhiên" ở cột trái!</div>`;
   } else {
     for (const ev of filteredEvents) {
       const isSelected = currentEvent && ev.id === currentEvent.id;
       const isPending = ev.status === 'PENDING';
+      const npcInfo = ev.npc || NPC_DIRECTORY[ev.npcId] || NPC_DIRECTORY.n_mentor;
       const item = el('button', '');
       item.setAttribute('type', 'button');
       item.style.cssText = `
@@ -1995,8 +2594,8 @@ function renderSlackChatTab(s, isPro) {
       `;
       item.innerHTML = `
         <div style="display: flex; justify-content: space-between; font-family: var(--font-mono); font-size: 10px;">
-          <span style="color: #38BDF8; font-weight: 800;">${ev.npc.avatar} ${ev.npc.name} · ${ev.channel}</span>
-          <span style="color: ${isPending ? '#FBBF24' : '#10B981'}; font-weight: 700;">${isPending ? '● CHỜ DUYỆT' : '✓ ĐÃ PHẢN HỒI'}</span>
+          <span style="color: #38BDF8; font-weight: 800;">${npcInfo.avatar} ${npcInfo.name} · ${ev.channel}</span>
+          <span style="color: ${isPending ? '#FBBF24' : '#10B981'}; font-weight: 700;">${isPending ? '● CHỜ CEO DUYỆT' : '✓ ĐÃ XỬ LÝ'}</span>
         </div>
         <div style="font-weight: 800; font-size: 12px; color: #FFFFFF; line-height: 1.35;">${ev.title}</div>
         <div style="display: flex; justify-content: space-between; font-size: 10px; color: #94A3B8;">
@@ -2013,7 +2612,6 @@ function renderSlackChatTab(s, isPro) {
   }
   chatLayout.append(leftList);
 
-  // Cột phải: Khung hội thoại Slack chi tiết & Bảng lựa chọn câu trả lời của người chơi
   const rightChat = el('div', '');
   rightChat.style.cssText = `
     display: flex; flex-direction: column; justify-content: space-between;
@@ -2021,9 +2619,9 @@ function renderSlackChatTab(s, isPro) {
   `;
 
   if (!currentEvent) {
-    rightChat.innerHTML = `<div style="padding: 40px; text-align: center; color: #64748B;">Hãy chọn một tin nhắn từ danh sách bên trái để đọc và trả lời.</div>`;
+    rightChat.innerHTML = `<div style="padding: 40px; text-align: center; color: #64748B;">Hãy chọn một tờ trình từ danh sách bên trái để đọc và phê duyệt.</div>`;
   } else {
-    // Header của phòng chat
+    const evNpc = currentEvent.npc || NPC_DIRECTORY[currentEvent.npcId] || NPC_DIRECTORY.n_mentor;
     const chatHead = el('div', '');
     chatHead.style.cssText = `
       padding: 12px 16px; background: #111A29; border-bottom: 1px solid #1E293B;
@@ -2035,24 +2633,45 @@ function renderSlackChatTab(s, isPro) {
           ${currentEvent.channel} // ${currentEvent.title}
         </div>
         <div style="font-size: 11px; color: #94A3B8; margin-top: 2px;">
-          Loại sự kiện: <strong style="color: #F8FAFC;">${currentEvent.orderType}</strong> ·
-          Người gửi: <strong>${currentEvent.npc.avatar} ${currentEvent.npc.name} (${currentEvent.npc.role})</strong> ·
-          Quy mô: <strong style="color: #34D399;">${currentEvent.amountText}</strong>
+          Loại tờ trình: <strong style="color: #F8FAFC;">${currentEvent.orderType}</strong> ·
+          Nhân viên trình: <strong>${evNpc.avatar} ${evNpc.name} (${evNpc.role})</strong> ·
+          Quy mô: <strong style="color: #34D399;">${currentEvent.amountText || vnd(currentEvent.amount || 0)}</strong>
         </div>
       </div>
-      <div>
-        <span style="font-family: var(--font-mono); font-size: 10px; padding: 3px 8px; border-radius: 3px; font-weight: 800; background: ${currentEvent.status === 'PENDING' ? 'rgba(245,158,11,0.2)' : 'rgba(16,185,129,0.2)'}; color: ${currentEvent.status === 'PENDING' ? '#FBBF24' : '#34D399'}; border: 1px solid ${currentEvent.status === 'PENDING' ? '#F59E0B' : '#10B981'};">
-          ${currentEvent.status === 'PENDING' ? '⏳ ĐANG CHỜ CFO RA QUYẾT ĐỊNH' : '✓ ĐÃ HOÀN TẤT & HẠCH TOÁN SỔ CÁI'}
-        </span>
-      </div>
     `;
+
+    const openDirectRoleplayBtn = el(
+      'button',
+      'btn btn--ghost',
+      `💬 Nhắn tin Roleplay & Giao Chỉ đạo riêng cho ${evNpc.name}`
+    );
+    openDirectRoleplayBtn.style.cssText =
+      'min-height: 28px; padding: 4px 10px; font-family: var(--font-mono); font-size: 11px; color: #38BDF8; border: 1px solid #38BDF8;';
+    openDirectRoleplayBtn.addEventListener('click', () => {
+      s.selectedNpcId = evNpc.id || 'n_sale';
+      s.slackViewMode = 'npc_roleplay';
+      render(screenRoot, s);
+    });
+    chatHead.append(openDirectRoleplayBtn);
     rightChat.append(chatHead);
 
-    // Vùng hiển thị các tin nhắn trong thread
     const msgStream = el('div', '');
-    msgStream.style.cssText = 'padding: 16px; display: flex; flex-direction: column; gap: 14px; max-height: 50vh; overflow-y: auto;';
+    msgStream.style.cssText = 'padding: 16px; display: flex; flex-direction: column; gap: 14px; max-height: 48vh; overflow-y: auto;';
 
-    for (const msg of currentEvent.messages || []) {
+    const evMessages = Array.isArray(currentEvent.messages) && currentEvent.messages.length > 0
+      ? currentEvent.messages
+      : [
+          {
+            sender: 'npc',
+            authorName: evNpc.name,
+            authorRole: evNpc.role,
+            avatar: evNpc.avatar,
+            time: currentEvent.timeStr || 'Vừa xong',
+            text: currentEvent.message || currentEvent.title,
+          },
+        ];
+
+    for (const msg of evMessages) {
       const isPlayer = msg.sender === 'player';
       const mBox = el('div', '');
       mBox.style.cssText = `
@@ -2080,7 +2699,6 @@ function renderSlackChatTab(s, isPro) {
     }
     rightChat.append(msgStream);
 
-    // Khối lựa chọn phương án trả lời NPC dành cho người chơi (CFO)
     const replyCard = el('div', '');
     replyCard.style.cssText = `
       padding: 14px 16px; background: #0E1626; border-top: 1px solid #1E293B;
@@ -2090,7 +2708,7 @@ function renderSlackChatTab(s, isPro) {
     if (currentEvent.status === 'PENDING') {
       replyCard.innerHTML = `
         <div style="font-family: var(--font-mono); font-size: 11px; font-weight: 800; color: #FBBF24;">
-          ✍️ HÃY CHỌN CÂU TRẢ LỜI CỦA BẠN (CFO) ĐỂ GIẢI QUYẾT SỰ KIỆN NÀY:
+          ✍️ QUYẾT ĐỊNH CHỈ ĐẠO CỦA CEO ĐỐI VỚI TỜ TRÌNH NÀY:
         </div>
       `;
       const choicesWrap = el('div', '');
@@ -2112,10 +2730,10 @@ function renderSlackChatTab(s, isPro) {
               s.ok += 1;
               setTimeout(() => playSlackReply(), 120);
               setTimeout(() => playSuccessLedger(), 350);
-              s.toast = `✓ Đã phê duyệt phương án chuẩn mực (+${res.scoreDelta} điểm) & hạch toán Sổ cái!`;
+              s.toast = `✓ CEO đã phê duyệt phương án chuẩn mực (+${res.scoreDelta} điểm) & hạch toán Sổ cái!`;
               s.feedback = {
                 type: 'success',
-                title: `✓ ĐÃ PHẢN HỒI TIN NHẮN SLACK: ${currentEvent.title} (+${res.scoreDelta} ĐIỂM)`,
+                title: `✓ ĐÃ PHÊ DUYỆT TỜ TRÌNH: ${currentEvent.title} (+${res.scoreDelta} ĐIỂM)`,
                 message: res.npcReply,
               };
             } else {
@@ -2139,7 +2757,7 @@ function renderSlackChatTab(s, isPro) {
     } else {
       replyCard.innerHTML = `
         <div style="font-family: var(--font-mono); font-size: 11px; color: #34D399; font-weight: 800; display: flex; align-items: center; gap: 8px;">
-          <span>✓ Cuộc trò chuyện này đã được bạn phản hồi và kết chuyển thành bút toán Sổ cái.</span>
+          <span>✓ Tờ trình này đã được CEO phê duyệt và kết chuyển thành bút toán Sổ cái.</span>
         </div>
       `;
     }
@@ -2148,8 +2766,59 @@ function renderSlackChatTab(s, isPro) {
 
   chatLayout.append(rightChat);
   wrap.append(chatLayout);
-
   return wrap;
+}
+
+/**
+ * Bảng Sổ Theo dõi các Chỉ đạo Điều hành của CEO đã giao cho nhân viên.
+ */
+function renderDirectivesLogSection(s, isPro) {
+  const logs = s.fin.directivesLog || [];
+  const box = el('div', '');
+  box.style.cssText = `
+    background: ${isPro ? '#0A0F18' : '#111827'};
+    border: 1px solid #1E293B; border-radius: 4px; padding: 14px 16px;
+    display: flex; flex-direction: column; gap: 10px;
+  `;
+  box.innerHTML = `
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+      <span style="font-family: var(--font-mono); font-size: 11px; font-weight: 800; color: #F59E0B;">
+        📜 SỔ THEO DÕI CHỈ ĐẠO ĐIỀU HÀNH CỦA CEO (${logs.length} MỆNH LỆNH ĐÃ BAN HÀNH)
+      </span>
+      <span style="font-size: 11px; color: #94A3B8;">
+        Mọi chỉ đạo của CEO cho nhân viên đều tự động hạch toán kết quả vào Sổ cái & Báo cáo Tài chính
+      </span>
+    </div>
+  `;
+
+  if (logs.length === 0) {
+    const empty = el(
+      'div',
+      '',
+      'Chưa có chỉ đạo nào được ban hành trong phiên này. Hãy chọn một nhân viên ở trên và bấm "⚡ Giao Chỉ đạo" để bắt đầu điều hành!'
+    );
+    empty.style.cssText = 'font-size: 12px; color: #64748B; padding: 8px 0;';
+    box.append(empty);
+  } else {
+    const list = el('div', '');
+    list.style.cssText = 'display: flex; flex-direction: column; gap: 8px; max-height: 220px; overflow-y: auto;';
+    for (const item of logs.slice(0, 10)) {
+      const row = el('div', '');
+      row.style.cssText =
+        'padding: 8px 12px; background: #111927; border: 1px solid #1E293B; border-left: 3px solid #F59E0B; border-radius: 4px; font-size: 12px;';
+      row.innerHTML = `
+        <div style="display: flex; justify-content: space-between; font-family: var(--font-mono); font-size: 10px; color: #FBBF24; font-weight: 800;">
+          <span>${item.id} // ${item.code} · Giao cho: ${item.npcAvatar} ${item.npcName} (${item.npcRole})</span>
+          <span style="color: #94A3B8;">${item.time}</span>
+        </div>
+        <div style="font-weight: 800; color: #FFFFFF; margin-top: 2px;">${item.title}</div>
+        <div style="color: #34D399; font-family: var(--font-mono); font-size: 11px; margin-top: 3px;">📈 ${item.impactSummary}</div>
+      `;
+      list.append(row);
+    }
+    box.append(list);
+  }
+  return box;
 }
 
 // ============================================================================
@@ -3174,6 +3843,64 @@ function renderRightTelemetryPanel(s, isPro) {
   cfoBody.append(cfoBtnRow);
   cfoWidget.append(cfoBody);
   col.append(cfoWidget);
+
+  // KHỐI 1.5: ĐỘI NGŨ NHÂN SỰ BÊN CẠNH CEO (STAFF ROSTER & ROLEPLAY DIRECTIVES)
+  const staffRoster = getStaffRoster(s.fin);
+  const staffPanel = el('div', 'pal-panel');
+  staffPanel.style.cssText = `
+    background: ${isPro ? '#0D141F' : '#1E293B'};
+    border: 1px solid #F59E0B;
+    border-left: 4px solid #F59E0B;
+    border-radius: 4px; overflow: hidden;
+  `;
+  const staffHead = el('div', 'pal-panel__header');
+  staffHead.style.cssText = `
+    padding: 10px 14px; background: ${isPro ? '#111A29' : '#0F172A'};
+    border-bottom: 1px solid #1E293B; font-family: var(--font-mono); font-size: 11px; font-weight: 800; color: #FBBF24;
+    display: flex; justify-content: space-between; align-items: center;
+  `;
+  staffHead.innerHTML = `
+    <span>👥 NHÂN SỰ BÊN CẠNH CEO (${staffRoster.length})</span>
+    <span style="color: #38BDF8; font-size: 10px;">CHỈ ĐẠO & ROLEPLAY</span>
+  `;
+  staffPanel.append(staffHead);
+
+  const staffBody = el('div', '');
+  staffBody.style.cssText = 'padding: 10px; display: flex; flex-direction: column; gap: 6px; max-height: 250px; overflow-y: auto;';
+
+  for (const emp of staffRoster) {
+    const empBtn = el('button', '');
+    empBtn.setAttribute('type', 'button');
+    empBtn.style.cssText = `
+      display: flex; justify-content: space-between; align-items: center; width: 100%;
+      padding: 7px 10px; border-radius: 4px; text-align: left; cursor: pointer;
+      background: #111927; border: 1px solid #1E293B; border-left: 3px solid ${emp.color};
+      color: #F8FAFC; transition: all 0.14s ease;
+    `;
+    empBtn.innerHTML = `
+      <div style="display: flex; align-items: center; gap: 8px;">
+        <span style="font-size: 18px;">${emp.avatar}</span>
+        <div>
+          <div style="font-size: 12px; font-weight: 800; color: #FFFFFF;">${emp.name}</div>
+          <div style="font-size: 10px; color: #94A3B8;">${emp.role}</div>
+        </div>
+      </div>
+      <div style="text-align: right; font-family: var(--font-mono); font-size: 10px;">
+        <div style="color: #34D399; font-weight: 800;">⚡ ${emp.efficiency}%</div>
+        <div style="color: #38BDF8;">💬 Chỉ đạo ➔</div>
+      </div>
+    `;
+    empBtn.addEventListener('click', () => {
+      s.selectedNpcId = emp.id;
+      s.slackViewMode = 'npc_roleplay';
+      s.activeTab = 'slack_chat';
+      persistCurrentSession(s);
+      render(screenRoot, s);
+    });
+    staffBody.append(empBtn);
+  }
+  staffPanel.append(staffBody);
+  col.append(staffPanel);
 
   // KHỐI 2: BIỂU ĐỒ TELEMETRY DOANH THU & LỢI NHUẬN
   const chartPanel = el('div', 'pal-panel');

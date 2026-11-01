@@ -316,3 +316,47 @@
 
 ### Cần người khác / câu hỏi cho chủ dự án
 - Không có.
+
+
+---
+
+## 2026-11-02 · CORE-018, FE-026 · gemini-4-argon
+
+### Việc đã làm
+- Chuyển hoá trải nghiệm thành **Game Mô phỏng Quản lý Kinh doanh & Role-Playing Điều hành (CEO Business Management & Multi-NPC LLM Roleplay)**:
+  - Người chơi là **CEO (Tổng Giám đốc)** có đội ngũ **8 Nhân viên & Lãnh đạo các phòng ban bên cạnh** (`Chị Mơ` CFO, `Bé Na` Trưởng phòng Kinh doanh, `Chú Bền` Giám đốc Kho vận, `Anh Tâm` Trưởng phòng Ngân quỹ, `Cậu Lẹ` Trưởng nhóm Giao nhận COD, `Ông Thịnh` Phó TGĐ Chiến lược & M&A, `Chị Ngân` Trưởng ban Kiểm toán & Pháp chế, `Bà Diệu` Chủ tịch HĐQT).
+  - Xây dựng cơ chế **Giao Chỉ đạo Điều hành (Executive Directives)** cho phép CEO ra mệnh lệnh cho từng nhân viên (cả chỉ đạo chiến thuật 1 chạm lẫn chỉ đạo tự do do CEO gõ vào), tự động hạch toán kết quả kinh doanh vào Sổ cái và cập nhật chỉ số Tinh thần (`Morale`), Hiệu suất (`Efficiency`), Độ tín nhiệm (`Trust`).
+  - Xây dựng **Phòng Nhắn tin Role-Playing Đa Nhân vật vận hành bởi LLM** (`askNpcRoleplay` + `generateOfflineNpcRoleplay`), cho phép CEO trò chuyện nhập vai tự do với từng NPC.
+
+### File đã đổi
+| File | Thao tác | Nội dung thay đổi |
+|---|---|---|
+| `frontend/js/core/finance.js` | Sửa | Nâng cấp `NPC_DIRECTORY` với hồ sơ chuyên môn & tính cách Roleplay; thêm `STAFF_DIRECTIVES_CATALOG` (24 chỉ đạo mẫu cho 8 NPC), `ensureStaffAndChatsState`, `getStaffRoster`, `issueExecutiveDirective` (hỗ trợ cả chỉ đạo mẫu và chỉ đạo tự do, tuân thủ Luật số 6 không thưởng gian lận), `appendNpcChatMessage`; cập nhật `createFinanceState` và `buildCfoContextSnapshot`. |
+| `frontend/js/services/llm-cfo.js` | Sửa | Thêm `NPC_ROLEPLAY_PROFILES` (hồ sơ System Prompt nhập vai và gợi ý hội thoại cho 8 NPC), `generateOfflineNpcRoleplay` (bộ suy luận Roleplay nội bộ bám sát số liệu Sổ cái thời gian thực) và `askNpcRoleplay` (kết nối OpenAI-compatible, Gemini, Anthropic với fallback mượt mà). |
+| `frontend/js/screens/desk.js` | Sửa | Nâng cấp Tab 02 (`renderSlackChatTab`, `renderNpcRoleplayWorkspace`, `renderIncomingSlackEventsWorkspace`, `renderDirectivesLogSection`, `handleSendNpcRoleplayChat`, `handleIssueDirectiveToNpc`); thêm bảng `👥 NHÂN SỰ BÊN CẠNH CEO` ở cột phải (`renderRightTelemetryPanel`) và nút mở nhanh Roleplay trên mỗi chứng từ ở Tab 01. |
+| `frontend/js/main.js` | Sửa | Cập nhật query string cache-busting `?v=20261102_v1`. |
+| `frontend/index.html` | Sửa | Cập nhật nhãn trạng thái `● LIVE ROLEPLAY LLM` và cache-busting `?v=20261102_v1`. |
+| `tests/js/finance.test.js` | Sửa | Thêm test kiểm tra `getStaffRoster`, `issueExecutiveDirective` (chỉ đạo có sẵn, chỉ đạo tự do, chế tài khi chỉ đạo sai luật) và `appendNpcChatMessage`. |
+| `tests/js/llm-cfo.test.js` | Sửa | Thêm test kiểm tra `NPC_ROLEPLAY_PROFILES` và `askNpcRoleplay` cho các nhân vật. |
+| `ai/TASKS.md` | Sửa | Thêm và chuyển `CORE-018`, `FE-026` sang `review`. |
+| `README.md` | Sửa | Cập nhật bảng Tính năng và Nhật ký thay đổi. |
+
+### Hành vi thay đổi
+- **Trước:** Người chơi chủ yếu chỉ trả lời các sự kiện ngẫu nhiên bằng 3 nút cố định và hỏi đáp với một mình AI CFO trong hộp thoại modal.
+- **Sau:**
+  - Người chơi đóng vai **CEO** quản lý trực tiếp **8 nhân viên cốt cán bên cạnh** (hiển thị ngay ở Cột phải Bàn điều hành và trong Tab 02).
+  - CEO có quyền **Giao Chỉ đạo Điều hành** cho bất kỳ nhân viên nào (chọn từ 3 chỉ đạo chiến thuật của nhân viên đó hoặc tự gõ mệnh lệnh chỉ đạo bất kỳ). Nhân viên nhận lệnh sẽ phản hồi nhập vai và thực thi nghiệp vụ làm tăng Doanh thu, thu hồi Công nợ, tối ưu Ngân quỹ, giảm Giá vốn hoặc kết chuyển Sổ cái thực tế.
+  - Trong **Phần Tin nhắn (Tab 02)**, CEO có thể **nhắn tin tự do (Freeform Chat)** với từng NPC; các NPC được vận hành bởi LLM (hoặc Roleplay Engine nội bộ khi không có mạng) và trả lời đúng tính cách, chức vụ, cách xưng hô kèm số liệu thực tế của doanh nghiệp.
+
+### Kiểm tra
+- `python tools/validate_content.py` → **13 mẫu chứng từ · 43 tài khoản · 11 loại lỗi · 22 trích dẫn luật — 0 lỗi, 0 cảnh báo**.
+- `node --test tests/js/` → **46/46 tests PASS (0 fail)**.
+
+### README
+- `đã cập nhật`: thêm dòng tính năng Quản lý Kinh doanh CEO & Role-Playing NPC LLM vào bảng *Tính năng* và thêm mục `2026-11-02 · CORE-018, FE-026` vào *Nhật ký thay đổi*.
+
+### Chưa xong / rủi ro
+- Không có.
+
+### Câu hỏi cho chủ dự án
+- Không có.

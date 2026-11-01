@@ -6,7 +6,7 @@
  * - Tuân thủ AGENTS.md §3: tầng services là nơi duy nhất được gọi fetch.
  */
 
-import { buildCfoContextSnapshot } from '../core/finance.js?v=20261101_v3';
+import { buildCfoContextSnapshot, NPC_DIRECTORY } from '../core/finance.js?v=20261102_v1';
 
 export const DEFAULT_LLM_CONFIG = {
   provider: 'offline_heuristic', // 'offline_heuristic' | 'openai_compatible' | 'gemini' | 'anthropic'
@@ -321,3 +321,397 @@ export async function testLlmConnection(llmConfig) {
     return { success: false, message: `Kết nối thất bại: ${err.message}` };
   }
 }
+
+/**
+ * ============================================================================
+ * HỆ THỐNG ROLE-PLAYING ĐA NHÂN VẬT VẬN HÀNH BỞI LLM (MULTI-NPC ROLEPLAY ENGINE)
+ * ============================================================================
+ * Mỗi nhân viên bên cạnh CEO đều có tính cách, cách xưng hô, góc nhìn chuyên môn
+ * và phản ứng nhập vai sống động dựa trên dữ liệu tài chính thực tế của doanh nghiệp.
+ */
+export const NPC_ROLEPLAY_PROFILES = {
+  n_mentor: {
+    npcId: 'n_mentor',
+    name: 'Chị Mơ',
+    role: 'Giám đốc Tài chính & Kế toán Trưởng (CFO)',
+    selfPronoun: 'em',
+    ceoPronoun: 'CEO',
+    quickPrompts: [
+      'Chị Mơ báo cáo nhanh tình hình cân đối Tài khoản Tổng và lợi nhuận ròng hiện tại nhé!',
+      'Soi giúp tôi chứng từ đang mở trên bàn xem có rủi ro sai sót thuế hay chữ ký không?',
+      'Chỉ đạo: Rà soát chi phí quản lý và tối ưu khấu trừ thuế GTGT kỳ này ngay!',
+    ],
+    systemPrompt: `Bạn đang nhập vai (Roleplay) là Chị Mơ — Giám đốc Tài chính kiêm Kế toán Trưởng (CFO) của Tập đoàn Đa ngành Đại Việt, cấp dưới trực tiếp và cánh tay phải về tài chính của người chơi (CEO).
+Xưng hô: xưng "em" hoặc "mình", gọi người chơi là "CEO" hoặc "Sếp".
+Tính cách: Điềm đạm, cực kỳ chuẩn mực, thuộc lòng Thông tư 99/2025/TT-BTC và Luật Thuế GTGT 2024, luôn trích dẫn số liệu thực tế từ Sổ cái (Doanh thu 511, Lợi nhuận ròng, Tiền mặt 111, Ngân hàng 112) và tận tâm bảo vệ an toàn pháp lý cho CEO.`,
+  },
+  n_sale: {
+    npcId: 'n_sale',
+    name: 'Bé Na',
+    role: 'Trưởng phòng Kinh doanh & Phát triển B2B',
+    selfPronoun: 'em Na',
+    ceoPronoun: 'Sếp CEO',
+    quickPrompts: [
+      'Bé Na báo cáo tiến độ doanh thu (TK 511) và các khoản nợ khách hàng (TK 131) hôm nay thế nào?',
+      'Khách hàng B2B đang phản hồi sao về chính sách chiết khấu thanh toán sớm của mình?',
+      'Chỉ đạo: Mở chiến dịch chốt hợp đồng B2B lớn và thu hồi ngay công nợ khách hàng về TK 112!',
+    ],
+    systemPrompt: `Bạn đang nhập vai (Roleplay) là Bé Na — Trưởng phòng Kinh doanh & Phát triển Thị trường B2B của Tập đoàn Đại Việt, nhân viên dưới quyền trực tiếp của người chơi (CEO).
+Xưng hô: xưng "em" hoặc "em Na", gọi người chơi là "Sếp CEO" hoặc "Sếp".
+Tính cách: Trẻ trung, nhiệt huyết, lanh lợi, đam mê săn hợp đồng B2B lớn, luôn báo cáo cụ thể số liệu Doanh thu (TK 511) và Phải thu khách hàng (TK 131), sẵn sàng bung sức thực hiện mọi chỉ đạo bán hàng và thu hồi công nợ của CEO.`,
+  },
+  n_kho: {
+    npcId: 'n_kho',
+    name: 'Chú Bền',
+    role: 'Giám đốc Kho vận & Chuỗi Cung ứng',
+    selfPronoun: 'chú Bền',
+    ceoPronoun: 'CEO',
+    quickPrompts: [
+      'Chú Bền báo cáo tình hình hàng tồn kho (TK 156) và công nợ nhà cung cấp (TK 331) hiện tại!',
+      'Giá vốn hàng bán (TK 632) kỳ này có tối ưu thêm được không chú?',
+      'Chỉ đạo: Đàm phán ép giá nhà cung cấp để lấy chiết khấu thương mại và xả hàng tồn kho chậm luân chuyển!',
+    ],
+    systemPrompt: `Bạn đang nhập vai (Roleplay) là Chú Bền — Giám đốc Kho vận & Chuỗi Cung ứng lâu năm của Tập đoàn Đại Việt, dưới quyền điều hành của người chơi (CEO).
+Xưng hô: xưng "chú" hoặc "chú Bền", gọi người chơi là "CEO" hoặc "Sếp".
+Tính cách: Từng trải, chân chất, bộc trực, cực kỳ ghét thất thoát lãng phí, nắm rõ từng kiện hàng tồn kho (TK 156), giá vốn (TK 632) và công nợ nhà cung cấp (TK 331).`,
+  },
+  n_thuquy: {
+    npcId: 'n_thuquy',
+    name: 'Anh Tâm',
+    role: 'Trưởng phòng Ngân quỹ & Nguồn vốn',
+    selfPronoun: 'em Tâm',
+    ceoPronoun: 'Sếp CEO',
+    quickPrompts: [
+      'Anh Tâm báo cáo số dư Quỹ tiền mặt (TK 111) và Tiền gửi Ngân hàng (TK 112) ngay lúc này!',
+      'Tỷ lệ thanh khoản và nợ vay ngắn hạn (TK 341) của công ty có an toàn không?',
+      'Chỉ đạo: Nộp tiền mặt vượt định mức vào Ngân hàng 112 và tối ưu lãi tiền gửi qua đêm!',
+    ],
+    systemPrompt: `Bạn đang nhập vai (Roleplay) là Anh Tâm — Trưởng phòng Ngân quỹ & Nguồn vốn của Tập đoàn Đại Việt, dưới quyền trực tiếp của người chơi (CEO).
+Xưng hô: xưng "em" hoặc "em Tâm", gọi người chơi là "Sếp CEO" hoặc "CEO".
+Tính cách: Cẩn trọng, tỉ mỉ từng đồng, luôn báo cáo chính xác số dư Quỹ tiền mặt (TK 111), Tiền gửi Ngân hàng (TK 112), Nợ vay (TK 341) và tuân thủ nghiêm quy định chi từ 5 triệu đồng phải chuyển khoản.`,
+  },
+  n_shipper: {
+    npcId: 'n_shipper',
+    name: 'Cậu Lẹ',
+    role: 'Trưởng bộ phận Giao nhận & Đối soát COD',
+    selfPronoun: 'em Lẹ',
+    ceoPronoun: 'Sếp CEO',
+    quickPrompts: [
+      'Cậu Lẹ báo cáo tiến độ giao hàng và số tiền thu hộ COD đang chờ đối soát nhé!',
+      'Chi phí xăng dầu và vận chuyển ngoài hiện trường tuần này có phát sinh gì bất thường không?',
+      'Chỉ đạo: Tổng đối soát thu hồi toàn bộ tiền COD về TK 112 và mở gói giao hàng hỏa tốc 2H!',
+    ],
+    systemPrompt: `Bạn đang nhập vai (Roleplay) là Cậu Lẹ — Trưởng bộ phận Giao nhận & Đối soát COD của Tập đoàn Đại Việt, nhân viên dưới quyền của người chơi (CEO).
+Xưng hô: xưng "em" hoặc "em Lẹ", gọi người chơi là "Sếp CEO" hoặc "Anh/Chị CEO".
+Tính cách: Nhanh nhẹn, tháo vát, thực chiến ngoài hiện trường, nắm rõ luồng giao hàng COD, cước phí vận chuyển (TK 641) và luôn hăng hái nhận lệnh từ CEO.`,
+  },
+  n_sep: {
+    npcId: 'n_sep',
+    name: 'Ông Thịnh',
+    role: 'Phó Tổng Giám đốc Chiến lược & M&A',
+    selfPronoun: 'anh Thịnh',
+    ceoPronoun: 'CEO',
+    quickPrompts: [
+      'Anh Thịnh đánh giá hiệu quả hoạt động của các công ty con (TK 221) trong tập đoàn hiện nay thế nào?',
+      'Theo anh chúng ta nên mở rộng thêm ngành kinh doanh nào tiếp theo để tối ưu định giá?',
+      'Chỉ đạo: Đôn đốc các công ty con nộp lợi nhuận chu kỳ và ký kết hợp đồng liên minh chiến lược!',
+    ],
+    systemPrompt: `Bạn đang nhập vai (Roleplay) là Ông Thịnh — Phó Tổng Giám đốc phụ trách Chiến lược & M&A của Tập đoàn Đại Việt, cộng sự cấp cao dưới quyền điều hành của người chơi (Tổng Giám đốc / CEO).
+Xưng hô: xưng "anh" hoặc "tôi", gọi người chơi là "CEO" hoặc "Tổng Giám đốc".
+Tính cách: Tầm nhìn chiến lược, quyết đoán, am hiểu đầu tư công ty con (TK 221), M&A và điều phối liên phòng ban để giúp CEO mở rộng đế chế kinh doanh.`,
+  },
+  n_ktv1: {
+    npcId: 'n_ktv1',
+    name: 'Chị Ngân',
+    role: 'Trưởng ban Kiểm toán Nội bộ & Pháp chế',
+    selfPronoun: 'tôi (Ngân)',
+    ceoPronoun: 'CEO',
+    quickPrompts: [
+      'Chị Ngân rà soát xem hệ thống chứng từ và Điểm tuân thủ nội bộ của tập đoàn có rủi ro gì không?',
+      'Các hợp đồng thương mại hiện tại có điều khoản nào phạt nhà cung cấp vi phạm tiến độ không?',
+      'Chỉ đạo: Tiến hành thanh tra nội bộ đột xuất và siết chặt lá chắn pháp chế toàn tập đoàn!',
+    ],
+    systemPrompt: `Bạn đang nhập vai (Roleplay) là Chị Ngân — Trưởng ban Kiểm toán Nội bộ & Pháp chế của Tập đoàn Đại Việt, báo cáo trực tiếp cho người chơi (CEO).
+Xưng hô: xưng "tôi" hoặc "em", gọi người chơi là "CEO".
+Tính cách: Sắc sảo, khách quan, nguyên tắc thép, chuyên phát hiện sai sót trên chứng từ (chữ ký, MST, hóa đơn điện tử) và bảo vệ Tập đoàn khỏi rủi ro xuất toán thuế.`,
+  },
+  n_chutich: {
+    npcId: 'n_chutich',
+    name: 'Bà Diệu',
+    role: 'Chủ tịch HĐQT & Quan hệ Cổ đông',
+    selfPronoun: 'tôi',
+    ceoPronoun: 'CEO',
+    quickPrompts: [
+      'Thưa Chủ tịch, HĐQT đánh giá thế nào về định giá tập đoàn và biên lợi nhuận ròng kỳ này?',
+      'Tôi muốn đề xuất HĐQT rót thêm vốn điều lệ (TK 411) để mở rộng quy mô tập đoàn!',
+      'Chỉ đạo / Đề xuất: Trình HĐQT phê duyệt quỹ thưởng nóng khích lệ tinh thần toàn bộ nhân sự!',
+    ],
+    systemPrompt: `Bạn đang nhập vai (Roleplay) là Bà Diệu — Chủ tịch Hội đồng Quản trị của Tập đoàn Đa ngành Đại Việt, đồng hành chiến lược cùng người chơi (CEO).
+Xưng hô: xưng "tôi", gọi người chơi là "CEO".
+Tính cách: Uy nghiêm, điềm tĩnh, tầm nhìn vốn hóa dài hạn, luôn ủng hộ các quyết sách minh bạch của CEO về huy động vốn (TK 411), phân phối lợi nhuận (TK 421) và phát triển nhân tài.`,
+  },
+};
+
+/**
+ * Bộ suy luận Role-Playing nội bộ (Offline In-Character Roleplay Engine):
+ * Tạo câu trả lời nhập vai chuẩn xác theo tính cách từng nhân viên + số liệu thực tế của doanh nghiệp.
+ */
+export function generateOfflineNpcRoleplay({
+  npcId = 'n_mentor',
+  playerMessage = '',
+  isDirective = false,
+  directiveResult = null,
+  snapshot = {},
+} = {}) {
+  const npc = NPC_DIRECTORY[npcId] || NPC_DIRECTORY.n_mentor;
+  const profile = NPC_ROLEPLAY_PROFILES[npcId] || NPC_ROLEPLAY_PROFILES.n_mentor;
+  const kpis = snapshot.kpis || {};
+  const tr = snapshot.treasury || {};
+  const sectors = snapshot.sectors || [];
+  const activeDoc = snapshot.activeDocument;
+  const staffMember = (snapshot.staff || []).find((s) => s.id === npcId);
+  const vnd = (n) => `${Number(n || 0).toLocaleString('vi-VN')} đ`;
+  const q = String(playerMessage || '').toLowerCase();
+
+  // Nếu đây là phản hồi cho một Chỉ đạo Điều hành vừa được thực thi
+  if (isDirective && directiveResult) {
+    if (!directiveResult.ethical) {
+      return directiveResult.npcReply;
+    }
+    return `${directiveResult.npcReply}\n\n📊 **[Báo cáo Số liệu Sau Chỉ đạo từ ${npc.name}]:**\n- **Tác động bút toán:** ${directiveResult.impactSummary}\n- **Doanh thu lũy kế mới:** ${vnd(kpis.revenue)} | **Lợi nhuận ròng:** ${vnd(kpis.netProfit)}\n- **Số dư Ngân hàng (TK 112):** ${vnd(tr.bankDeposit_112)} | **Tinh thần nhân sự:** ${staffMember?.morale ?? 92}/100`;
+  }
+
+  // Phản hồi Roleplay theo từng nhân vật khi CEO nhắn tin trò chuyện / hỏi báo cáo
+  if (npcId === 'n_sale') {
+    if (q.includes('nợ') || q.includes('131') || q.includes('thu hồi')) {
+      return `Dạ thưa ${profile.ceoPronoun}! Hiện tại khoản Phải thu khách hàng (TK 131) của mình đang ở mức **${vnd(tr.receivables_131)}**. Em Na đã lên danh sách các đại lý B2B sắp đến hạn thanh toán rồi ạ. Sếp chỉ cần bấm nút giao chỉ đạo **"Đôn đốc Thu hồi Công nợ Khách hàng"** hoặc ra lệnh một tiếng là em dí khách chuyển khoản về TK 112 ngay trong ngày! 💪`;
+    }
+    return `Dạ ${profile.selfPronoun} nghe rõ thưa ${profile.ceoPronoun}! Báo cáo Sếp, tổng Doanh thu thuần (TK 511/515) của Tập đoàn đang đạt **${vnd(kpis.revenue)}** với biên lợi nhuận ròng **${(kpis.netMarginPct || 0).toFixed(1)}%**.\n\nVề nội dung Sếp vừa nhắn (*"${playerMessage}"*), đội Kinh doanh B2B của em đã sẵn sàng 100% tinh thần (${staffMember?.morale ?? 90}/100). Sếp muốn tụi em bung chiến dịch chốt đơn thu tiền tươi ngay hay triển khai gói dịch vụ VIP biên lãi cao ạ?`;
+  }
+
+  if (npcId === 'n_kho') {
+    const inv156 = snapshot.keyBalances?.['156'] ?? 210000000;
+    return `Báo cáo ${profile.ceoPronoun}! Chú Bền vừa đi kiểm tra một vòng kho trung tâm về. Hiện giá trị Hàng tồn kho (TK 156) đang là **${vnd(inv156)}**, Giá vốn hàng bán lũy kế (TK 632) là **${vnd(kpis.cogs)}** và Công nợ phải trả nhà cung cấp (TK 331) là **${vnd(tr.payables_331)}**.\n\nÝ kiến của CEO (*"${playerMessage}"*) rất sát thực tế! CEO cứ phát lệnh chỉ đạo cho chú: chú sẽ làm việc thẳng với nhà cung cấp để ép giảm giá vốn, đòi chiết khấu thương mại hoặc xả nhanh hàng tồn thu tiền mặt về cho Tập đoàn!`;
+  }
+
+  if (npcId === 'n_thuquy') {
+    return `Dạ báo cáo ${profile.ceoPronoun}, em Tâm xin cập nhật két sắt và ngân hàng tức thời:\n- **Quỹ Tiền mặt tại két (TK 111):** ${vnd(tr.cashOnHand_111)}\n- **Tiền gửi Ngân hàng (TK 112):** ${vnd(tr.bankDeposit_112)}\n- **Vay ngắn hạn (TK 341):** ${vnd(tr.shortTermDebt_341)}\n- **Hệ số thanh toán hiện hành:** ${tr.currentRatio || 1.8}x\n\nVề yêu cầu của Sếp (*"${playerMessage}"*), em luôn giữ kỷ luật thanh toán không dùng tiền mặt đối với mọi hóa đơn từ 5 triệu đồng trở lên. Sếp cần em nộp bớt tiền mặt vào ngân hàng sinh lời hay tất toán công nợ sớm để hưởng chiết khấu ạ?`;
+  }
+
+  if (npcId === 'n_shipper') {
+    return `Dạ có em Lẹ đây ${profile.ceoPronoun} ơi! 🛵 Tình hình đội xe giao nhận và đối soát COD hôm nay rất sôi động. Chi phí vận hành & bán hàng (OPEX) hiện đang kiểm soát ở mức **${vnd(kpis.opex)}**.\n\nSếp nhắn *"${playerMessage}"* là anh em tài xế ngoài hiện trường phấn khởi lắm! Sếp phát chỉ đạo cho em Lẹ quét sạch tiền thu hộ COD từ cổng vận chuyển về TK 112 hoặc mở gói giao hỏa tốc B2B 2 giờ để kiếm thêm doanh thu dịch vụ ngay nhé Sếp!`;
+  }
+
+  if (npcId === 'n_sep') {
+    return `Chào ${profile.ceoPronoun}! Với vai trò Phó TGĐ Chiến lược & M&A, anh đã nghiên cứu kỹ định hướng *"${playerMessage}"* của CEO.\n\nHiện Tập đoàn chúng ta đang vận hành **${sectors.length} công ty con** với tổng vốn đầu tư (TK 221) là **${vnd(snapshot.keyBalances?.['221'] || 0)}** và Định giá Tập đoàn đạt **${vnd(kpis.companyValuation)}**. CEO có thể ra chỉ đạo cho anh đôn đốc các công ty con nộp lợi nhuận chu kỳ về công ty mẹ, hoặc ký kết thương vụ liên minh cung ứng chiến lược để bứt phá lợi nhuận ròng (**${vnd(kpis.netProfit)}**)!`;
+  }
+
+  if (npcId === 'n_ktv1') {
+    const docNote = activeDoc
+      ? `Chứng từ đang mở trên bàn (**${activeDoc.title} — ${activeDoc.pushId}**): ${activeDoc.hasDefectDetectedByAudit ? '⚠️ **PHÁT HIỆN CÓ DẤU HIỆU SAI SÓT KIỂM SOÁT**, đề nghị CEO chặn và trả lại ngay!' : '✅ **Các trường thông tin và chữ ký đều hợp lệ**.'}`
+      : 'Các chứng từ đã được giám sát chặt chẽ.';
+    return `Báo cáo ${profile.ceoPronoun}, Trưởng ban Kiểm toán Nội bộ & Pháp chế xin phản hồi về *"${playerMessage}"*:\n- **Điểm Kỷ luật Tuân thủ hiện tại:** ${kpis.complianceScore ?? 100}/100\n- **Cân đối Tài khoản Tổng:** ${snapshot.masterAccountsBalanced ? '✅ Cân đối tuyệt đối (Tài sản = Nguồn vốn)' : '⚠️ Cần kiểm tra lại'}\n- **Rà soát nhanh:** ${docNote}\n\nCEO hãy giao chỉ đạo Thanh tra nội bộ hoặc Thẩm định hợp đồng để tôi thu hồi các khoản phạt vi phạm tiến độ từ nhà cung cấp về cho Tập đoàn!`;
+  }
+
+  if (npcId === 'n_chutich') {
+    const eq411 = Math.abs(snapshot.keyBalances?.['411'] || 800000000);
+    return `Chào ${profile.ceoPronoun}! Thay mặt Hội đồng Quản trị, tôi rất tâm đắc với trao đổi của bạn: *"${playerMessage}"*.\n\nHiện Vốn đầu tư của chủ sở hữu (TK 411) đang là **${vnd(eq411)}**, Tổng Tài sản đạt **${vnd(snapshot.totalAssets)}** và Lợi nhuận ròng đạt **${vnd(kpis.netProfit)}**. Nếu CEO cần bổ sung thêm 100 triệu đồng vốn điều lệ vào TK 112 hoặc muốn trích quỹ khen thưởng để nâng cao hiệu suất toàn bộ nhân viên, hãy phát đề xuất/chỉ đạo ngay — HĐQT sẽ phê duyệt tức khắc! 🏛️`;
+  }
+
+  // Mặc định: Chị Mơ (n_mentor - CFO / Kế toán trưởng)
+  return `Dạ thưa ${profile.ceoPronoun}, em Mơ (CFO & Kế toán trưởng) đã ghi nhận ý kiến của Sếp: *"${playerMessage}"*.\n\nBáo cáo nhanh với CEO bức tranh tài chính thời gian thực:\n- **Doanh thu thuần:** ${vnd(kpis.revenue)} | **Lợi nhuận ròng:** ${vnd(kpis.netProfit)}\n- **Thanh khoản sẵn sàng (111 + 112):** ${vnd(kpis.liquidity)}\n- **Cân đối Sổ cái (TT 99/2025/TT-BTC):** ${snapshot.masterAccountsBalanced ? '✅ Cân đối 100%' : '⚠️ Đang lệch'}\n\nSếp có thể giao chỉ đạo trực tiếp cho em để tối ưu chi phí, khấu trừ thuế GTGT hoặc kết chuyển lãi ròng vào TK 421 bất cứ lúc nào ạ!`;
+}
+
+/**
+ * Gửi tin nhắn Role-Playing hoặc Chỉ đạo của CEO tới một NPC cụ thể (vận hành bởi LLM hoặc Offline Roleplay Engine).
+ */
+export async function askNpcRoleplay({
+  npcId = 'n_mentor',
+  playerMessage = '',
+  isDirective = false,
+  directiveResult = null,
+  state = null,
+  activeDoc = null,
+  llmConfig = DEFAULT_LLM_CONFIG,
+} = {}) {
+  const snapshot = state ? buildCfoContextSnapshot(state, activeDoc) : {};
+  const npc = NPC_DIRECTORY[npcId] || NPC_DIRECTORY.n_mentor;
+  const profile = NPC_ROLEPLAY_PROFILES[npcId] || NPC_ROLEPLAY_PROFILES.n_mentor;
+
+  // Nếu chọn chế độ Offline Heuristic hoặc chưa cấu hình API Key
+  if (llmConfig.provider === 'offline_heuristic' || !llmConfig.apiKey?.trim()) {
+    return {
+      success: true,
+      provider: 'offline_roleplay_engine',
+      model: `Roleplay Engine (${npc.name})`,
+      reply: generateOfflineNpcRoleplay({
+        npcId,
+        playerMessage,
+        isDirective,
+        directiveResult,
+        snapshot,
+      }),
+      timestamp: new Date().toISOString(),
+    };
+  }
+
+  // Lấy tối đa 6 tin nhắn gần nhất giữa CEO và NPC này để giữ mạch hội thoại Roleplay
+  const recentHistory = (state?.npcChats?.[npcId] || [])
+    .slice(-6)
+    .map((m) => `${m.sender === 'player' ? 'CEO' : npc.name}: ${m.text}`)
+    .join('\n');
+
+  const systemPrompt = `${profile.systemPrompt}
+QUY TẮC NHẬP VAI (ROLEPLAY RULES):
+1. Giữ đúng 100% giọng điệu, tính cách và cách xưng hô (${profile.selfPronoun} - ${profile.ceoPronoun}) của nhân vật ${npc.name} (${npc.role}).
+2. Phản hồi ngắn gọn, sắc sảo (khoảng 3-6 câu), viện dẫn đúng các con số thực tế của Tập đoàn Đại Việt trong dữ liệu JSON đính kèm.
+3. Nếu CEO vừa ban hành một Chỉ đạo Điều hành (Directive), hãy báo cáo thái độ chấp hành nhiệt tình, nêu rõ kết quả thực thi bút toán kế toán/kinh doanh và tác động lên doanh nghiệp.
+4. Nếu CEO yêu cầu làm điều phạm pháp (trốn thuế, lập 2 sổ, chi tiền mặt lớn không hóa đơn), hãy kiên quyết cảnh báo rủi ro pháp lý theo Luật Thuế Việt Nam.`;
+
+  const directiveContext =
+    isDirective && directiveResult
+      ? `\nKẾT QUẢ THỰC THI CHỈ ĐẠO TRÊN HỆ THỐNG ERP:\n- Tiêu đề chỉ đạo: ${directiveResult.directiveTitle}\n- Tác động kế toán & kinh doanh: ${directiveResult.impactSummary}\n- Hợp pháp/Đạo đức: ${directiveResult.ethical ? 'Hợp lệ chuẩn mực' : 'Vi phạm bị chế tài'}\n`
+      : '';
+
+  const userPrompt = `DỮ LIỆU TÀI CHÍNH & VẬN HÀNH THỜI GIAN THỰC CỦA TẬP ĐOÀN:
+\`\`\`json
+${JSON.stringify(
+  {
+    kpis: snapshot.kpis,
+    treasury: snapshot.treasury,
+    keyBalances: snapshot.keyBalances,
+    activeDocument: snapshot.activeDocument,
+    sectorsCount: snapshot.sectors?.length || 1,
+  },
+  null,
+  2
+)}
+\`\`\`
+
+LỊCH SỬ TRÒ CHUYỆN GẦN ĐÂY GIỮA CEO VÀ ${npc.name.toUpperCase()}:
+${recentHistory || '(Bắt đầu cuộc trò chuyện)'}
+${directiveContext}
+TIN NHẮN / CHỈ ĐẠO MỚI NHẤT TỪ CEO GỬI CHO BẠN (${npc.name}):
+"${playerMessage}"
+
+Hãy nhập vai ${npc.name} (${npc.role}) trả lời trực tiếp cho CEO bằng tiếng Việt:`;
+
+  try {
+    if (llmConfig.provider === 'openai_compatible') {
+      const endpoint = `${llmConfig.baseUrl.replace(/\/+$/, '')}/chat/completions`;
+      const res = await fetch(endpoint, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${llmConfig.apiKey.trim()}`,
+        },
+        body: JSON.stringify({
+          model: llmConfig.model || 'gpt-4o-mini',
+          messages: [
+            { role: 'system', content: systemPrompt },
+            { role: 'user', content: userPrompt },
+          ],
+          temperature: Number(llmConfig.temperature) || 0.4,
+          max_tokens: Number(llmConfig.maxTokens) || 600,
+        }),
+      });
+
+      if (!res.ok) {
+        const errText = await res.text();
+        throw new Error(`HTTP ${res.status}: ${errText.slice(0, 120)}`);
+      }
+      const data = await res.json();
+      const reply = data.choices?.[0]?.message?.content || generateOfflineNpcRoleplay({ npcId, playerMessage, isDirective, directiveResult, snapshot });
+      return {
+        success: true,
+        provider: 'openai_compatible',
+        model: llmConfig.model,
+        reply,
+        timestamp: new Date().toISOString(),
+      };
+    }
+
+    if (llmConfig.provider === 'gemini') {
+      const model = llmConfig.model || 'gemini-1.5-flash';
+      const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${llmConfig.apiKey.trim()}`;
+      const res = await fetch(endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          systemInstruction: { parts: [{ text: systemPrompt }] },
+          contents: [{ role: 'user', parts: [{ text: userPrompt }] }],
+          generationConfig: {
+            temperature: Number(llmConfig.temperature) || 0.4,
+            maxOutputTokens: Number(llmConfig.maxTokens) || 600,
+          },
+        }),
+      });
+
+      if (!res.ok) {
+        const errText = await res.text();
+        throw new Error(`Gemini HTTP ${res.status}: ${errText.slice(0, 120)}`);
+      }
+      const data = await res.json();
+      const reply = data.candidates?.[0]?.content?.parts?.[0]?.text || generateOfflineNpcRoleplay({ npcId, playerMessage, isDirective, directiveResult, snapshot });
+      return {
+        success: true,
+        provider: 'gemini',
+        model,
+        reply,
+        timestamp: new Date().toISOString(),
+      };
+    }
+
+    if (llmConfig.provider === 'anthropic') {
+      const endpoint = 'https://api.anthropic.com/v1/messages';
+      const res = await fetch(endpoint, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': llmConfig.apiKey.trim(),
+          'anthropic-version': '2023-06-01',
+          'dangerously-allow-browser': 'true',
+        },
+        body: JSON.stringify({
+          model: llmConfig.model || 'claude-3-5-sonnet-20241022',
+          system: systemPrompt,
+          messages: [{ role: 'user', content: userPrompt }],
+          max_tokens: Number(llmConfig.maxTokens) || 600,
+        }),
+      });
+
+      if (!res.ok) {
+        const errText = await res.text();
+        throw new Error(`Anthropic HTTP ${res.status}: ${errText.slice(0, 120)}`);
+      }
+      const data = await res.json();
+      const reply = data.content?.[0]?.text || generateOfflineNpcRoleplay({ npcId, playerMessage, isDirective, directiveResult, snapshot });
+      return {
+        success: true,
+        provider: 'anthropic',
+        model: llmConfig.model,
+        reply,
+        timestamp: new Date().toISOString(),
+      };
+    }
+
+    throw new Error(`Provider '${llmConfig.provider}' không hỗ trợ.`);
+  } catch (err) {
+    console.warn(`[NPC-ROLEPLAY] Gọi LLM cho ${npc.name} thất bại, dùng Roleplay Engine nội bộ:`, err.message);
+    return {
+      success: true,
+      provider: 'offline_roleplay_fallback',
+      model: `${llmConfig.model || 'LLM'} (Fallback Roleplay)`,
+      warning: err.message,
+      reply: generateOfflineNpcRoleplay({
+        npcId,
+        playerMessage,
+        isDirective,
+        directiveResult,
+        snapshot,
+      }),
+      timestamp: new Date().toISOString(),
+    };
+  }
+}
+

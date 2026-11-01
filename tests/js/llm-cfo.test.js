@@ -3,8 +3,10 @@ import assert from 'node:assert/strict';
 import {
   DEFAULT_LLM_CONFIG,
   CFO_PERSONAS,
+  NPC_ROLEPLAY_PROFILES,
   generateOfflineHeuristicAdvice,
   askCfoAdvisor,
+  askNpcRoleplay,
   testLlmConnection,
 } from '../../frontend/js/services/llm-cfo.js';
 import { createFinanceState } from '../../frontend/js/core/finance.js';
@@ -81,3 +83,31 @@ test('AI CFO: Tự động chuyển fallback sang Offline Heuristic khi API tr�
   assert.ok(res.warning);
   assert.match(res.reply, /BÁO CÁO ĐIỀU PHỐI DÒNG TIỀN/);
 });
+
+test('NPC Roleplay Engine: đầy đủ 8 hồ sơ nhân vật và nhập vai đúng tính cách từng nhân viên dưới quyền CEO', async () => {
+  assert.equal(Object.keys(NPC_ROLEPLAY_PROFILES).length, 8);
+  const state = createFinanceState();
+
+  // Nhắn tin cho Bé Na (Trưởng phòng Kinh doanh)
+  const saleRes = await askNpcRoleplay({
+    npcId: 'n_sale',
+    playerMessage: 'Bé Na báo cáo tình hình thu hồi công nợ 131 hôm nay thế nào?',
+    state,
+    llmConfig: { provider: 'offline_heuristic' },
+  });
+  assert.equal(saleRes.success, true);
+  assert.match(saleRes.reply, /Sếp CEO/);
+  assert.match(saleRes.reply, /131/);
+
+  // Nhắn tin cho Chú Bền (Giám đốc Kho vận)
+  const khoRes = await askNpcRoleplay({
+    npcId: 'n_kho',
+    playerMessage: 'Chú Bền kiểm tra tồn kho 156 giúp tôi nhé!',
+    state,
+    llmConfig: { provider: 'offline_heuristic' },
+  });
+  assert.equal(khoRes.success, true);
+  assert.match(khoRes.reply, /Chú Bền/);
+  assert.match(khoRes.reply, /156/);
+});
+

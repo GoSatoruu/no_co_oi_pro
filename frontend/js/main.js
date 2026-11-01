@@ -3,11 +3,11 @@
  * Khởi động ứng dụng, cài đặt Phiên Ghi Log Hệ thống, nạp Store, Router và mở thẳng Bàn điều hành chính thức.
  */
 
-import { Router } from './router.js?v=20261101_v3';
-import { defaultStore } from './services/store.js?v=20261101_v3';
-import { defaultLogger, installGlobalErrorHandlers } from './services/logger.js?v=20261101_v3';
-import * as titleScreen from './screens/title.js?v=20261101_v3';
-import * as deskScreen from './screens/desk.js?v=20261101_v3';
+import { Router } from './router.js?v=20261102_v1';
+import { defaultStore } from './services/store.js?v=20261102_v1';
+import { defaultLogger, installGlobalErrorHandlers } from './services/logger.js?v=20261102_v1';
+import * as titleScreen from './screens/title.js?v=20261102_v1';
+import * as deskScreen from './screens/desk.js?v=20261102_v1';
 
 // Cài đặt trình bắt lỗi toàn cục cho Phiên Ghi Log
 installGlobalErrorHandlers(defaultLogger);

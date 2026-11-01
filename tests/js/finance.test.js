@@ -18,6 +18,9 @@ import {
   expandBusinessSector,
   harvestSectorCycle,
   buildCfoContextSnapshot,
+  getStaffRoster,
+  issueExecutiveDirective,
+  appendNpcChatMessage,
 } from '../../frontend/js/core/finance.js';
 
 test('khởi tạo trạng thái tài chính doanh nghiệp với số dư đầu kỳ và KPIs chuẩn', () => {
@@ -234,4 +237,59 @@ test('tập đoàn đa ngành: mở rộng lĩnh vực có sẵn và tự tạo 
   assert.ok(snap.kpis.revenue > 0);
   assert.ok(snap.keyBalances['221'] === 750000000);
 });
+
+test('CEO quản lý đội ngũ nhân sự, giao chỉ đạo điều hành và nhắn tin Roleplay NPC', () => {
+  const state = createFinanceState({});
+  const roster = getStaffRoster(state);
+  assert.equal(roster.length, 8);
+
+  const saleStaff = roster.find((r) => r.id === 'n_sale');
+  assert.ok(saleStaff);
+  assert.equal(saleStaff.name, 'Bé Na');
+  assert.equal(saleStaff.presetDirectives.length, 3);
+
+  // 1. Giao chỉ đạo có sẵn cho Bé Na: Đôn đốc thu hồi công nợ khách hàng 30tr (131 -> 112)
+  const beforeBank = state.balances['112'];
+  const beforeAr = state.balances['131'];
+  const dirRes = issueExecutiveDirective(state, {
+    npcId: 'n_sale',
+    directiveId: 'dir_sale_collect_ar',
+  });
+  assert.equal(dirRes.ok, true);
+  assert.equal(dirRes.ethical, true);
+  assert.equal(state.balances['112'], beforeBank + 30000000);
+  assert.equal(state.balances['131'], beforeAr - 30000000);
+  assert.equal(state.staff.n_sale.directivesCompleted, 1);
+  assert.equal(state.directivesLog.length, 1);
+
+  // 2. Giao chỉ đạo tự do bằng lời của CEO cho Chú Bền (Kho vận)
+  const customDirRes = issueExecutiveDirective(state, {
+    npcId: 'n_kho',
+    customDirectiveText: 'Chú Bền đàm phán nhà cung cấp giảm giá lô hàng nội thất tuần này nhé!',
+  });
+  assert.equal(customDirRes.ok, true);
+  assert.equal(customDirRes.ethical, true);
+  assert.equal(state.staff.n_kho.directivesCompleted, 1);
+  assert.equal(state.directivesLog.length, 2);
+
+  // 3. Kiểm tra Luật số 6: Chỉ đạo sai đạo đức / trốn thuế bị phạt hành chính (TK 811) và trừ điểm tuân thủ
+  const compBefore = state.complianceScore;
+  const badDirRes = issueExecutiveDirective(state, {
+    npcId: 'n_sale',
+    customDirectiveText: 'Bảo khách chuyển ngoài sổ để trốn thuế GTGT nhé',
+  });
+  assert.equal(badDirRes.ok, true);
+  assert.equal(badDirRes.ethical, false);
+  assert.ok(badDirRes.scoreDelta < 0);
+  assert.ok(state.complianceScore < compBefore);
+
+  // 4. Lưu tin nhắn Roleplay giữa CEO và NPC
+  const chatMsg = appendNpcChatMessage(state, 'n_mentor', {
+    sender: 'player',
+    text: 'Chị Mơ kiểm tra lại bảng cân đối kế toán giúp tôi nhé!',
+  });
+  assert.ok(chatMsg.id);
+  assert.ok(state.npcChats.n_mentor.length >= 2);
+});
+
 

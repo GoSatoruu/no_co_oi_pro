@@ -8,14 +8,102 @@
 import { createRng } from './rng.js';
 
 export const NPC_DIRECTORY = {
-  n_sale: { id: 'n_sale', name: 'Bé Na', role: 'Chuyên viên Kinh doanh', avatar: '👩‍💼', channel: '#kinh-doanh-thu-tien', color: '#38BDF8' },
-  n_thuquy: { id: 'n_thuquy', name: 'Anh Tâm', role: 'Thủ quỹ Công ty', avatar: '👨‍💼', channel: '#lenh-thu-chi-quy', color: '#10B981' },
-  n_kho: { id: 'n_kho', name: 'Chú Bền', role: 'Trưởng Kho vận', avatar: '👷', channel: '#kho-van-mua-hang', color: '#F59E0B' },
-  n_sep: { id: 'n_sep', name: 'Ông Thịnh', role: 'Giám đốc Điều hành (CEO)', avatar: '👔', channel: '#ban-giam-doc', color: '#A855F7' },
-  n_shipper: { id: 'n_shipper', name: 'Cậu Lẹ', role: 'Điều phối Giao nhận & COD', avatar: '🛵', channel: '#doi-soat-cod-opex', color: '#06B6D4' },
-  n_mentor: { id: 'n_mentor', name: 'Chị Mơ', role: 'Kế toán Trưởng', avatar: '👩‍🏫', channel: '#kiem-soat-noi-bo', color: '#34D399' },
-  n_chutich: { id: 'n_chutich', name: 'Bà Diệu', role: 'Chủ tịch HĐQT', avatar: '🏛️', channel: '#hdqt-chien-luoc', color: '#F43F5E' },
-  n_ktv1: { id: 'n_ktv1', name: 'Chị Ngân', role: 'Trưởng nhóm Kiểm toán', avatar: '🔍', channel: '#kiem-toan-phap-che', color: '#93C5FD' },
+  n_mentor: {
+    id: 'n_mentor',
+    name: 'Chị Mơ',
+    role: 'Giám đốc Tài chính & Kế toán Trưởng (CFO)',
+    dept: 'Ban Tài chính - Kế toán',
+    avatar: '👩‍🏫',
+    channel: '#kiem-soat-noi-bo',
+    color: '#34D399',
+    specialty: 'Sổ cái TT 99/2025, Khấu trừ Thuế GTGT & Kết chuyển BCTC',
+    personality: 'Điềm đạm, chuẩn mực, tỉ mỉ từng con số, luôn bảo vệ an toàn pháp lý cho CEO.',
+    greeting: 'Chào CEO! Sổ cái Tập đoàn và bảng cân đối phát sinh đã sẵn sàng. Sếp cần em rà soát chứng từ, tối ưu thuế GTGT hay kết chuyển lợi nhuận kỳ này ạ?',
+  },
+  n_sale: {
+    id: 'n_sale',
+    name: 'Bé Na',
+    role: 'Trưởng phòng Kinh doanh & Phát triển B2B',
+    dept: 'Khối Kinh doanh & Thị trường',
+    avatar: '👩‍💼',
+    channel: '#kinh-doanh-thu-tien',
+    color: '#38BDF8',
+    specialty: 'Chốt hợp đồng B2B, Tăng trưởng Doanh thu (TK 511) & Thu hồi nợ (TK 131)',
+    personality: 'Nhiệt huyết, lanh lợi, khéo đàm phán, luôn tràn đầy năng lượng săn đơn hàng lớn.',
+    greeting: 'Dạ em chào Sếp CEO ạ! Đội Sales đang có danh sách khách hàng B2B tiềm năng và các khoản phải thu 131 đến hạn. Sếp chỉ đạo chiến dịch nào để tụi em bung sức chốt đơn ngay ạ?',
+  },
+  n_kho: {
+    id: 'n_kho',
+    name: 'Chú Bền',
+    role: 'Giám đốc Kho vận & Chuỗi Cung ứng',
+    dept: 'Khối Kho vận & Mua hàng',
+    avatar: '👷',
+    channel: '#kho-van-mua-hang',
+    color: '#F59E0B',
+    specialty: 'Quản trị Tồn kho (TK 156), Đàm phán Nhà cung cấp (TK 331) & Giá vốn (TK 632)',
+    personality: 'Từng trải, bộc trực, ghét lãng phí, nắm rõ từng kiện hàng trong kho.',
+    greeting: 'Báo cáo CEO! Hàng hóa trong kho (TK 156) đang được kiểm kê nghiêm ngặt. CEO muốn chú đàm phán ép giá nhà cung cấp hay xả bớt hàng tồn thu tiền mặt về cho công ty?',
+  },
+  n_thuquy: {
+    id: 'n_thuquy',
+    name: 'Anh Tâm',
+    role: 'Trưởng phòng Ngân quỹ & Nguồn vốn',
+    dept: 'Phòng Ngân quỹ Trung tâm',
+    avatar: '👨‍💼',
+    channel: '#lenh-thu-chi-quy',
+    color: '#10B981',
+    specialty: 'Điều phối Quỹ tiền mặt (TK 111), Ngân hàng (TK 112) & Tín dụng (TK 341)',
+    personality: 'Cẩn trọng, kỷ luật, giữ két sắt và tài khoản ngân hàng khớp từng đồng.',
+    greeting: 'Chào Sếp CEO! Quỹ tiền mặt 111 và Tiền gửi ngân hàng 112 đang được em theo dõi sát sao từng phút. Sếp có chỉ đạo điều chuyển nguồn vốn hay tất toán công nợ sớm không ạ?',
+  },
+  n_shipper: {
+    id: 'n_shipper',
+    name: 'Cậu Lẹ',
+    role: 'Trưởng bộ phận Giao nhận & Đối soát COD',
+    dept: 'Đội Vận hành & Logistics',
+    avatar: '🛵',
+    channel: '#doi-soat-cod-opex',
+    color: '#06B6D4',
+    specialty: 'Đối soát Tiền thu hộ COD, Giao vận Hỏa tốc & Tối ưu Chi phí Vận chuyển (TK 641)',
+    personality: 'Nhanh nhạy, thực chiến, thông thuộc mọi tuyến đường và cổng vận chuyển.',
+    greeting: 'Dạ em Lẹ nghe lệnh Sếp CEO! Hôm nay đội xe giao hàng chạy hết công suất. Sếp muốn em thúc bên vận chuyển giải ngân nhanh tiền COD hay mở thêm gói giao hỏa tốc 2H ạ?',
+  },
+  n_sep: {
+    id: 'n_sep',
+    name: 'Ông Thịnh',
+    role: 'Phó Tổng Giám đốc Chiến lược & M&A',
+    dept: 'Văn phòng Ban Tổng Giám đốc',
+    avatar: '👔',
+    channel: '#ban-giam-doc',
+    color: '#A855F7',
+    specialty: 'Mở rộng Công ty con (TK 221), Liên doanh B2B & Tái cấu trúc Tập đoàn',
+    personality: 'Chín chắn, tầm nhìn vĩ mô, cánh tay phải đắc lực của CEO trong các thương vụ lớn.',
+    greeting: 'Chào Tổng Giám đốc (CEO)! Với tư cách Phó TGĐ phụ trách Chiến lược & M&A, anh luôn sẵn sàng nhận chỉ đạo của CEO để thúc đẩy các công ty con và ký kết liên minh chiến lược.',
+  },
+  n_ktv1: {
+    id: 'n_ktv1',
+    name: 'Chị Ngân',
+    role: 'Trưởng ban Kiểm toán Nội bộ & Pháp chế',
+    dept: 'Ban Kiểm soát & Pháp chế',
+    avatar: '🔍',
+    channel: '#kiem-toan-phap-che',
+    color: '#93C5FD',
+    specialty: 'Kiểm soát Hóa đơn Điện tử, Rà soát Sai phạm & Tuân thủ Luật Thuế 2024',
+    personality: 'Sắc sảo, khách quan, nguyên tắc thép, lá chắn pháp lý vững chắc cho CEO.',
+    greeting: 'Chào CEO! Ban Kiểm soát Nội bộ đang giám sát toàn bộ luồng chứng từ và hợp đồng. Nếu CEO cần thanh tra đột xuất hay thẩm định pháp lý nhà cung cấp, hãy ra chỉ đạo cho tôi.',
+  },
+  n_chutich: {
+    id: 'n_chutich',
+    name: 'Bà Diệu',
+    role: 'Chủ tịch HĐQT & Quan hệ Cổ đông',
+    dept: 'Hội đồng Quản trị',
+    avatar: '🏛️',
+    channel: '#hdqt-chien-luoc',
+    color: '#F43F5E',
+    specialty: 'Huy động Vốn Cổ phần (TK 411), Quan hệ Nhà đầu tư & Định giá Tập đoàn',
+    personality: 'Uy nghiêm, quyết đoán, đồng hành cùng CEO nâng tầm giá trị vốn hóa Tập đoàn.',
+    greeting: 'Chào CEO! Hội đồng Quản trị đánh giá rất cao nỗ lực điều hành của bạn. Hãy trao đổi với tôi bất cứ khi nào CEO cần huy động thêm vốn cổ phần hoặc khích lệ toàn bộ máy!',
+  },
 };
 
 /**
@@ -636,6 +724,9 @@ export function createFinanceState(content = {}, { level = 1, modeId = 'normal',
   spawnRandomSlackEvent(state, `${seed}-ev1`);
   spawnRandomSlackEvent(state, `${seed}-ev2`);
   spawnRandomSlackEvent(state, `${seed}-ev3`);
+
+  // Khởi tạo Đội ngũ Nhân sự dưới quyền CEO, Lịch sử Chat Roleplay và Nhật ký Chỉ đạo
+  ensureStaffAndChatsState(state);
 
   return state;
 }
@@ -1898,6 +1989,18 @@ export function buildCfoContextSnapshot(state, activeDoc = null) {
       message: e.message,
     }));
 
+  ensureStaffAndChatsState(state);
+  const staffSummary = getStaffRoster(state).map((st) => ({
+    id: st.id,
+    name: st.name,
+    role: st.role,
+    dept: st.dept,
+    morale: st.morale,
+    efficiency: st.efficiency,
+    directivesCompleted: st.directivesCompleted,
+    lastDirectiveTitle: st.lastDirectiveTitle,
+  }));
+
   return {
     timestamp: new Date().toISOString(),
     conglomerateName: 'Tập đoàn Đa ngành Đại Việt',
@@ -1930,8 +2033,813 @@ export function buildCfoContextSnapshot(state, activeDoc = null) {
     totalLiabilitiesAndEquity: masterAcc.totalLiabilitiesAndEquity,
     keyBalances: balancesTable,
     sectors: sectorsSummary,
+    staff: staffSummary,
+    recentDirectives: (state.directivesLog || []).slice(0, 5),
     activeDocument: activeDocSummary,
     pendingSlackAlerts: pendingSlack,
+  };
+}
+
+/**
+ * ============================================================================
+ * PHÂN HỆ QUẢN LÝ NHÂN SỰ, CHỈ ĐẠO ĐIỀU HÀNH CỦA CEO & ROLEPLAY CHAT (CORE-018)
+ * ============================================================================
+ */
+
+export const STAFF_DIRECTIVES_CATALOG = {
+  n_mentor: [
+    {
+      id: 'dir_mentor_audit_opex',
+      code: 'DIR-CFO-01',
+      title: 'Rà soát Định mức Chi phí & Thu hồi Chiết khấu Thanh toán',
+      ceoCommandText: 'Chị Mơ rà soát toàn bộ chi phí quản lý và đối chiếu các khoản chiết khấu thanh toán được hưởng trong kỳ về TK 112 giúp tôi nhé!',
+      npcAckText: 'Dạ rõ thưa CEO! Em đã đối chiếu xong bảng kê với các đối tác, thu hồi ngay 18.000.000 đ chiết khấu tài chính (TK 515) về Ngân hàng (TK 112) và siết chặt kỷ luật chứng từ (+5 Điểm tuân thủ).',
+      impactSummary: 'Thu tiền gửi NH (112) +18.000.000 đ · Doanh thu tài chính (515) +18.000.000 đ · Tuân thủ +5%',
+      complianceDelta: 5,
+      moraleDelta: 4,
+      scoreDelta: 160,
+      lines: [
+        { side: 'N', account: '112', amount: 18000000 },
+        { side: 'C', account: '515', amount: 18000000 },
+      ],
+    },
+    {
+      id: 'dir_mentor_vat_optimize',
+      code: 'DIR-CFO-02',
+      title: 'Đối chiếu Hóa đơn Điện tử & Khấu trừ Thuế GTGT Đầu vào',
+      ceoCommandText: 'Chị Mơ kiểm tra toàn bộ HĐĐT đầu vào trên cổng Thuế để thực hiện khấu trừ thuế GTGT (TK 1331 ➔ 3331) và hoàn thuế hợp lệ nhé.',
+      npcAckText: 'Báo cáo CEO, toàn bộ HĐĐT đầu vào hợp lệ đã được kê khai khấu trừ và hoàn ứng 12.000.000 đ về TK 112 theo đúng Luật Thuế GTGT 2024!',
+      impactSummary: 'Hoàn/Tối ưu thuế về NH (112) +12.000.000 đ · Thu nhập khác/Hoàn phí (711) +12.000.000 đ · Tuân thủ +6%',
+      complianceDelta: 6,
+      moraleDelta: 3,
+      scoreDelta: 150,
+      lines: [
+        { side: 'N', account: '112', amount: 12000000 },
+        { side: 'C', account: '711', amount: 12000000 },
+      ],
+    },
+    {
+      id: 'dir_mentor_closing_421',
+      code: 'DIR-CFO-03',
+      title: 'Tập hợp Doanh thu - Chi phí & Kết chuyển Lãi ròng vào TK 421',
+      ceoCommandText: 'Chị Mơ thực hiện bút toán khóa sổ trung gian, kết chuyển toàn bộ Doanh thu và Chi phí qua TK 911 về Lợi nhuận chưa phân phối (TK 421) cho tôi.',
+      npcAckText: 'Em đã thực hiện bút toán kết chuyển 911 ➔ 421 chuẩn xác theo Thông tư 99/2025/TT-BTC. Bảng Cân đối Kế toán đã cập nhật Lợi nhuận sau thuế chưa phân phối!',
+      impactSummary: 'Kết chuyển toàn bộ số dư TK Loại 5, 6, 7, 8 về TK 421 · Tuân thủ +4%',
+      isClosingAction: true,
+      complianceDelta: 4,
+      moraleDelta: 5,
+      scoreDelta: 170,
+      lines: [],
+    },
+  ],
+  n_sale: [
+    {
+      id: 'dir_sale_b2b_blitz',
+      code: 'DIR-SALE-01',
+      title: 'Chốt Hợp đồng B2B Lô Lớn Thanh toán Ngay qua Ngân hàng',
+      ceoCommandText: 'Bé Na, tuần này tập trung đội Sales chốt nhanh hợp đồng cung ứng B2B với các tập đoàn đối tác, yêu cầu thanh toán 100% qua Ngân hàng (TK 112) nhé!',
+      npcAckText: 'Dạ tuyệt vời Sếp CEO ơi! Đội Sales của em vừa ký xong hợp đồng B2B trị giá 43.200.000 đ (Doanh thu 40tr + VAT 3,2tr), khách đã chuyển khoản đủ vào TK 112, giá vốn xuất kho 18tr, lãi ròng +22.000.000 đ ạ! 🎉',
+      impactSummary: 'Doanh thu (511) +40.000.000 đ · Tiền NH (112) +43.200.000 đ · Giá vốn (632) 18.000.000 đ · Lãi ròng +22tr',
+      complianceDelta: 3,
+      moraleDelta: 6,
+      scoreDelta: 180,
+      lines: [
+        { side: 'N', account: '112', amount: 43200000 },
+        { side: 'C', account: '511', amount: 40000000 },
+        { side: 'C', account: '3331', amount: 3200000 },
+        { side: 'N', account: '632', amount: 18000000 },
+        { side: 'C', account: '156', amount: 18000000 },
+      ],
+    },
+    {
+      id: 'dir_sale_collect_ar',
+      code: 'DIR-SALE-02',
+      title: 'Chiến dịch Đôn đốc Thu hồi Công nợ Khách hàng (TK 131 ➔ 112)',
+      ceoCommandText: 'Na ơi, làm việc ngay với các đại lý đang nợ trên TK 131 để thu hồi tối thiểu 30.000.000 đ về tài khoản Ngân hàng công ty trong hôm nay nhé.',
+      npcAckText: 'Dạ em vừa gọi điện và gửi đối chiếu công nợ cho các đại lý xong! Họ đã chuyển khoản thanh toán 30.000.000 đ nợ cũ về thẳng TK 112 của công ty mình rồi Sếp ạ!',
+      impactSummary: 'Tăng Tiền gửi NH (112) +30.000.000 đ · Giảm Phải thu khách hàng (131) -30.000.000 đ',
+      complianceDelta: 3,
+      moraleDelta: 4,
+      scoreDelta: 150,
+      lines: [
+        { side: 'N', account: '112', amount: 30000000 },
+        { side: 'C', account: '131', amount: 30000000 },
+      ],
+    },
+    {
+      id: 'dir_sale_vip_service',
+      code: 'DIR-SALE-03',
+      title: 'Triển khai Gói Tư vấn & Bảo trì VIP Biên Lợi nhuận Cao',
+      ceoCommandText: 'Triển khai bán chéo gói dịch vụ bảo trì & tư vấn định kỳ cho tệp khách hàng VIP hiện hữu để gia tăng doanh thu dịch vụ không tốn giá vốn hàng tồn kho.',
+      npcAckText: 'Chuẩn chiến lược luôn Sếp! 5 khách hàng VIP vừa đăng ký gói dịch vụ trọn năm, mang về 27.000.000 đ (Doanh thu 25tr + VAT 2tr), chi phí hoa hồng triển khai chỉ 3tr (TK 641)!',
+      impactSummary: 'Doanh thu (511) +25.000.000 đ · Chi phí BH (641) 3.000.000 đ · Lãi ròng +22.000.000 đ',
+      complianceDelta: 2,
+      moraleDelta: 5,
+      scoreDelta: 175,
+      lines: [
+        { side: 'N', account: '112', amount: 24000000 },
+        { side: 'N', account: '641', amount: 3000000 },
+        { side: 'C', account: '511', amount: 25000000 },
+        { side: 'C', account: '3331', amount: 2000000 },
+      ],
+    },
+  ],
+  n_kho: [
+    {
+      id: 'dir_kho_supplier_rebate',
+      code: 'DIR-SCM-01',
+      title: 'Đàm phán Nhà cung cấp Giảm Giá & Hưởng Chiết khấu Thương mại',
+      ceoCommandText: 'Chú Bền làm việc với các nhà cung cấp chiến lược để đàm phán khoản chiết khấu thương mại theo sản lượng mua hàng kỳ này, giảm trừ công nợ TK 331 nhé.',
+      npcAckText: 'Báo cáo CEO, chú vừa đàm phán căng thẳng với 3 nhà cung cấp lớn! Họ đồng ý ký biên bản giảm trừ ngay 15.000.000 đ công nợ phải trả (TK 331) thành khoản thưởng/thu nhập cho công ty mình!',
+      impactSummary: 'Giảm Nợ phải trả NCC (331) -15.000.000 đ · Tăng Doanh thu TC/Chiết khấu (515) +15.000.000 đ',
+      complianceDelta: 3,
+      moraleDelta: 5,
+      scoreDelta: 160,
+      lines: [
+        { side: 'N', account: '331', amount: 15000000 },
+        { side: 'C', account: '515', amount: 15000000 },
+      ],
+    },
+    {
+      id: 'dir_kho_liquidate_slow',
+      code: 'DIR-SCM-02',
+      title: 'Xả Kho Thanh lý Lô Hàng Chậm Luân chuyển Thu Tiền tươi',
+      ceoCommandText: 'Chú Bền rà soát các mã hàng tồn kho lâu ngày (TK 156), tổ chức xuất bán thanh lý nhanh cho đại lý tỉnh để thu hồi tiền gửi ngân hàng và giải phóng diện tích kho.',
+      npcAckText: 'Rõ thưa CEO! Chú đã xuất bán gọn lô hàng tồn kho giá vốn 16.000.000 đ, thu về ngay 30.240.000 đ vào TK 112 (Doanh thu 28tr + VAT 2,24tr). Kho bãi thông thoáng mà lãi thêm 12.000.000 đ!',
+      impactSummary: 'Tiền NH (112) +30.240.000 đ · Doanh thu (511) +28tr · Giảm Tồn kho (156) -16tr · Lãi +12tr',
+      complianceDelta: 3,
+      moraleDelta: 4,
+      scoreDelta: 165,
+      lines: [
+        { side: 'N', account: '112', amount: 30240000 },
+        { side: 'C', account: '511', amount: 28000000 },
+        { side: 'C', account: '3331', amount: 2240000 },
+        { side: 'N', account: '632', amount: 16000000 },
+        { side: 'C', account: '156', amount: 16000000 },
+      ],
+    },
+    {
+      id: 'dir_kho_jit_restock',
+      code: 'DIR-SCM-03',
+      title: 'Nhập Hàng Chiến lược Chuẩn JIT Kèm Thưởng Đạt Sản lượng',
+      ceoCommandText: 'Chú Bền nhập bổ sung lô hàng chủ lực theo mô hình Just-In-Time để sẵn sàng cho các đơn hàng lớn, yêu cầu nhà cung cấp chiết khấu ngay trên hóa đơn.',
+      npcAckText: 'Chú đã nhập kho lô hàng mới trị giá 25.000.000 đ (TK 156) + VAT 2.000.000 đ (TK 1331), nhà cung cấp cho trả chậm trên TK 331 chỉ 24.000.000 đ và tặng 3.000.000 đ chiết khấu (TK 515)!',
+      impactSummary: 'Tăng Tồn kho (156) +25tr · VAT (1331) +2tr · Công nợ (331) +24tr · Lãi chiết khấu (515) +3tr',
+      complianceDelta: 4,
+      moraleDelta: 4,
+      scoreDelta: 150,
+      lines: [
+        { side: 'N', account: '156', amount: 25000000 },
+        { side: 'N', account: '1331', amount: 2000000 },
+        { side: 'C', account: '331', amount: 24000000 },
+        { side: 'C', account: '515', amount: 3000000 },
+      ],
+    },
+  ],
+  n_thuquy: [
+    {
+      id: 'dir_thuquy_sweep_112',
+      code: 'DIR-TREAS-01',
+      title: 'Nộp Tiền mặt Vượt Định mức vào Ngân hàng & Ký gửi Sinh lời',
+      ceoCommandText: 'Anh Tâm kiểm quỹ tiền mặt 111, chuyển 20.000.000 đ tiền mặt nhàn rỗi vào Ngân hàng (TK 112) và kích hoạt gói tiền gửi thanh khoản sinh lời ngay nhé.',
+      npcAckText: 'Dạ thưa CEO, em đã nộp 20.000.000 đ từ két tiền mặt (TK 111) vào Ngân hàng (TK 112) và tất toán kỳ lãi tiền gửi ngắn hạn thu thêm +4.000.000 đ (TK 515) vào tài khoản công ty!',
+      impactSummary: 'Chuyển 20tr từ TK 111 sang TK 112 · Thu lãi tiền gửi Ngân hàng (515) +4.000.000 đ',
+      complianceDelta: 4,
+      moraleDelta: 4,
+      scoreDelta: 155,
+      lines: [
+        { side: 'N', account: '112', amount: 24000000 },
+        { side: 'C', account: '111', amount: 20000000 },
+        { side: 'C', account: '515', amount: 4000000 },
+      ],
+    },
+    {
+      id: 'dir_thuquy_settle_ap',
+      code: 'DIR-TREAS-02',
+      title: 'Tất toán Sớm Công nợ Nhà cung cấp (TK 331) Hưởng Chiết khấu',
+      ceoCommandText: 'Anh Tâm lập Ủy nhiệm chi từ TK 112 thanh toán sớm 25.000.000 đ nợ nhà cung cấp (TK 331) để lấy khoản chiết khấu thanh toán sớm 3.000.000 đ.',
+      npcAckText: 'Em đã đi lệnh Ủy nhiệm chi Ngân hàng 22.000.000 đ để gạch toàn bộ 25.000.000 đ nợ phải trả trên TK 331, mang về 3.000.000 đ doanh thu tài chính (TK 515) cho Tập đoàn!',
+      impactSummary: 'Giảm Nợ phải trả (331) -25.000.000 đ · Chi NH (112) -22.000.000 đ · Lãi chiết khấu (515) +3.000.000 đ',
+      complianceDelta: 4,
+      moraleDelta: 4,
+      scoreDelta: 160,
+      lines: [
+        { side: 'N', account: '331', amount: 25000000 },
+        { side: 'C', account: '112', amount: 22000000 },
+        { side: 'C', account: '515', amount: 3000000 },
+      ],
+    },
+    {
+      id: 'dir_thuquy_overnight_yield',
+      code: 'DIR-TREAS-03',
+      title: 'Tối ưu Dòng tiền Qua đêm (Overnight Treasury Yield)',
+      ceoCommandText: 'Anh Tâm rà soát số dư TK 112 cuối ngày để tự động kết nối hạn mức Overnight Repo với ngân hàng đối tác, tối ưu hóa nguồn tiền nhàn rỗi.',
+      npcAckText: 'Dạ Sếp! Ngân hàng đối tác vừa ghi Có +6.500.000 đ tiền lãi quản trị dòng tiền tự động (TK 515) vào TK 112 của Tập đoàn rồi ạ!',
+      impactSummary: 'Tăng Tiền gửi NH (112) +6.500.000 đ · Tăng Doanh thu tài chính (515) +6.500.000 đ',
+      complianceDelta: 3,
+      moraleDelta: 3,
+      scoreDelta: 145,
+      lines: [
+        { side: 'N', account: '112', amount: 6500000 },
+        { side: 'C', account: '515', amount: 6500000 },
+      ],
+    },
+  ],
+  n_shipper: [
+    {
+      id: 'dir_shipper_cod_sweep',
+      code: 'DIR-OPS-01',
+      title: 'Tổng Đối soát & Giải ngân Nhanh Tiền Thu hộ COD về Ngân hàng',
+      ceoCommandText: 'Cậu Lẹ làm việc ngay với các cổng giao nhận để chốt bảng kê và rút toàn bộ tiền thu hộ COD trong tuần về tài khoản Ngân hàng (TK 112) của công ty!',
+      npcAckText: 'Dạ em Lẹ chạy qua đối soát trực tiếp luôn rồi Sếp ơi! Hãng vận chuyển vừa chuyển khoản 32.400.000 đ tiền COD (Doanh thu 30tr + VAT 2,4tr) về thẳng TK 112 công ty mình!',
+      impactSummary: 'Tiền gửi NH (112) +32.400.000 đ · Doanh thu (511) +30.000.000 đ · Thuế GTGT (3331) +2.400.000 đ',
+      complianceDelta: 3,
+      moraleDelta: 5,
+      scoreDelta: 165,
+      lines: [
+        { side: 'N', account: '112', amount: 32400000 },
+        { side: 'C', account: '511', amount: 30000000 },
+        { side: 'C', account: '3331', amount: 2400000 },
+      ],
+    },
+    {
+      id: 'dir_shipper_express_2h',
+      code: 'DIR-OPS-02',
+      title: 'Mở Gói Giao nhận Hỏa tốc B2B 2 Giờ Thu Phí Dịch vụ Cao',
+      ceoCommandText: 'Cậu Lẹ điều phối đội xe mở dịch vụ giao nhận hỏa tốc 2H cho các đơn hàng B2B cần gấp trong nội thành để thu thêm doanh thu dịch vụ logistics.',
+      npcAckText: 'Quá đỉnh Sếp ơi! Đội xe hỏa tốc vừa chạy kín lịch, thu về ngay 19.440.000 đ vào TK 112 (Doanh thu dịch vụ 18tr + VAT 1,44tr), chi phí xăng dầu chỉ 2tr (TK 641)!',
+      impactSummary: 'Doanh thu (511) +18.000.000 đ · Chi phí vận chuyển (641) 2.000.000 đ · Lãi ròng +16.000.000 đ',
+      complianceDelta: 2,
+      moraleDelta: 5,
+      scoreDelta: 155,
+      lines: [
+        { side: 'N', account: '112', amount: 17440000 },
+        { side: 'N', account: '641', amount: 2000000 },
+        { side: 'C', account: '511', amount: 18000000 },
+        { side: 'C', account: '3331', amount: 1440000 },
+      ],
+    },
+    {
+      id: 'dir_shipper_fuel_rebate',
+      code: 'DIR-OPS-03',
+      title: 'Tối ưu Tuyến Giao hàng & Thu hồi Hoàn phí Vận chuyển',
+      ceoCommandText: 'Cậu Lẹ ghép tuyến giao hàng thông minh và yêu cầu đối tác vận chuyển hoàn lại phí giao trễ theo cam kết SLA.',
+      npcAckText: 'Dạ bên đối tác vận chuyển vừa xác nhận hoàn tiền bồi thường SLA và chiết khấu cước 9.500.000 đ (TK 711) vào tài khoản Ngân hàng (TK 112) của mình rồi Sếp!',
+      impactSummary: 'Tăng Tiền gửi NH (112) +9.500.000 đ · Thu nhập bồi hoàn SLA (711) +9.500.000 đ',
+      complianceDelta: 3,
+      moraleDelta: 4,
+      scoreDelta: 145,
+      lines: [
+        { side: 'N', account: '112', amount: 9500000 },
+        { side: 'C', account: '711', amount: 9500000 },
+      ],
+    },
+  ],
+  n_sep: [
+    {
+      id: 'dir_sep_harvest_all',
+      code: 'DIR-VP-01',
+      title: 'Chỉ đạo Toàn bộ Công ty Con Kết toán & Nộp Lợi nhuận Chu kỳ',
+      ceoCommandText: 'Anh Thịnh thay mặt tôi đôn đốc Ban Giám đốc tất cả các công ty con trong Tập đoàn chốt báo cáo chu kỳ và chuyển ngay doanh thu, lợi nhuận về TK 112 công ty mẹ!',
+      npcAckText: 'Rõ thưa CEO! Anh đã triệu tập họp giao ban toàn bộ các đơn vị thành viên và hoàn tất thu hoạch dòng tiền lợi nhuận chu kỳ về Ngân quỹ Tập đoàn!',
+      impactSummary: 'Thu hoạch toàn bộ Doanh thu & Lợi nhuận chu kỳ của các Công ty con về TK 112',
+      isHarvestAction: true,
+      complianceDelta: 4,
+      moraleDelta: 6,
+      scoreDelta: 190,
+      lines: [],
+    },
+    {
+      id: 'dir_sep_strategic_deal',
+      code: 'DIR-VP-02',
+      title: 'Ký kết Hợp đồng Liên minh Cung ứng Chiến lược Toàn Tập đoàn',
+      ceoCommandText: 'Anh Thịnh đại diện Tập đoàn đàm phán và ký kết gói hợp đồng cung ứng liên ngành với đối tác chiến lược nước ngoài.',
+      npcAckText: 'Tin mừng lớn thưa CEO! Thương vụ liên minh đã ký kết thành công, đối tác giải ngân ngay 54.000.000 đ vào TK 112 (Doanh thu 50tr + VAT 4tr), chi phí triển khai 12tr (TK 642), lãi ròng +38.000.000 đ!',
+      impactSummary: 'Doanh thu (511) +50.000.000 đ · Chi phí (642) 12.000.000 đ · Lãi ròng +38.000.000 đ',
+      complianceDelta: 4,
+      moraleDelta: 6,
+      scoreDelta: 195,
+      lines: [
+        { side: 'N', account: '112', amount: 42000000 },
+        { side: 'N', account: '642', amount: 12000000 },
+        { side: 'C', account: '511', amount: 50000000 },
+        { side: 'C', account: '3331', amount: 4000000 },
+      ],
+    },
+    {
+      id: 'dir_sep_synergy_opex',
+      code: 'DIR-VP-03',
+      title: 'Tối ưu Hóa Cộng hưởng Nội bộ & Tăng Hiệu suất Liên Phòng ban',
+      ceoCommandText: 'Anh Thịnh triển khai chương trình cộng hưởng hạ tầng giữa các phòng ban để tiết kiệm chi phí và nâng cao năng suất toàn bộ máy.',
+      npcAckText: 'Anh đã hoàn tất tái cấu trúc quy trình liên phòng ban! Tập đoàn thu về 18.000.000 đ lợi ích tài chính (TK 515) và Hiệu suất toàn bộ nhân sự tăng thêm +5%!',
+      impactSummary: 'Tiền gửi NH (112) +18.000.000 đ · Doanh thu TC (515) +18.000.000 đ · Hiệu suất toàn đội ngũ +5%',
+      boostAllStaff: true,
+      complianceDelta: 4,
+      moraleDelta: 6,
+      scoreDelta: 175,
+      lines: [
+        { side: 'N', account: '112', amount: 18000000 },
+        { side: 'C', account: '515', amount: 18000000 },
+      ],
+    },
+  ],
+  n_ktv1: [
+    {
+      id: 'dir_ktv_internal_audit',
+      code: 'DIR-AUD-01',
+      title: 'Thanh tra Nội bộ & Rà soát Rủi ro Hóa đơn Điện tử',
+      ceoCommandText: 'Chị Ngân tiến hành đợt kiểm toán nội bộ đột xuất toàn bộ hồ sơ mua bán và hóa đơn điện tử để triệt tiêu rủi ro thuế và thu hồi các khoản chi sai quy chế.',
+      npcAckText: 'Báo cáo CEO, đoàn Kiểm toán nội bộ đã rà soát toàn diện, thu hồi về quỹ Ngân hàng 14.000.000 đ khoản phạt vi phạm hợp đồng từ nhà cung cấp (TK 711) và nâng Điểm tuân thủ lên +8!',
+      impactSummary: 'Thu hồi về NH (112) +14.000.000 đ · Thu nhập khác (711) +14.000.000 đ · Điểm tuân thủ +8%',
+      complianceDelta: 8,
+      moraleDelta: 4,
+      scoreDelta: 170,
+      lines: [
+        { side: 'N', account: '112', amount: 14000000 },
+        { side: 'C', account: '711', amount: 14000000 },
+      ],
+    },
+    {
+      id: 'dir_ktv_compliance_shield',
+      code: 'DIR-AUD-02',
+      title: 'Thiết lập Lá chắn Pháp chế & Chuẩn hóa Quy trình Kiểm soát 3 Lớp',
+      ceoCommandText: 'Chị Ngân cập nhật bộ quy chuẩn kiểm soát nội bộ 3 lớp theo Thông tư 99/2025/TT-BTC và Luật Thuế GTGT 2024 cho toàn bộ nhân sự.',
+      npcAckText: 'Đã ban hành quy chế Kiểm soát 3 lớp thưa CEO! Điểm kỷ luật tuân thủ của Tập đoàn tăng mạnh +10 điểm và được tổ chức bảo hiểm hoàn phí quản trị rủi ro +9.000.000 đ (TK 711)!',
+      impactSummary: 'Điểm tuân thủ +10% · Hoàn phí bảo hiểm rủi ro về NH (112) +9.000.000 đ',
+      complianceDelta: 10,
+      moraleDelta: 4,
+      scoreDelta: 165,
+      lines: [
+        { side: 'N', account: '112', amount: 9000000 },
+        { side: 'C', account: '711', amount: 9000000 },
+      ],
+    },
+    {
+      id: 'dir_ktv_contract_review',
+      code: 'DIR-AUD-03',
+      title: 'Thẩm định Pháp lý Hợp đồng & Đòi Bồi thường Vi phạm Tiến độ',
+      ceoCommandText: 'Chị Ngân rà soát các điều khoản phạt chậm giao hàng trong hợp đồng thương mại để yêu cầu đối tác bồi thường thiệt hại cho Tập đoàn.',
+      npcAckText: 'Thưa CEO, Ban Pháp chế đã gửi công văn yêu cầu bồi thường và đối tác đã chuyển khoản 16.000.000 đ tiền bồi thường hợp đồng (TK 711) vào TK 112 của Tập đoàn!',
+      impactSummary: 'Tiền gửi NH (112) +16.000.000 đ · Thu nhập bồi thường hợp đồng (711) +16.000.000 đ',
+      complianceDelta: 6,
+      moraleDelta: 4,
+      scoreDelta: 160,
+      lines: [
+        { side: 'N', account: '112', amount: 16000000 },
+        { side: 'C', account: '711', amount: 16000000 },
+      ],
+    },
+  ],
+  n_chutich: [
+    {
+      id: 'dir_chutich_capital_inject',
+      code: 'DIR-BOD-01',
+      title: 'Đề xuất HĐQT Giải ngân Bổ sung Vốn Điều lệ Chiến lược (TK 411)',
+      ceoCommandText: 'Thưa Chủ tịch Bà Diệu, tôi đề xuất HĐQT phê duyệt đợt góp vốn bổ sung 100.000.000 đ từ các cổ đông sáng lập vào TK 112 để tăng cường tiềm lực mở rộng Tập đoàn.',
+      npcAckText: 'HĐQT hoàn toàn tin tưởng vào năng lực điều hành của CEO! Tôi đã ký Nghị quyết giải ngân ngay 100.000.000 đ Vốn góp của chủ sở hữu (TK 411) vào Tài khoản Ngân hàng (TK 112) của Tập đoàn!',
+      impactSummary: 'Tăng Tiền gửi NH (112) +100.000.000 đ · Tăng Vốn đầu tư của CSH (411) +100.000.000 đ',
+      complianceDelta: 5,
+      moraleDelta: 6,
+      scoreDelta: 200,
+      lines: [
+        { side: 'N', account: '112', amount: 100000000 },
+        { side: 'C', account: '411', amount: 100000000 },
+      ],
+    },
+    {
+      id: 'dir_chutich_ir_deal',
+      code: 'DIR-BOD-02',
+      title: 'Công bố Quản trị Minh bạch & Ký Hợp đồng Khách hàng Định chế',
+      ceoCommandText: 'Thưa Chủ tịch, đề nghị HĐQT cùng tham gia buổi công bố báo cáo quản trị minh bạch để chốt hợp đồng tư vấn chiến lược với quỹ đầu tư quốc tế.',
+      npcAckText: 'Buổi gặp gỡ các định chế tài chính thành công rực rỡ thưa CEO! Đối tác đã ký hợp đồng và thanh toán ngay 48.600.000 đ vào TK 112 (Doanh thu 45tr + VAT 3,6tr)!',
+      impactSummary: 'Tiền gửi NH (112) +48.600.000 đ · Doanh thu (511) +45.000.000 đ · VAT (3331) +3.600.000 đ',
+      complianceDelta: 5,
+      moraleDelta: 5,
+      scoreDelta: 190,
+      lines: [
+        { side: 'N', account: '112', amount: 48600000 },
+        { side: 'C', account: '511', amount: 45000000 },
+        { side: 'C', account: '3331', amount: 3600000 },
+      ],
+    },
+    {
+      id: 'dir_chutich_reward_team',
+      code: 'DIR-BOD-03',
+      title: 'Phê duyệt Quỹ Thưởng Nóng Khích lệ Toàn bộ Đội ngũ Nhân sự',
+      ceoCommandText: 'Thưa Chủ tịch, tôi đề xuất trích 8.000.000 đ từ Ngân hàng (TK 112) để thưởng nóng khích lệ tinh thần toàn bộ các trưởng bộ phận và nhân viên đã nỗ lực vượt bậc.',
+      npcAckText: 'Một CEO biết trân trọng nhân tài sẽ xây dựng được đế chế bền vững! HĐQT duyệt chi 8.000.000 đ thưởng nóng. Tinh thần và Hiệu suất làm việc của toàn bộ 8 nhân sự đều tăng vọt!',
+      impactSummary: 'Chi thưởng nhân sự (642/112): 8.000.000 đ · Tinh thần & Hiệu suất toàn bộ NPC tăng mạnh (+10%)!',
+      boostAllStaff: true,
+      complianceDelta: 3,
+      moraleDelta: 12,
+      scoreDelta: 160,
+      lines: [
+        { side: 'N', account: '642', amount: 8000000 },
+        { side: 'C', account: '112', amount: 8000000 },
+      ],
+    },
+  ],
+};
+
+/**
+ * Đảm bảo state luôn có đầy đủ `staff`, `npcChats`, và `directivesLog` (tương thích ngược với phiên lưu cũ).
+ */
+export function ensureStaffAndChatsState(state) {
+  if (!state || typeof state !== 'object') return;
+
+  if (!state.staff || typeof state.staff !== 'object') {
+    state.staff = {};
+  }
+  if (!state.npcChats || typeof state.npcChats !== 'object') {
+    state.npcChats = {};
+  }
+  if (!Array.isArray(state.directivesLog)) {
+    state.directivesLog = [];
+  }
+
+  for (const [npcId, npc] of Object.entries(NPC_DIRECTORY)) {
+    if (!state.staff[npcId]) {
+      state.staff[npcId] = {
+        id: npcId,
+        morale: 88,
+        efficiency: 100,
+        trust: 90,
+        directivesCompleted: 0,
+        lastDirectiveTitle: 'Sẵn sàng nhận lệnh từ CEO',
+        statusText: 'Đang trực tại phòng ban',
+      };
+    }
+    if (!Array.isArray(state.npcChats[npcId]) || state.npcChats[npcId].length === 0) {
+      state.npcChats[npcId] = [
+        {
+          id: `MSG-INIT-${npcId}`,
+          sender: 'npc',
+          authorName: npc.name,
+          authorRole: npc.role,
+          avatar: npc.avatar,
+          time: '08:00',
+          text: npc.greeting,
+          isDirective: false,
+        },
+      ];
+    }
+  }
+}
+
+/**
+ * Lấy danh sách toàn bộ Nhân viên dưới quyền / đồng hành cùng CEO kèm chỉ số thực tế và các chỉ đạo mẫu.
+ */
+export function getStaffRoster(state) {
+  ensureStaffAndChatsState(state);
+  return Object.values(NPC_DIRECTORY).map((npc) => {
+    const st = state.staff[npc.id] || {};
+    const chatList = state.npcChats[npc.id] || [];
+    const presets = STAFF_DIRECTIVES_CATALOG[npc.id] || [];
+    return {
+      ...npc,
+      morale: st.morale ?? 88,
+      efficiency: st.efficiency ?? 100,
+      trust: st.trust ?? 90,
+      directivesCompleted: st.directivesCompleted ?? 0,
+      lastDirectiveTitle: st.lastDirectiveTitle || 'Sẵn sàng nhận lệnh từ CEO',
+      statusText: st.statusText || 'Đang trực tại phòng ban',
+      messageCount: chatList.length,
+      lastMessage: chatList[chatList.length - 1] || null,
+      presetDirectives: presets,
+    };
+  });
+}
+
+/**
+ * Thêm một tin nhắn (từ CEO hoặc từ NPC Roleplay) vào luồng chat trực tiếp của NPC.
+ */
+export function appendNpcChatMessage(state, npcId, msg = {}) {
+  ensureStaffAndChatsState(state);
+  const npc = NPC_DIRECTORY[npcId] || NPC_DIRECTORY.n_mentor;
+  if (!Array.isArray(state.npcChats[npcId])) {
+    state.npcChats[npcId] = [];
+  }
+
+  const nowStr = msg.time || new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
+  const entry = {
+    id: msg.id || `MSG-${Date.now()}-${Math.floor(Math.random() * 900 + 100)}`,
+    sender: msg.sender || 'player',
+    authorName: msg.authorName || (msg.sender === 'npc' ? npc.name : 'Bạn (CEO — Tổng Giám đốc)'),
+    authorRole: msg.authorRole || (msg.sender === 'npc' ? npc.role : 'Tổng Giám đốc Điều hành'),
+    avatar: msg.avatar || (msg.sender === 'npc' ? npc.avatar : '👑'),
+    time: nowStr,
+    text: msg.text || '',
+    isDirective: Boolean(msg.isDirective),
+    directiveCode: msg.directiveCode || null,
+    impactSummary: msg.impactSummary || null,
+    isWarning: Boolean(msg.isWarning),
+    model: msg.model || null,
+  };
+
+  state.npcChats[npcId].push(entry);
+  if (state.npcChats[npcId].length > 60) {
+    state.npcChats[npcId] = state.npcChats[npcId].slice(-60);
+  }
+  return entry;
+}
+
+/**
+ * CEO ban hành Chỉ đạo Điều hành (Executive Directive) cho một nhân viên cấp dưới (`npcId`).
+ * Hỗ trợ cả Chỉ đạo mẫu (`directiveId`) lẫn Chỉ đạo tự do bằng lời của CEO (`customDirectiveText`).
+ * Tuân thủ Luật số 6 (GDD §7): Không thưởng gian lận — nếu CEO chỉ đạo làm sai luật/trốn thuế thì bị phạt hành chính.
+ */
+export function issueExecutiveDirective(
+  state,
+  { npcId, directiveId = null, customDirectiveText = '', npcReplyOverride = null } = {}
+) {
+  ensureStaffAndChatsState(state);
+  const npc = NPC_DIRECTORY[npcId];
+  if (!npc) {
+    return { ok: false, message: `Không tìm thấy nhân sự: ${npcId}` };
+  }
+
+  const st = state.staff[npcId];
+  const presets = STAFF_DIRECTIVES_CATALOG[npcId] || [];
+  let spec = directiveId ? presets.find((d) => d.id === directiveId) : null;
+
+  // Nếu CEO gõ chỉ đạo tự do (Custom Directive)
+  if (!spec) {
+    const rawText = String(customDirectiveText || '').trim();
+    if (!rawText) {
+      return { ok: false, message: 'Vui lòng nhập nội dung chỉ đạo cho nhân viên.' };
+    }
+    const lower = rawText.toLowerCase();
+
+    // Kiểm tra Luật số 6 (Không thưởng gian lận): phát hiện chỉ đạo gian lận / trốn thuế / hai sổ
+    const isUnethical =
+      lower.includes('trốn thuế') ||
+      lower.includes('khống') ||
+      lower.includes('hai sổ') ||
+      lower.includes('ngoài sổ') ||
+      lower.includes('không hóa đơn') ||
+      lower.includes('lách luật') ||
+      lower.includes('biển thủ') ||
+      lower.includes('bẻ khóa');
+
+    if (isUnethical) {
+      const penaltyAmount = 10000000;
+      const warnReply =
+        npcReplyOverride ||
+        `🚨 [CẢNH BÁO KIỂM SOÁT & PHÁP CHẾ] Thưa CEO, chỉ đạo "${rawText}" vi phạm nghiêm trọng Luật Kế toán và Luật Thuế GTGT 2024! Hệ thống giám sát thuế điện tử đã phát hiện rủi ro và lập biên bản phạt hành chính ${penaltyAmount.toLocaleString('vi-VN')} đ (TK 811). Chúng ta tuyệt đối không thể làm trái pháp luật ạ!`;
+
+      appendNpcChatMessage(state, npcId, {
+        sender: 'player',
+        text: `⚡ [CHỈ ĐẠO CỦA CEO]: ${rawText}`,
+        isDirective: true,
+        directiveCode: 'DIR-CUSTOM-WARN',
+      });
+
+      const ledgerRes = recordLedgerLines(state, {
+        title: `[CHẾ TÀI KIỂM SOÁT · ${npc.name}] Phạt vi phạm từ chỉ đạo không tuân thủ`,
+        source: 'CEO-DIRECTIVE-PENALTY',
+        lines: [
+          { side: 'N', account: '811', amount: penaltyAmount },
+          { side: 'C', account: '112', amount: penaltyAmount },
+        ],
+      });
+
+      state.complianceScore = Math.max(0, (state.complianceScore ?? 100) - 15);
+      st.morale = Math.max(30, (st.morale ?? 88) - 8);
+      st.trust = Math.max(30, (st.trust ?? 90) - 10);
+      st.lastDirectiveTitle = '⚠️ Cảnh báo rủi ro tuân thủ';
+
+      appendNpcChatMessage(state, npcId, {
+        sender: 'npc',
+        text: warnReply,
+        isDirective: true,
+        isWarning: true,
+        impactSummary: `Bị phạt hành chính (TK 811/112): -10.000.000 đ · Điểm tuân thủ -15%`,
+      });
+
+      return {
+        ok: true,
+        ethical: false,
+        npc,
+        directiveTitle: 'Chỉ đạo vi phạm chuẩn mực tuân thủ',
+        npcReply: warnReply,
+        impactSummary: `Phạt vi phạm hành chính -10.000.000 đ (TK 811) · Tuân thủ -15%`,
+        scoreDelta: -120,
+        ...ledgerRes,
+      };
+    }
+
+    // Chỉ đạo kinh doanh hợp pháp tự do: ánh xạ thông minh theo chuyên môn của từng nhân viên
+    const effMultiplier = Math.max(0.8, Math.min(1.5, (st.efficiency || 100) / 100));
+    const scale = (amt) => Math.round((amt * effMultiplier) / 100000) * 100000;
+
+    if (npcId === 'n_sale') {
+      const rev = scale(30000000);
+      const vat = Math.round(rev * 0.08);
+      const cogs = scale(13000000);
+      spec = {
+        id: `dir_custom_${Date.now()}`,
+        code: 'DIR-CEO-SALE',
+        title: `Chỉ đạo Kinh doanh: ${rawText.slice(0, 48)}`,
+        ceoCommandText: rawText,
+        npcAckText: `Dạ rõ thưa Sếp CEO! Em và đội Kinh doanh đã triển khai ngay chỉ đạo "${rawText}", chốt thành công đơn hàng mới mang về doanh thu ${rev.toLocaleString('vi-VN')} đ (+VAT ${vat.toLocaleString('vi-VN')} đ) thu thẳng vào Ngân hàng TK 112!`,
+        impactSummary: `Doanh thu (511) +${rev.toLocaleString('vi-VN')} đ · Tiền NH (112) +${(rev + vat).toLocaleString('vi-VN')} đ · Lãi gộp +${(rev - cogs).toLocaleString('vi-VN')} đ`,
+        complianceDelta: 3,
+        moraleDelta: 5,
+        scoreDelta: 165,
+        lines: [
+          { side: 'N', account: '112', amount: rev + vat },
+          { side: 'C', account: '511', amount: rev },
+          { side: 'C', account: '3331', amount: vat },
+          { side: 'N', account: '632', amount: cogs },
+          { side: 'C', account: '156', amount: cogs },
+        ],
+      };
+    } else if (npcId === 'n_kho') {
+      const rebate = scale(14000000);
+      spec = {
+        id: `dir_custom_${Date.now()}`,
+        code: 'DIR-CEO-SCM',
+        title: `Chỉ đạo Kho vận: ${rawText.slice(0, 48)}`,
+        ceoCommandText: rawText,
+        npcAckText: `Báo cáo CEO, chú Bền đã thực hiện nghiêm chỉ đạo "${rawText}", tối ưu hóa kho bãi và đàm phán nhà cung cấp giảm trừ công nợ phải trả TK 331 được ${rebate.toLocaleString('vi-VN')} đ!`,
+        impactSummary: `Giảm Phải trả NCC (331) -${rebate.toLocaleString('vi-VN')} đ · Tăng Thu nhập TC (515) +${rebate.toLocaleString('vi-VN')} đ`,
+        complianceDelta: 3,
+        moraleDelta: 5,
+        scoreDelta: 155,
+        lines: [
+          { side: 'N', account: '331', amount: rebate },
+          { side: 'C', account: '515', amount: rebate },
+        ],
+      };
+    } else if (npcId === 'n_thuquy') {
+      const yieldAmt = scale(9000000);
+      spec = {
+        id: `dir_custom_${Date.now()}`,
+        code: 'DIR-CEO-TREAS',
+        title: `Chỉ đạo Ngân quỹ: ${rawText.slice(0, 48)}`,
+        ceoCommandText: rawText,
+        npcAckText: `Dạ thưa CEO, em Tâm đã thực thi lệnh "${rawText}", cân đối dòng tiền thanh khoản và thu về ${yieldAmt.toLocaleString('vi-VN')} đ lãi điều phối ngân quỹ (TK 515) vào TK 112!`,
+        impactSummary: `Tăng Tiền gửi NH (112) +${yieldAmt.toLocaleString('vi-VN')} đ · Doanh thu TC (515) +${yieldAmt.toLocaleString('vi-VN')} đ`,
+        complianceDelta: 4,
+        moraleDelta: 4,
+        scoreDelta: 150,
+        lines: [
+          { side: 'N', account: '112', amount: yieldAmt },
+          { side: 'C', account: '515', amount: yieldAmt },
+        ],
+      };
+    } else if (npcId === 'n_shipper') {
+      const codAmt = scale(22000000);
+      const vat = Math.round(codAmt * 0.08);
+      spec = {
+        id: `dir_custom_${Date.now()}`,
+        code: 'DIR-CEO-OPS',
+        title: `Chỉ đạo Giao vận: ${rawText.slice(0, 48)}`,
+        ceoCommandText: rawText,
+        npcAckText: `Dạ em Lẹ đã triển khai ngay lệnh "${rawText}" ngoài hiện trường! Đội giao nhận vừa đối soát và thu về ${(codAmt + vat).toLocaleString('vi-VN')} đ vào TK 112 cho công ty!`,
+        impactSummary: `Tiền gửi NH (112) +${(codAmt + vat).toLocaleString('vi-VN')} đ · Doanh thu (511) +${codAmt.toLocaleString('vi-VN')} đ`,
+        complianceDelta: 3,
+        moraleDelta: 5,
+        scoreDelta: 155,
+        lines: [
+          { side: 'N', account: '112', amount: codAmt + vat },
+          { side: 'C', account: '511', amount: codAmt },
+          { side: 'C', account: '3331', amount: vat },
+        ],
+      };
+    } else if (npcId === 'n_sep' || npcId === 'n_chutich') {
+      const stratRev = scale(38000000);
+      const vat = Math.round(stratRev * 0.08);
+      spec = {
+        id: `dir_custom_${Date.now()}`,
+        code: 'DIR-CEO-EXEC',
+        title: `Quyết sách Điều hành: ${rawText.slice(0, 48)}`,
+        ceoCommandText: rawText,
+        npcAckText: `Nhất trí cao với chỉ đạo "${rawText}" của CEO! Ban Lãnh đạo đã phối hợp triển khai và mang về dòng thu hợp đồng chiến lược ${(stratRev + vat).toLocaleString('vi-VN')} đ vào TK 112!`,
+        impactSummary: `Tiền gửi NH (112) +${(stratRev + vat).toLocaleString('vi-VN')} đ · Doanh thu (511) +${stratRev.toLocaleString('vi-VN')} đ`,
+        boostAllStaff: true,
+        complianceDelta: 4,
+        moraleDelta: 6,
+        scoreDelta: 180,
+        lines: [
+          { side: 'N', account: '112', amount: stratRev + vat },
+          { side: 'C', account: '511', amount: stratRev },
+          { side: 'C', account: '3331', amount: vat },
+        ],
+      };
+    } else {
+      // Chị Mơ (n_mentor) hoặc Chị Ngân (n_ktv1)
+      const savingAmt = scale(15000000);
+      spec = {
+        id: `dir_custom_${Date.now()}`,
+        code: 'DIR-CEO-FIN',
+        title: `Chỉ đạo Kiểm soát & Kế toán: ${rawText.slice(0, 48)}`,
+        ceoCommandText: rawText,
+        npcAckText: `Báo cáo CEO, bộ phận Tài chính & Kiểm soát đã thực thi chỉ đạo "${rawText}", chuẩn hóa chứng từ và thu hồi tối ưu chi phí/thuế ${savingAmt.toLocaleString('vi-VN')} đ về TK 112 (+6% Điểm tuân thủ)!`,
+        impactSummary: `Tiền gửi NH (112) +${savingAmt.toLocaleString('vi-VN')} đ · Doanh thu TC/Khác (515) +${savingAmt.toLocaleString('vi-VN')} đ · Tuân thủ +6%`,
+        complianceDelta: 6,
+        moraleDelta: 5,
+        scoreDelta: 165,
+        lines: [
+          { side: 'N', account: '112', amount: savingAmt },
+          { side: 'C', account: '515', amount: savingAmt },
+        ],
+      };
+    }
+  }
+
+  // Ghi tin nhắn Chỉ đạo của CEO vào luồng chat
+  appendNpcChatMessage(state, npcId, {
+    sender: 'player',
+    text: `⚡ [CHỈ ĐẠO CỦA CEO — ${spec.code}]: ${spec.ceoCommandText}`,
+    isDirective: true,
+    directiveCode: spec.code,
+  });
+
+  let ledgerRes = { entry: null, metrics: computeMetrics(state) };
+  let dynamicImpactSummary = spec.impactSummary;
+
+  // Nếu là chỉ đạo Kết chuyển 911 -> 421
+  if (spec.isClosingAction) {
+    const closeRes = executeClosingEntries(state);
+    ledgerRes.metrics = computeMetrics(state);
+    dynamicImpactSummary = closeRes.message;
+  } else if (spec.isHarvestAction) {
+    // Nếu là chỉ đạo Thu hoạch công ty con
+    const harv = harvestSectorCycle(state);
+    ledgerRes.metrics = computeMetrics(state);
+    if (harv.success) {
+      dynamicImpactSummary = `Thu hoạch ${harv.sectors.length} công ty con: Doanh thu +${harv.totalRevenue.toLocaleString('vi-VN')} đ · Lợi nhuận ròng +${harv.totalProfit.toLocaleString('vi-VN')} đ`;
+    }
+  } else if (Array.isArray(spec.lines) && spec.lines.length > 0) {
+    ledgerRes = recordLedgerLines(state, {
+      title: `[CHỈ ĐẠO CEO · ${spec.code} · ${npc.name}] ${spec.title}`,
+      source: 'CEO-DIRECTIVE',
+      lines: spec.lines,
+    });
+  }
+
+  // Cập nhật chỉ số nhân viên & điểm tuân thủ
+  state.complianceScore = Math.max(
+    0,
+    Math.min(100, (state.complianceScore ?? 100) + (spec.complianceDelta || 0))
+  );
+
+  st.morale = Math.min(100, (st.morale ?? 88) + (spec.moraleDelta || 4));
+  st.efficiency = Math.min(150, (st.efficiency ?? 100) + 3);
+  st.trust = Math.min(100, (st.trust ?? 90) + 3);
+  st.directivesCompleted = (st.directivesCompleted || 0) + 1;
+  st.lastDirectiveTitle = spec.title;
+  st.statusText = `Vừa hoàn thành: ${spec.code}`;
+
+  if (spec.boostAllStaff) {
+    for (const other of Object.values(state.staff)) {
+      other.morale = Math.min(100, (other.morale ?? 88) + 6);
+      other.efficiency = Math.min(150, (other.efficiency ?? 100) + 4);
+    }
+  }
+
+  const finalReply = npcReplyOverride || spec.npcAckText;
+
+  // Ghi tin nhắn phản hồi báo cáo của NPC
+  appendNpcChatMessage(state, npcId, {
+    sender: 'npc',
+    text: finalReply,
+    isDirective: true,
+    directiveCode: spec.code,
+    impactSummary: dynamicImpactSummary,
+  });
+
+  // Lưu vào Nhật ký Chỉ đạo của CEO
+  const logRecord = {
+    id: `DIR-${String((state.directivesLog?.length || 0) + 1).padStart(3, '0')}`,
+    code: spec.code,
+    npcId,
+    npcName: npc.name,
+    npcRole: npc.role,
+    npcAvatar: npc.avatar,
+    title: spec.title,
+    ceoCommandText: spec.ceoCommandText,
+    npcReply: finalReply,
+    impactSummary: dynamicImpactSummary,
+    time: new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }),
+  };
+  state.directivesLog.unshift(logRecord);
+  if (state.directivesLog.length > 30) {
+    state.directivesLog = state.directivesLog.slice(0, 30);
+  }
+
+  return {
+    ok: true,
+    ethical: true,
+    npc,
+    directive: spec,
+    directiveTitle: spec.title,
+    npcReply: finalReply,
+    impactSummary: dynamicImpactSummary,
+    scoreDelta: spec.scoreDelta || 150,
+    logRecord,
+    ...ledgerRes,
   };
 }
 

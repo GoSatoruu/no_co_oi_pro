@@ -27,6 +27,7 @@ Lấy cảm hứng về cơ chế từ "Nợ Có Ơi" (JoyUp); toàn bộ code, 
 | Sự kiện ngẫu nhiên Lệnh chi / Thông báo thu phong cách Slack Workspace, tương tác NPC đa chiều, phát chuông Web Audio API | Thường, Pro | Chơi được | docs/01 §10, ADR-014 |
 | CEO Tập đoàn Đa ngành & Tự do Mở rộng / Sáng lập Lĩnh vực Kinh doanh (Vốn góp 221, Vay 341, Thu hoạch chu kỳ DT 511/515) | Thường, Pro | Chơi được | docs/09, docs/01 §10 |
 | Cố vấn AI CFO (LLM tuỳ chỉnh OpenAI/Gemini/Claude/Ollama + Offline Heuristic 100% không cần mạng) & Tối ưu đa thiết bị (Desktop, iPhone 13 Pro, BlackBerry Key2) | Thường, Pro | Chơi được | docs/09, docs/08 §11 |
+| Mô phỏng Quản lý Kinh doanh CEO: Đội ngũ 8 Nhân sự bên cạnh CEO, Giao Chỉ đạo Điều hành (Preset & Tự do) & Hệ thống Nhắn tin Role-Playing Đa Nhân vật vận hành bởi LLM | Thường, Pro | Chơi được | docs/09, docs/01 §10 |
 | 8 mẫu chứng từ cơ bản (bán hàng, mua hàng, chi phí, ngân hàng, giá vốn) | Thường, Pro | Chơi được | `content/doc_templates/` |
 | 11 loại lỗi chứng từ, sai sót ẩn lộ khi kiểm quỹ và khoá sổ | Thường, Pro | Có dữ liệu, chưa code | `content/defects.json` |
 | Kiểm quỹ cuối tuần, khoá sổ tháng | Thường, Pro | Mới có thiết kế | docs/01 §2.3–2.4 |
@@ -88,6 +89,11 @@ cd backend && python -m pytest -q     # Python
 > Chi tiết kỹ thuật đầy đủ nằm ở `ai/HANDOFF.md`; README chỉ ghi điều người đọc repo cần biết.
 
 <!-- CHANGELOG:START — thêm mục mới ngay dưới dòng này -->
+
+### 2026-11-02 · CORE-018, FE-026 · gemini-4-argon
+- **Thêm:** nâng cấp trò chơi thành **Mô phỏng Quản lý Kinh doanh & Role-Playing Điều hành (CEO Business Management & LLM Roleplay)**: người chơi giữ vai trò **CEO (Tổng Giám đốc)** với **8 nhân sự cốt cán bên cạnh** (Chị Mơ CFO, Bé Na Kinh doanh, Chú Bền Kho vận, Anh Tâm Ngân quỹ, Cậu Lẹ Giao nhận COD, Ông Thịnh Phó TGĐ M&A, Chị Ngân Kiểm toán Pháp chế, Bà Diệu Chủ tịch HĐQT) kèm chỉ số Tinh thần (`Morale`), Hiệu suất (`Efficiency`) và Độ tín nhiệm (`Trust`).
+- **Thêm:** hệ thống **Giao Chỉ đạo Điều hành cho Nhân viên cấp dưới** (`STAFF_DIRECTIVES_CATALOG`, `issueExecutiveDirective`): CEO có thể bấm giao **24 chỉ đạo chiến thuật có sẵn** (3 chỉ đạo đặc thù/nhân viên) hoặc **gõ mệnh lệnh chỉ đạo tự do bằng lời của CEO**. Mỗi chỉ đạo tự động thực thi nghiệp vụ kinh doanh, hạch toán bút toán kép vào Sổ cái (`111`, `112`, `131`, `156`, `331`, `511`, `515`, `632`, `641`, `642`, `711`, `411`, `421`), cập nhật KPI và lưu vào **Sổ Theo dõi Chỉ đạo của CEO**.
+- **Thêm:** **Phòng Nhắn tin Role-Playing Đa Nhân vật vận hành bởi LLM** (`NPC_ROLEPLAY_PROFILES`, `askNpcRoleplay`, `generateOfflineNpcRoleplay`): CEO có thể nhắn tin tự do 1-1 với bất kỳ NPC nào; mỗi NPC nhập vai đúng tính cách, cách xưng hô và báo cáo chính xác số liệu tài chính thời gian thực của Tập đoàn (hỗ trợ cả LLM trực tuyến OpenAI/Gemini/Claude/Ollama lẫn Offline Roleplay Engine nội bộ 100% không cần mạng).
 
 ### 2026-11-01 · FE-026 (LOG-SESSION & AUTO-HEAL) · gemini-4-argon
 - **Thêm:** dịch vụ **Phiên Ghi Log & Chẩn đoán Hệ thống** (`services/logger.js` — khoá `nocooi.logs.v1`), tự động bắt mọi sự kiện khởi tạo, cảnh báo và lỗi runtime/promise kèm `stack trace` chi tiết; thêm nút **`📋 Nhật ký Log`** trên thanh Topbar (và phím tắt `[L]`) cho phép lọc log (`ALL / ERROR / WARN / INFO`), sao chép toàn bộ log hoặc tải file `.json` về máy.
