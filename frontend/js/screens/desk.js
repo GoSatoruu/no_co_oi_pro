@@ -9,9 +9,9 @@
  * - Bảng Cân đối Tài khoản Tổng (Master Trial Balance 6 cột, Tài sản = Nguồn vốn, kết chuyển 911 ➔ 421).
  * - Tư vấn Chiến lược CFO Thế giới mở (Open-World Strategic Advisory).
  */
-import { loadBundle } from '../services/content.js';
-import { defaultStore } from '../services/store.js';
-import { buildShift, gradeInspect, gradeEntry } from '../core/shift.js';
+import { loadBundle } from '../services/content.js?v=20261101_v2';
+import { defaultStore } from '../services/store.js?v=20261101_v2';
+import { buildShift, gradeInspect, gradeEntry } from '../core/shift.js?v=20261101_v2';
 import {
   createFinanceState,
   computeMetrics,
@@ -32,13 +32,13 @@ import {
   expandBusinessSector,
   harvestSectorCycle,
   buildCfoContextSnapshot,
-} from '../core/finance.js';
+} from '../core/finance.js?v=20261101_v2';
 import {
   DEFAULT_LLM_CONFIG,
   CFO_PERSONAS,
   askCfoAdvisor,
   testLlmConnection,
-} from '../services/llm-cfo.js';
+} from '../services/llm-cfo.js?v=20261101_v2';
 import {
   playSlackKnock,
   playSlackSend,
@@ -47,7 +47,7 @@ import {
   playAlertBuzzer,
   isSoundEnabled,
   toggleSound,
-} from '../ui/sound.js';
+} from '../ui/sound.js?v=20261101_v2';
 
 let timer = null;
 let screenRoot = null;
@@ -110,6 +110,27 @@ function generateSessionId() {
   const ymd = `${d.getFullYear()}${String(d.getMonth() + 1).padStart(2, '0')}${String(d.getDate()).padStart(2, '0')}`;
   const rnd = String(Math.floor(Math.random() * 900 + 100));
   return `SES-${ymd}-${rnd}`;
+}
+
+function safeGetSettings(store) {
+  if (typeof store?.getSettings === 'function') {
+    return safeGetSettings(store);
+  }
+  const data = typeof store?.load === 'function' ? store.load() : null;
+  return data?.settings || { theme: 'dark', preferredMode: 'pro' };
+}
+
+function safeUpdateSettings(store, patch = {}) {
+  if (typeof store?.updateSettings === 'function') {
+    return store.updateSettings(patch);
+  }
+  if (typeof store?.load === 'function' && typeof store?.save === 'function') {
+    const data = store.load();
+    data.settings = { ...(data.settings || {}), ...patch };
+    store.save(data);
+    return data.settings;
+  }
+  return patch;
 }
 
 function sanitizeState(s, bundle) {
@@ -284,8 +305,8 @@ function play(root, bundle, params = {}, ctx = {}) {
         description: 'Phát triển giải pháp tự động hóa và ứng dụng AI cho các doanh nghiệp B2B.',
       },
       sectorFundingMode: 'CASH_112',
-      llmConfig: store.getSettings()?.llmConfig || { ...DEFAULT_LLM_CONFIG },
-      deviceProfile: store.getSettings()?.uiConfig?.deviceProfile || 'auto',
+      llmConfig: safeGetSettings(store)?.llmConfig || { ...DEFAULT_LLM_CONFIG },
+      deviceProfile: safeGetSettings(store)?.uiConfig?.deviceProfile || 'auto',
     };
   } else {
     const modeId = params.mode || 'pro';
@@ -356,8 +377,8 @@ function play(root, bundle, params = {}, ctx = {}) {
         description: 'Phát triển giải pháp tự động hóa và ứng dụng AI cho các doanh nghiệp B2B.',
       },
       sectorFundingMode: 'CASH_112',
-      llmConfig: store.getSettings()?.llmConfig || { ...DEFAULT_LLM_CONFIG },
-      deviceProfile: store.getSettings()?.uiConfig?.deviceProfile || 'auto',
+      llmConfig: safeGetSettings(store)?.llmConfig || { ...DEFAULT_LLM_CONFIG },
+      deviceProfile: safeGetSettings(store)?.uiConfig?.deviceProfile || 'auto',
     };
 
     persistCurrentSession(s);
@@ -3637,12 +3658,10 @@ function renderSettingsModal(s, isPro) {
     s.deviceProfile = updatedDev;
 
     // Lưu vào store
-    if (s.store?.updateSettings) {
-      s.store.updateSettings({
-        llmConfig: updatedLlm,
-        uiConfig: { deviceProfile: updatedDev, enablePhysicalKeyboard: true },
-      });
-    }
+    safeUpdateSettings(s.store, {
+      llmConfig: updatedLlm,
+      uiConfig: { deviceProfile: updatedDev, enablePhysicalKeyboard: true },
+    });
 
     if (updatedDev === 'bbkey2') {
       document.documentElement.setAttribute('data-device', 'bbkey2');

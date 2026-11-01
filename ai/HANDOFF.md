@@ -249,3 +249,34 @@
 
 ### Cần người khác / câu hỏi cho chủ dự án
 - Không có.
+
+
+---
+
+## 2026-11-01 · `FIX-ESM-CACHE` · `gemini-4-argon` · Trạng thái: `done`
+
+### File đã đổi
+| File | Thao tác | Nội dung thay đổi |
+|---|---|---|
+| `frontend/js/main.js` | Sửa | Thêm query version `?v=20261101_v2` vào tất cả câu lệnh `import` (`router.js`, `store.js`, `title.js`, `desk.js`) để buộc trình duyệt vô hiệu hoá ES Module Map cache của `store.js` cũ. |
+| `frontend/js/screens/desk.js` | Sửa | Thêm query version `?v=20261101_v2` vào tất cả câu lệnh `import` (`content.js`, `store.js`, `shift.js`, `finance.js`, `llm-cfo.js`, `sound.js`); bổ sung 2 hàm phòng vệ `safeGetSettings(store)` và `safeUpdateSettings(store, patch)` tự động fallback sang `store.load()?.settings` nếu đối tượng `store` thiếu phương thức `getSettings`. |
+| `frontend/js/screens/title.js` | Sửa | Thêm query version `?v=20261101_v2` vào `import { defaultStore } from '../services/store.js?v=20261101_v2'`. |
+| `frontend/index.html` | Sửa | Nâng version cache-busting lên `?v=20261101_v2`. |
+
+### Hành vi thay đổi
+- **Trước:** Trình duyệt giữ `frontend/js/services/store.js` bản cũ trong ES Module Map cache (do câu lệnh `import` bên trong `main.js` và `desk.js` không có hậu tố `?v=...`), dẫn đến `store.getSettings` bị `undefined` và ném lỗi `store.getSettings is not a function`.
+- **Sau:** Toàn bộ chuỗi `import` ES Modules đều có hậu tố `?v=20261101_v2`, ép trình duyệt tải mới `store.js` 100%; đồng thời `safeGetSettings(store)` bảo vệ hai lớp (ngay cả khi truyền một đối tượng `store` cũ không có `getSettings`, hệ thống vẫn tự đọc từ `store.load().settings` mà không bao giờ văng lỗi).
+
+### Kiểm tra
+- `python tools/validate_content.py` → `13 mẫu chứng từ · 43 tài khoản · 11 loại lỗi · 22 trích dẫn luật — 0 lỗi, 0 cảnh báo`.
+- `node --test tests/js/` → **42/42 test pass** (`0 fail`).
+- Kiểm thử giả lập `verify_old_store.mjs` truyền một `legacyCachedStore` cố tình xoá `getSettings()` và `updateSettings()` vào `desk.mount()` → `PASS: Desk mounted 100% cleanly`.
+
+### README
+- `không cần` — chỉ sửa cơ chế bust cache ES Module và fallback nội bộ cho tính năng vừa ghi trong Changelog.
+
+### Chưa xong / rủi ro
+- Không có.
+
+### Cần người khác / câu hỏi cho chủ dự án
+- Không có.

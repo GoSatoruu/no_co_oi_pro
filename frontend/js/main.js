@@ -3,10 +3,10 @@
  * Khởi động ứng dụng, nạp Store lưu trữ phiên chơi, Router và mở thẳng Bàn điều hành chính thức.
  */
 
-import { Router } from './router.js';
-import { defaultStore } from './services/store.js';
-import * as titleScreen from './screens/title.js';
-import * as deskScreen from './screens/desk.js';
+import { Router } from './router.js?v=20261101_v2';
+import { defaultStore } from './services/store.js?v=20261101_v2';
+import * as titleScreen from './screens/title.js?v=20261101_v2';
+import * as deskScreen from './screens/desk.js?v=20261101_v2';
 
 // Ngữ cảnh dùng chung của toàn app
 const appCtx = {
