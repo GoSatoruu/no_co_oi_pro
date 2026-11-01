@@ -175,3 +175,16 @@ Không có hiệu ứng xuất hiện cho từng khối, không đổi màu khi 
 - Bỏ bớt một thứ trang trí trước khi bàn giao.
 - Có điểm nào trông giống "trang mẫu" không: thẻ bo đều nhau, bóng mờ xám dưới mọi khối, nhãn in hoa nhỏ phía trên tiêu đề, mũi tên → cuối nút? Có thì bỏ.
 - Chụp màn hình ở 360px, 768px, 1280px, sáng và tối, đính vào mục HANDOFF.
+
+
+---
+
+## 11. Giao diện Phần mềm Quản lý Doanh nghiệp (ERP) & Palantir Foundry Dashboard (ADR-014)
+
+1. **Tổng thể Phần mềm Quản trị Doanh nghiệp (Enterprise Financial OS):**
+   - Toàn bộ trò chơi được thiết kế như một nền tảng phần mềm quản trị tài chính – kế toán doanh nghiệp thời gian thực.
+   - Bố cục gồm: **Thanh Telemetry & Điều hành đỉnh**, **Dải KPI Tài chính (Doanh thu, Lợi nhuận, Thanh khoản, Công nợ, Định giá)**, **Cột Luồng Thông báo Push (Incoming Voucher Stream)**, **Trạm Xử lý Chứng từ & Sổ cái / Trung tâm Tư vấn Chiến lược**, và **Bảng Biểu đồ Telemetry & Pháp chế**.
+2. **Thiết kế Chế độ Pro — Phong cách Palantir Foundry / Gotham:**
+   - Nền chiến thuật tối sâu (`#0A0E14`, `#0F1622`, `#151F30`), đường kẻ kỹ thuật sắc nét (`1px solid #1E293B`), góc bo vuông vức (`2px–4px`).
+   - Dữ liệu định lượng hiển thị bằng phông `tabular-nums` / monospace độ chính xác cao, kết hợp màu tín hiệu: Cyan (`#38BDF8`), Emerald (`#10B981`), Amber (`#F59E0B`), Crimson (`#F43F5E`).
+   - Biểu đồ xu hướng Doanh thu & Lợi nhuận ròng (SVG Telemetry Chart) cập nhật trực tiếp theo từng bút toán và quyết định tư vấn của người chơi.

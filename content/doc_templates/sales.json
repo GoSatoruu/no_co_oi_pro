@@ -48,7 +48,8 @@
       "params": { "qty": { "int": [1, 20] } },
       "amounts": {
         "unitCost": "round(unitPrice * costRatio / 1000) * 1000",
-        "cost": "qty * unitCost"
+        "cost": "qty * unitCost",
+        "total": "cost"
       },
       "paymentMethod": null,
       "truth": [["N", "632", "cost"], ["C", "156", "cost"]],

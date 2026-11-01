@@ -74,3 +74,14 @@
 - **Trạng thái:** accepted · 31/10/2026
 - **Quyết định:** Be Vietnam Pro (giao diện) và Source Serif 4 (giấy tờ, văn bản luật), giấy phép OFL, đặt woff2 trong `frontend/assets/fonts/` kèm file giấy phép. Không gọi Google Fonts lúc chạy.
 - **Hệ quả:** chơi offline được; thêm khoảng 150–250 KB lần tải đầu (nạp `font-display: swap`, chỉ các độ đậm dùng tới).
+
+
+## ADR-014 — Định hướng Thế giới mở Quản trị Tài chính Doanh nghiệp, Chứng từ dạng Push Stream và Giao diện ERP / Palantir Foundry (Pro)
+- **Trạng thái:** accepted · 01/11/2026 (chủ dự án quyết định trực tiếp trong chat)
+- **Điều chỉnh:** Mở rộng `docs/01_GDD.md` và cập nhật `docs/08_DESIGN_SYSTEM.md`.
+- **Bối cảnh:** Chủ dự án muốn nâng tầm trò chơi từ hoạt động kế toán định khoản đơn thuần sang toàn bộ hoạt động tài chính của một doanh nghiệp theo định dạng thế giới mở (open-world business simulation), nơi người chơi có thể ra các quyết định tư vấn chiến lược và nhìn thấy ngay kết quả trên các chỉ số Doanh thu, Lợi nhuận, Thanh khoản. Đồng thời, chứng từ không xuất hiện như các bài test rời rạc mà đẩy về như thông báo Push (Push Notifications) trong một phần mềm quản lý doanh nghiệp; bản Pro mang phong cách Dashboard phân tích dữ liệu của Palantir Foundry / Gotham.
+- **Quyết định:**
+  1. **Lối chơi Thế giới mở & Tư vấn Tài chính (`core/finance.js`):** Kết hợp hạch toán kế toán chuẩn Thông tư 99/2025 với mô phỏng tài chính doanh nghiệp liên tục. Mọi bút toán ghi sổ và quyết định tư vấn chiến lược của người chơi đều tác động thời gian thực lên Doanh thu thuần, Giá vốn, Chi phí vận hành, Lợi nhuận ròng, Dòng tiền (111+112), Công nợ (131/331) và Định giá doanh nghiệp.
+  2. **Chứng từ dạng Thông báo Push (Push Notification Stream):** Chứng từ từ các phòng ban (Kinh doanh, Mua hàng, Kho vận, Ngân hàng, HĐQT) chảy về liên tục trong Inbox/Feed kèm SLA thời gian phản hồi và Toast thông báo, thay vì giao diện làm bài kiểm tra từng câu.
+  3. **Giao diện Phần mềm Quản lý Doanh nghiệp & Palantir Dashboard (Pro):** Toàn bộ trò chơi vận hành như một Hệ điều hành Tài chính Doanh nghiệp (Enterprise Financial OS). Bản Pro sử dụng giao diện chiến thuật tối kiểu Palantir Foundry (`#0A0E14`, lưới dữ liệu sắc nét, telemetry KPI, biểu đồ đa trục thời gian thực).
+- **Hệ quả:** Giữ nguyên toàn bộ lõi chấm điểm (`core/shift.js`, `core/expr.js`, `core/rng.js`, `core/money-words.js`) để đảm bảo tương thích ngược với 100% bài kiểm thử hiện có, đồng thời bổ sung lớp mô phỏng tài chính `core/finance.js` và giao diện Dashboard mới.

@@ -1,6 +1,6 @@
 /**
- * BASE CSS — Nợ Có Ơi Pro
- * Nguồn sự thật: docs/08_DESIGN_SYSTEM.md & docs/03_CONVENTIONS.md
+ * BASE CSS — Nợ Có Ơi Pro // Enterprise Financial OS & Palantir Foundry
+ * Nguồn sự thật: docs/08_DESIGN_SYSTEM.md & ADR-014
  */
 
 *, *::before, *::after {
@@ -13,20 +13,22 @@ html, body {
   width: 100%;
   min-height: 100%;
   background-color: var(--desk);
-  color: var(--paper);
+  color: #E2E8F0;
   font-family: var(--font-ui);
-  font-size: 16px;
+  font-size: 15px;
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
   overflow-x: hidden;
 }
 
-/* Tabular nums cho toàn bộ số liệu kế toán */
 .num, .amount, [data-num] {
   font-variant-numeric: tabular-nums;
 }
 
-/* Khung chứa ứng dụng toàn màn hình */
+.screen {
+  width: 100%;
+}
+
 #app {
   width: 100%;
   min-height: 100vh;
@@ -34,51 +36,47 @@ html, body {
   flex-direction: column;
   position: relative;
   background-color: var(--desk);
-  background-image: 
-    radial-gradient(ellipse at 50% 0%, rgba(255, 255, 255, 0.05) 0%, rgba(0, 0, 0, 0.25) 100%);
+  background-image:
+    linear-gradient(rgba(56, 189, 248, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(56, 189, 248, 0.03) 1px, transparent 1px);
+  background-size: 32px 32px;
   overflow-x: hidden;
 }
 
-/* Quầng sáng đèn bàn ở chế độ Pro */
-[data-mode="pro"] #app::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 5%;
-  width: 500px;
-  height: 500px;
-  max-width: 80vw;
-  max-height: 80vw;
-  background: radial-gradient(circle, rgba(232, 176, 75, 0.16) 0%, rgba(232, 176, 75, 0) 70%);
-  pointer-events: none;
-  z-index: 1;
+[data-mode="pro"] #app {
+  background-color: #070B11;
+  background-image:
+    radial-gradient(circle at 15% 0%, rgba(56, 189, 248, 0.08) 0%, transparent 45%),
+    linear-gradient(rgba(56, 189, 248, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(56, 189, 248, 0.04) 1px, transparent 1px);
+  background-size: 100% 100%, 28px 28px, 28px 28px;
 }
 
-/* Thanh điều hướng nhanh trên đỉnh (thời gian, uy tín, công cụ test/switch) */
+/* Topbar: Thanh điều hành phần mềm ERP / Palantir Foundry */
 .topbar {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: var(--space-8) var(--space-16);
-  background: rgba(0, 0, 0, 0.35);
-  backdrop-filter: blur(4px);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 8px 18px;
+  background: #080D16;
+  border-bottom: 1px solid #1E293B;
   font-size: var(--font-xs);
-  z-index: 10;
+  z-index: 20;
 }
 
 .topbar__brand {
-  font-weight: 700;
-  letter-spacing: 0.5px;
-  color: var(--paper);
+  font-weight: 800;
+  letter-spacing: 1px;
+  color: #F8FAFC;
   display: flex;
   align-items: center;
-  gap: var(--space-8);
+  gap: 10px;
+  font-family: var(--font-mono);
 }
 
 .topbar__actions {
   display: flex;
-  gap: var(--space-8);
+  gap: 10px;
   align-items: center;
 }
 
@@ -87,22 +85,27 @@ html, body {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-height: 44px;
-  min-width: 44px;
-  padding: var(--space-8) var(--space-16);
+  min-height: 38px;
+  padding: 6px 14px;
   font-family: var(--font-ui);
-  font-size: var(--font-sm);
-  font-weight: 600;
+  font-size: var(--font-xs);
+  font-weight: 700;
   border-radius: var(--radius-btn);
   border: 1px solid transparent;
   cursor: pointer;
   user-select: none;
-  transition: background var(--transition-fast), transform var(--transition-fast), border-color var(--transition-fast);
+  transition: all var(--transition-fast);
   text-decoration: none;
+  gap: 6px;
 }
 
-.btn:active {
+.btn:active:not(:disabled) {
   transform: scale(0.98);
+}
+
+.btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
 }
 
 .btn--primary {
@@ -111,37 +114,41 @@ html, body {
   border-color: var(--ruling);
 }
 
-.btn--primary:hover {
-  background-color: #ffffff;
+.btn--primary:hover:not(:disabled) {
+  border-color: var(--ballpoint);
+  box-shadow: 0 0 10px rgba(56, 189, 248, 0.2);
 }
 
 .btn--ballpoint {
-  background-color: var(--ballpoint);
+  background-color: #0284C7;
   color: #ffffff;
+  border-color: #38BDF8;
+  box-shadow: 0 2px 10px rgba(2, 132, 199, 0.35);
 }
 
-.btn--ballpoint:hover {
-  filter: brightness(1.1);
+.btn--ballpoint:hover:not(:disabled) {
+  background-color: #0369A1;
+  box-shadow: 0 4px 14px rgba(56, 189, 248, 0.5);
 }
 
 .btn--ghost {
-  background: transparent;
-  color: var(--paper);
-  border-color: rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.04);
+  color: #CBD5E1;
+  border-color: #334155;
 }
 
-.btn--ghost:hover {
-  background: rgba(255, 255, 255, 0.1);
+.btn--ghost:hover:not(:disabled) {
+  background: rgba(56, 189, 248, 0.12);
+  color: #38BDF8;
+  border-color: #38BDF8;
 }
 
-/* Thẻ giấy chứng từ / bảng làm việc (đặc trưng docs/08) */
+/* Các class cơ sở tương thích ngược */
 .paper {
   background-color: var(--paper);
   color: var(--ink);
   border-radius: var(--radius-paper);
   box-shadow: var(--shadow-paper);
-  transform: rotate(-0.35deg);
-  transition: transform var(--transition-fast);
   padding: var(--space-16);
   border: 1px solid var(--ruling);
 }
@@ -150,7 +157,6 @@ html, body {
   transform: none;
 }
 
-/* Bảng chữ T định khoản: Nợ bên trái, Có bên phải (không dùng đỏ/xanh) */
 .t-account {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -175,26 +181,23 @@ html, body {
   padding: var(--space-8);
 }
 
-/* Con dấu đóng lên giấy */
 .seal {
   display: inline-block;
   color: var(--seal);
-  border: 2px solid var(--seal);
+  border: 1.5px solid var(--seal);
   border-radius: var(--radius-seal);
-  padding: var(--space-4) var(--space-12);
+  padding: 2px 10px;
   font-weight: 800;
   text-transform: uppercase;
-  font-size: var(--font-sm);
+  font-size: 11px;
   letter-spacing: 1px;
-  transform: rotate(-3deg);
   user-select: none;
 }
 
-/* Bảng pháp luật cạnh nhiệm vụ (docs/08 §6) */
 .legal-panel {
   background-color: var(--gazette);
   color: var(--ink);
-  border-left: 3px solid var(--ink);
+  border-left: 3px solid var(--ballpoint);
   padding: var(--space-12);
   font-family: var(--font-serif);
   font-size: var(--font-xs);
@@ -202,22 +205,395 @@ html, body {
   border-radius: var(--radius-paper);
 }
 
-/* Bố cục đáp ứng Desktop (docs/08 §4.2) */
-@media (min-width: 1024px) {
-  .desk-layout {
-    grid-template-columns: 2fr 1fr !important;
+.doc-field {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--space-12);
+  width: 100%;
+  padding: 9px 12px;
+  border: 1px solid var(--ruling);
+  border-radius: var(--radius-card);
+  background: var(--paper);
+  color: var(--ink);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.doc-field:hover {
+  border-color: var(--ballpoint);
+  background: var(--ballpoint-wash);
+}
+
+.doc-field__label {
+  color: var(--ink-2);
+  font-size: var(--font-xs);
+}
+
+.doc-field__value {
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  margin: 3px;
+  padding: 6px 10px;
+  border: 1px solid var(--ruling);
+  border-radius: var(--radius-btn);
+  background: var(--ruling-2);
+  color: var(--ink);
+  font: inherit;
+  font-size: var(--font-xs);
+  cursor: pointer;
+}
+
+/* =========================================================
+ * PALANTIR FOUNDRY & ENTERPRISE ERP WORKSPACE
+ * ========================================================= */
+.erp-workspace {
+  display: grid;
+  grid-template-columns: 320px 1fr 340px;
+  gap: 12px;
+  padding: 12px;
+  width: 100%;
+  max-width: 1600px;
+  margin: 0 auto;
+  align-items: start;
+}
+
+@media (max-width: 1240px) {
+  .erp-workspace {
+    grid-template-columns: 300px 1fr;
+  }
+  .erp-col-right {
+    grid-column: 1 / -1;
   }
 }
 
-/* Hỗ trợ prefers-reduced-motion */
+@media (max-width: 860px) {
+  .erp-workspace {
+    grid-template-columns: 1fr;
+  }
+}
+
+.pal-panel {
+  background: var(--paper);
+  color: var(--ink);
+  border: 1px solid var(--ruling);
+  border-radius: 4px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.22);
+  overflow: hidden;
+}
+
+.pal-panel__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 14px;
+  background: var(--ruling-2);
+  border-bottom: 1px solid var(--ruling);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  color: var(--ink);
+}
+
+/* Dải KPI Tài chính Doanh nghiệp (Top Ribbon) */
+.kpi-ribbon {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 10px;
+  padding: 12px 12px 0 12px;
+  max-width: 1600px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+.kpi-card {
+  background: var(--paper);
+  color: var(--ink);
+  border: 1px solid var(--ruling);
+  border-left: 3px solid var(--ballpoint);
+  border-radius: 4px;
+  padding: 10px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.kpi-card__label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.8px;
+  color: var(--ink-2);
+  text-transform: uppercase;
+  display: flex;
+  justify-content: space-between;
+}
+
+.kpi-card__value {
+  font-family: var(--font-mono);
+  font-size: 18px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink);
+}
+
+.kpi-card__sub {
+  font-size: 11px;
+  color: var(--ink-2);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* Luồng Chứng từ Push (Push Notification Stream) */
+.push-stream {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 10px;
+  max-height: 72vh;
+  overflow-y: auto;
+}
+
+.push-item {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 10px 12px;
+  border: 1px solid var(--ruling);
+  border-left: 3px solid #38BDF8;
+  border-radius: 4px;
+  background: var(--paper);
+  color: var(--ink);
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.15s ease;
+  position: relative;
+}
+
+.push-item:hover {
+  border-color: #38BDF8;
+  transform: translateX(2px);
+}
+
+.push-item--active {
+  background: var(--ballpoint-wash);
+  border-color: #38BDF8;
+  border-left-width: 4px;
+  box-shadow: 0 0 12px rgba(56, 189, 248, 0.2);
+}
+
+.push-item--posted {
+  border-left-color: #10B981;
+  opacity: 0.78;
+}
+
+.push-item--rejected {
+  border-left-color: #F43F5E;
+  opacity: 0.78;
+}
+
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
-    scroll-behavior: auto !important;
-  }
-  .paper {
-    transform: none !important;
   }
 }
+
+/* =========================================================
+ * IPHONE 13 PRO (390×844 px) & MOBILE RESPONSIVE OPTIMIZATION
+ * ========================================================= */
+@media screen and (max-width: 768px) {
+  html, body {
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+
+  .topbar {
+    padding: 6px 12px;
+  }
+
+  .topbar__brand {
+    font-size: 11px;
+    gap: 6px;
+  }
+
+  .topbar__title-text {
+    max-width: 170px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .btn-compact-header {
+    min-height: 32px;
+    padding: 4px 6px;
+    font-size: 10px;
+  }
+
+  .kpi-ribbon {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 6px;
+    padding: 8px 8px 0 8px;
+  }
+
+  .kpi-card {
+    padding: 8px 10px;
+  }
+
+  .kpi-card__value {
+    font-size: 15px;
+  }
+
+  .erp-workspace {
+    display: flex;
+    flex-direction: column;
+    padding: 8px 8px 74px 8px; /* chừa khoảng trống cho bottom nav */
+    gap: 10px;
+  }
+
+  /* Form controls trên mobile không được nhỏ hơn 16px để chống iOS Safari tự zoom */
+  input, select, textarea {
+    font-size: 16px !important;
+  }
+
+  /* Touch target tối thiểu chuẩn Apple HIG */
+  .btn, .doc-field, .chip {
+    min-height: 44px;
+  }
+
+  /* Thanh điều hướng đáy di động (Mobile Bottom Navigation Bar) */
+  .mobile-bottom-nav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: calc(56px + env(safe-area-inset-bottom, 0px));
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    background: #090E17;
+    border-top: 1px solid #1E293B;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    z-index: 100;
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.5);
+  }
+
+  .mobile-nav-item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: #94A3B8;
+    background: none;
+    border: none;
+    font-size: 10px;
+    font-weight: 700;
+    gap: 2px;
+    cursor: pointer;
+    min-height: 48px;
+    transition: all 0.15s ease;
+  }
+
+  .mobile-nav-item--active {
+    color: #38BDF8;
+  }
+
+  .mobile-nav-item .nav-icon {
+    font-size: 16px;
+  }
+}
+
+/* =========================================================
+ * BLACKBERRY KEY2 (Tỷ lệ 3:2, Chiều cao ngắn + QWERTY Speed Keys)
+ * ========================================================= */
+[data-device="bbkey2"],
+@media screen and (max-height: 640px) and (orientation: portrait),
+@media screen and (aspect-ratio: 3/2) {
+  .topbar {
+    padding: 4px 8px;
+  }
+
+  .badge-live-telemetry {
+    display: none;
+  }
+
+  .kpi-ribbon {
+    display: flex;
+    flex-direction: row;
+    overflow-x: auto;
+    padding: 4px 6px 0 6px;
+    gap: 6px;
+    scroll-snap-type: x mandatory;
+  }
+
+  .kpi-card {
+    flex: 0 0 160px;
+    scroll-snap-align: start;
+    padding: 4px 8px;
+    gap: 2px;
+  }
+
+  .kpi-card__label {
+    font-size: 9px;
+  }
+
+  .kpi-card__value {
+    font-size: 13px;
+  }
+
+  .kpi-card__sub {
+    font-size: 9px;
+  }
+
+  .erp-workspace {
+    padding: 6px 6px 60px 6px;
+    gap: 8px;
+  }
+
+  /* Nhãn phím tắt cứng QWERTY hiển thị nổi bật màu vàng hổ phách */
+  .bb-key-hint {
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+    min-width: 18px;
+    height: 18px;
+    padding: 0 3px;
+    background: #F59E0B;
+    color: #000000;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    font-weight: 900;
+    border-radius: 3px;
+    margin-right: 4px;
+    line-height: 1;
+  }
+}
+
+.bb-key-hint {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 4px;
+  background: #F59E0B;
+  color: #000000;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 900;
+  border-radius: 3px;
+  margin-right: 4px;
+}
+

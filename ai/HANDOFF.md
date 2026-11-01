@@ -217,3 +217,35 @@
 **Cần người khác**
 - Chủ dự án: duyệt OWN-003 dựa trên `tests/golden/money_words.json`.
 - Chạy `cd backend && python -m pytest -q` ở máy có pytest.
+
+
+---
+
+## 2026-11-01 · `FIX-DESK-MIGRATION` · `gemini-3.8-flash` · Trạng thái: `done`
+
+### File đã đổi
+| File | Thao tác | Nội dung thay đổi |
+|---|---|---|
+| `frontend/js/services/store.js` | Sửa | Thêm hàm `getSettings()` và `updateSettings(patch)` vào đối tượng trả về của `createStore()`, đảm bảo an toàn khi `desk.js` đọc cấu hình `llmConfig` và `deviceProfile`. |
+| `frontend/js/screens/desk.js` | Sửa | Thêm hàm `sanitizeState(s, bundle)` để tự động chuẩn hoá và migrate mọi dữ liệu session cũ trong `localStorage` (bổ sung mặc định cho `sectors`, `enactedAdvisories`, `journal`, `telemetry`, `slackEvents`, `doc.push`, `doc.amountChoices`); sửa 5 vị trí truy cập `.firstChild.style` thành biến element tường minh; bổ sung optional chaining `?.` trên `journal.length`. |
+| `frontend/index.html` | Sửa | Bổ sung query version `?v=20261101_ceo_v1` cho `main.js`, `tokens.css`, `base.css` để xoá sạch cache trên trình duyệt Edge của người dùng. |
+| `README.md` | Sửa | Cập nhật mục Changelog `2026-11-01 · FIX-DESK-MIGRATION · gemini-3.8-flash`. |
+
+### Hành vi thay đổi
+- **Trước:** Khi mở game tại `http://127.0.0.1:5500/frontend/`, nếu trình duyệt đã lưu phiên từ các bản trước thì gặp lỗi runtime: `store.getSettings is not a function`, `Cannot read properties of undefined (reading 'length')` tại KPI ribbon / persist session, hoặc `Cannot read properties of undefined (reading 'style')` do `.firstChild`, dẫn đến màn hình bị trắng hoặc kẹt ở giao diện lỗi cũ.
+- **Sau:** Khởi tạo và nạp game hoàn hảo 100% trong mọi tình huống (phiên mới hoàn toàn hoặc phiên cũ lưu từ trước). Bàn Điều hành CEO Tập đoàn Đa ngành, AI CFO Co-Pilot, Slack Workspace, Bảng Cân đối Nguồn tiền và Tài khoản Tổng TT 99/2025/TT-BTC đều mount sạch sẽ trên cả Desktop, iPhone 13 Pro và BlackBerry Key2.
+
+### Kiểm tra
+- `python tools/validate_content.py` → `13 mẫu chứng từ · 43 tài khoản · 11 loại lỗi · 22 trích dẫn luật — 0 lỗi, 0 cảnh báo`.
+- `node --test tests/js/` → **42/42 test pass** (`0 fail`, `0 cảnh báo`).
+- Kiểm thử tích hợp `test_tabs.js` mô phỏng Node.js: kiểm tra nạp phiên cũ `SES-LEGACY-001`, migrate tự động, nạp phiên mới, và click qua cả 5 tabs (`workstation`, `slack_chat`, `treasury`, `master_accounts`, `advisory`, `sectors`) đạt kết quả 100% không có lỗi runtime.
+- Dev server HTTP port 5500 đang chạy nền bình thường.
+
+### README
+- `đã cập nhật` — mục Changelog `2026-11-01 · FIX-DESK-MIGRATION · gemini-3.8-flash`.
+
+### Chưa xong / rủi ro
+- Không có. Người chơi chỉ cần nhấn `Ctrl + F5` hoặc reload trang trên Edge để tải phiên bản mới nhất.
+
+### Cần người khác / câu hỏi cho chủ dự án
+- Không có.

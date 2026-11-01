@@ -1,37 +1,51 @@
 /**
- * DESIGN TOKENS — Nợ Có Ơi Pro
- * Nguồn sự thật: docs/08_DESIGN_SYSTEM.md
+ * DESIGN TOKENS — Nợ Có Ơi Pro // Enterprise Financial OS & Palantir Foundry
+ * Nguồn sự thật: docs/08_DESIGN_SYSTEM.md & ADR-014
  */
 
 :root {
-  /* Bảng màu chính (Theme sáng mặc định) */
-  --desk: #24453A;        /* Tấm lót bàn xanh làm việc */
-  --paper: #F7F9F8;       /* Nền chứng từ, bảng định khoản */
-  --ink: #1D2B27;         /* Mực in sẵn trên giấy, chữ giao diện chính */
-  --ballpoint: #1F45B5;   /* Mực bút bi: mọi thứ người chơi tự nhập */
-  --seal: #C2272D;        /* Mực con dấu, cảnh báo, sai sót bị lộ */
-  --ruling: #9CC7BE;      /* Đường kẻ mẫu, hoa văn hoá đơn */
-  --gazette: #EEF1F6;     /* Giấy công báo / bảng văn bản luật */
-  --lamp: #E8B04B;        /* Quầng sáng đèn bàn (chỉ Pro ca tối) */
+  /* Bảng màu cốt lõi (ERP Standard & Chứng từ) */
+  --desk: #0F172A;        /* Nền phần mềm ERP hiện đại */
+  --paper: #F8FAFC;       /* Bề mặt panel / chứng từ điện tử */
+  --ink: #0F172A;         /* Chữ chính độ tương phản cao */
+  --ballpoint: #2563EB;   /* Màu hành động / bút toán người chơi */
+  --seal: #E11D48;        /* Cảnh báo / từ chối / sai sót */
+  --ruling: #CBD5E1;      /* Đường kẻ lưới phần mềm ERP */
+  --gazette: #F1F5F9;     /* Nền bảng pháp chế & sổ cái */
+  --lamp: #38BDF8;        /* Điểm nhấn Telemetry Cyan */
 
   /* Màu phụ */
-  --ink-2: #4A5D57;       /* Chữ phụ, ghi chú mờ */
-  --ruling-2: #E1ECE9;    /* Nền ô chọn, viền nhạt */
-  --seal-wash: #FBEAEC;   /* Nền nhạt cảnh báo / lỗi */
-  --ballpoint-wash: #E9EEFC; /* Nền highlight ô người chơi chọn */
+  --ink-2: #475569;
+  --ruling-2: #E2E8F0;
+  --seal-wash: #FFE4E6;
+  --ballpoint-wash: #DBEAFE;
+
+  /* Palantir Foundry Telemetry Tokens */
+  --pal-bg: #070B11;
+  --pal-panel: #0D141F;
+  --pal-panel-2: #131C2B;
+  --pal-border: #1E293B;
+  --pal-border-bright: #38BDF8;
+  --pal-text: #E2E8F0;
+  --pal-muted: #94A3B8;
+  --pal-cyan: #38BDF8;
+  --pal-emerald: #10B981;
+  --pal-amber: #F59E0B;
+  --pal-rose: #F43F5E;
 
   /* Phông chữ */
   --font-ui: 'Be Vietnam Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   --font-serif: 'Source Serif 4', 'Times New Roman', Georgia, serif;
+  --font-mono: 'JetBrains Mono', 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
 
-  /* Thang cỡ chữ tỉ lệ 1.2 (gốc 16px) */
-  --font-xs: 0.83rem;   /* ~13.3px */
-  --font-sm: 0.875rem;  /* 14px */
-  --font-base: 1rem;    /* 16px */
-  --font-md: 1.2rem;    /* 19.2px */
-  --font-lg: 1.44rem;   /* ~23px */
-  --font-xl: 1.725rem;  /* ~27.6px */
-  --font-2xl: 2.075rem; /* ~33.2px */
+  /* Thang cỡ chữ */
+  --font-xs: 0.78rem;
+  --font-sm: 0.875rem;
+  --font-base: 0.95rem;
+  --font-md: 1.15rem;
+  --font-lg: 1.35rem;
+  --font-xl: 1.65rem;
+  --font-2xl: 2.0rem;
 
   /* Khoảng cách */
   --space-2: 2px;
@@ -42,39 +56,33 @@
   --space-24: 24px;
   --space-32: 32px;
 
-  /* Bo góc theo vật liệu (docs/08 §4.2) */
-  --radius-paper: 2px;
-  --radius-card: 6px;
-  --radius-btn: 8px;
-  --radius-seal: 4px;
+  /* Bo góc kỹ thuật sắc nét kiểu ERP / Palantir */
+  --radius-paper: 3px;
+  --radius-card: 4px;
+  --radius-btn: 4px;
+  --radius-seal: 3px;
 
-  /* Bóng đổ nhẹ cho tờ giấy trên bàn */
-  --shadow-paper: 0 4px 14px rgba(0, 0, 0, 0.18), 0 1px 3px rgba(0, 0, 0, 0.12);
-  --shadow-card: 0 2px 6px rgba(0, 0, 0, 0.08);
+  /* Bóng đổ */
+  --shadow-paper: 0 4px 16px rgba(0, 0, 0, 0.28);
+  --shadow-card: 0 2px 8px rgba(0, 0, 0, 0.16);
 
   /* Chuyển cảnh */
-  --transition-fast: 0.15s ease;
-  --transition-normal: 0.25s ease;
+  --transition-fast: 0.14s ease;
+  --transition-normal: 0.22s ease;
 }
 
-/* Chế độ tối: bàn chuyển sẫm, giấy sáng êm mắt */
+/* Chế độ tối hoặc Chế độ Pro Palantir Foundry */
 [data-theme="dark"],
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    --desk: #16251F;
-    --paper: #E4E8E6;
-    --ink: #16221E;
-    --ballpoint: #3D63D6;
-    --ruling: #8AAEA6;
-    --gazette: #DDE2EB;
-    --ink-2: #41524D;
-    --ruling-2: #CEDDD9;
-    --seal-wash: #F8DADE;
-    --ballpoint-wash: #D5E1FC;
-  }
-}
-
-/* Chế độ Pro ca tối: mặt bàn tối, có đèn bàn rọi */
 [data-mode="pro"] {
-  --desk: #121E19;
+  --desk: #070B11;
+  --paper: #0D141F;
+  --ink: #E2E8F0;
+  --ink-2: #94A3B8;
+  --ballpoint: #38BDF8;
+  --seal: #F43F5E;
+  --ruling: #1E293B;
+  --ruling-2: #131C2B;
+  --gazette: #0B111A;
+  --seal-wash: rgba(244, 63, 94, 0.15);
+  --ballpoint-wash: rgba(56, 189, 248, 0.14);
 }

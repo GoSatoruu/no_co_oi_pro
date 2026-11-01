@@ -133,3 +133,26 @@ Chi tiết dữ liệu: `docs/04_CONTENT_SPEC.md`, `content/doc_templates/`.
 - Bảng pháp luật bên cạnh nhiệm vụ (cả hai chế độ).
 - Lưu localStorage có phiên bản. Backend: health, content, nộp điểm, bảng xếp hạng.
 - **Ngoài phạm vi MVP:** công ty cổ phần và tập đoàn (M5), kiểm toán (M6), lương, kho nhiều nơi, khấu hao, tờ khai thuế, Hành trình, Thi đấu ngày, khoá học, tài khoản người dùng.
+
+
+---
+
+## 10. Mở rộng Thế giới mở Quản trị Tài chính & Tư vấn Doanh nghiệp (ADR-014)
+
+1. **Từ Kế toán viên đến Giám đốc Tài chính (CFO) & Cố vấn Chiến lược:**
+   - Bên cạnh việc kiểm soát chứng từ và định khoản Nợ/Có, người chơi điều hành bức tranh tài chính toàn diện của doanh nghiệp trong môi trường thế giới mở liên tục.
+   - Người chơi có quyền phê duyệt các **Quyết định Tư vấn Chiến lược** (mở rộng tín dụng thương mại B2B, đàm phán chiết khấu chuỗi cung ứng, tự động hóa kiểm soát nội bộ, huy động vốn cổ phần, thu hồi nợ quá hạn, tối ưu chi phí vận hành...).
+   - Mỗi quyết định tư vấn và mỗi bút toán hạch toán đều cập nhật tức thời các chỉ số: **Doanh thu thuần (Revenue)**, **Lợi nhuận ròng (Net Profit)**, **Biên lợi nhuận (Net Margin)**, **Thanh khoản (111 + 112)**, **Công nợ (131 / 331)** và **Định giá Doanh nghiệp (Enterprise Valuation)**.
+2. **Luồng Chứng từ dạng Thông báo Push (Live Push Notification Stream):**
+   - Chứng từ kế toán không hiển thị như bài thi trắc nghiệm từng câu mà được đẩy về liên tục qua **Luồng Thông báo Push** từ các bộ phận (Phòng Kinh doanh, Phòng Mua hàng, Kho vận, Ngân hàng, HĐQT).
+   - Người chơi chọn thông báo từ luồng Push để kiểm tra chứng từ điện tử, bắt lỗi hoặc phê duyệt ghi sổ cái.
+3. **Bàn Điều hành Chính thức & Lưu trữ Phiên chơi (`services/store.js`):**
+   - Trò chơi mở thẳng vào **Bàn Điều hành Chính thức** (`desk.js`). Mọi thao tác hạch toán, từ chối chứng từ lỗi, điều chuyển nguồn tiền, kết chuyển tài khoản tổng và phê duyệt tư vấn CFO đều được **tự động lưu theo phiên chơi** vào `nocooi.save.v1` (kèm cơ chế sao lưu `.bak` chống hỏng dữ liệu).
+   - Người chơi có thể đặt tên phiên, tạo bản sao mốc lưu (Checkpoint), tạo phiên doanh nghiệp mới hoặc chuyển đổi giữa nhiều phiên chơi đã lưu bất kỳ lúc nào.
+4. **Cân đối Nguồn tiền Doanh nghiệp (`Treasury & Cash-Source Rebalancing`):**
+   - Phân tích cấu trúc thanh khoản giữa **Quỹ Tiền mặt (`TK 111`)** và **Tiền gửi Ngân hàng (`TK 112`)** so với định mức an toàn tối ưu (`15% / 85%`), theo dõi Vốn lưu động ròng (`NWC`), `Current Ratio`, `Quick Ratio`.
+   - Cho phép thực thi các lệnh điều chuyển nguồn tiền trực tiếp (`Nộp tiền mặt vào NH 111➔112`, `Rút tiền gửi bổ sung quỹ 112➔111`, `Thu hồi công nợ KH 131➔112`, `Tất toán công nợ NCC 112➔331`, `Nộp thuế 112➔3331`, `Giải ngân/Tất toán vay ngắn hạn 341`) hoặc bấm **Tự động Cân đối Nguồn tiền Tối ưu**.
+5. **Hệ thống Tài khoản Tổng & Bảng Cân đối Kế toán (`Master Trial Balance & Balance Sheet`):**
+   - Theo dõi toàn bộ Tài khoản Tổng của doanh nghiệp (từ Loại 1 đến Loại 9) trên **Bảng Cân đối Phát sinh 6 cột** (`Dư Nợ Đầu`, `Dư Có Đầu`, `Phát sinh Nợ`, `Phát sinh Có`, `Dư Nợ Cuối`, `Dư Có Cuối`).
+   - Đối chiếu trực tiếp phương trình kế toán tổng thể: $\text{Tổng Tài sản (Loại 1 + 2)} = \text{Nợ phải trả (Loại 3)} + \text{Vốn chủ sở hữu (Loại 4 + Lãi chưa kết chuyển)}$.
+   - Hỗ trợ nghiệp vụ **Khoá sổ & Kết chuyển Cuối kỳ** (`TK Loại 5, 6, 7, 8 ➔ TK 911 ➔ TK 421`) để đưa toàn bộ kết quả kinh doanh trong kỳ về Lợi nhuận sau thuế chưa phân phối (`TK 421`).
