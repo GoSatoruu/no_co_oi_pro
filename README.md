@@ -89,6 +89,11 @@ cd backend && python -m pytest -q     # Python
 
 <!-- CHANGELOG:START — thêm mục mới ngay dưới dòng này -->
 
+### 2026-11-01 · FE-026 (LOG-SESSION & AUTO-HEAL) · gemini-4-argon
+- **Thêm:** dịch vụ **Phiên Ghi Log & Chẩn đoán Hệ thống** (`services/logger.js` — khoá `nocooi.logs.v1`), tự động bắt mọi sự kiện khởi tạo, cảnh báo và lỗi runtime/promise kèm `stack trace` chi tiết; thêm nút **`📋 Nhật ký Log`** trên thanh Topbar (và phím tắt `[L]`) cho phép lọc log (`ALL / ERROR / WARN / INFO`), sao chép toàn bộ log hoặc tải file `.json` về máy.
+- **Thêm:** cơ chế **Tự Phục hồi (Auto-Heal)** và **Bảng Chẩn đoán Khẩn cấp**: nếu dữ liệu phiên lưu cũ gặp bất kỳ xung đột nào, hệ thống tự động ghi vết vào Phiên Ghi Log và khởi tạo phiên làm việc mới sạch mà không làm gián đoạn trò chơi; bọc độc lập từng phân hệ giao diện (`safeRenderSection`).
+- **Sửa:** khắc phục lỗi đệ quy trong `safeGetSettings(store)` khi đọc cấu hình từ `store.js` mới.
+
 ### 2026-11-01 · FIX-DESK-MIGRATION · gemini-3.8-flash
 - **Sửa:** khắc phục triệt để lỗi khi mở game tại `http://127.0.0.1:5500/frontend/` do session cũ lưu trong `localStorage` thiếu các thuộc tính mới (`sectors`, `doc.push`, `enactedAdvisories`, `journal`, `amountChoices`), triển khai cơ chế `sanitizeState` tự động chuẩn hoá và migrate mượt mà mọi session cũ sang Bàn Điều hành CEO Tập đoàn Đa ngành.
 - **Sửa:** bổ sung hàm xuất `getSettings()` và `updateSettings()` trong `services/store.js` giải quyết lỗi `TypeError: store.getSettings is not a function`.

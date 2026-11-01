@@ -9,9 +9,10 @@
  * - Bảng Cân đối Tài khoản Tổng (Master Trial Balance 6 cột, Tài sản = Nguồn vốn, kết chuyển 911 ➔ 421).
  * - Tư vấn Chiến lược CFO Thế giới mở (Open-World Strategic Advisory).
  */
-import { loadBundle } from '../services/content.js?v=20261101_v2';
-import { defaultStore } from '../services/store.js?v=20261101_v2';
-import { buildShift, gradeInspect, gradeEntry } from '../core/shift.js?v=20261101_v2';
+import { loadBundle } from '../services/content.js?v=20261101_v3';
+import { defaultStore } from '../services/store.js?v=20261101_v3';
+import { defaultLogger } from '../services/logger.js?v=20261101_v3';
+import { buildShift, gradeInspect, gradeEntry } from '../core/shift.js?v=20261101_v3';
 import {
   createFinanceState,
   computeMetrics,
@@ -32,13 +33,13 @@ import {
   expandBusinessSector,
   harvestSectorCycle,
   buildCfoContextSnapshot,
-} from '../core/finance.js?v=20261101_v2';
+} from '../core/finance.js?v=20261101_v3';
 import {
   DEFAULT_LLM_CONFIG,
   CFO_PERSONAS,
   askCfoAdvisor,
   testLlmConnection,
-} from '../services/llm-cfo.js?v=20261101_v2';
+} from '../services/llm-cfo.js?v=20261101_v3';
 import {
   playSlackKnock,
   playSlackSend,
@@ -47,21 +48,25 @@ import {
   playAlertBuzzer,
   isSoundEnabled,
   toggleSound,
-} from '../ui/sound.js?v=20261101_v2';
+} from '../ui/sound.js?v=20261101_v3';
 
 let timer = null;
 let screenRoot = null;
 let keydownHandler = null;
 
 export function mount(root, params, ctx) {
+  const logger = ctx?.logger || defaultLogger;
+  logger.info('desk.mount', 'Bắt đầu mount Bàn Điều hành Chính thức', { params });
   root.replaceChildren(note('◈ Đang khởi tạo Bàn Điều hành Tài chính Doanh nghiệp Chính thức & Khôi phục Phiên lưu…'));
   loadBundle()
-    .then((bundle) => play(root, bundle, params, ctx))
+    .then((bundle) => {
+      logger.info('desk.mount', `Nạp gói nội dung thành công (${bundle.accounts?.length || 0} tài khoản, ${bundle.templates?.length || 0} mẫu chứng từ)`);
+      play(root, bundle, params, ctx);
+    })
     .catch((err) => {
       console.error('Lỗi khi mở hệ thống:', err);
-      root.replaceChildren(
-        note(`Có lỗi khi khởi tạo hệ thống: ${err.message}. Kiểm tra kết nối hoặc chạy python -m http.server 5500.`)
-      );
+      logger.fatal('desk.mount', `Lỗi khi khởi tạo hệ thống: ${err?.message || String(err)}`, err);
+      root.replaceChildren(renderCrashDiagnosticScreen(root, err, params, ctx));
     });
 }
 
@@ -114,7 +119,7 @@ function generateSessionId() {
 
 function safeGetSettings(store) {
   if (typeof store?.getSettings === 'function') {
-    return safeGetSettings(store);
+    return store.getSettings();
   }
   const data = typeof store?.load === 'function' ? store.load() : null;
   return data?.settings || { theme: 'dark', preferredMode: 'pro' };
@@ -384,9 +389,29 @@ function play(root, bundle, params = {}, ctx = {}) {
     persistCurrentSession(s);
   }
 
+  s.logger = ctx?.logger || defaultLogger;
+  s.showLogModal = false;
+  s.logFilterLevel = 'ALL';
+
   // Chuẩn hoá và nâng cấp trạng thái phiên để tương thích ngược 100% với các session cũ
-  sanitizeState(s, bundle);
-  persistCurrentSession(s);
+  try {
+    sanitizeState(s, bundle);
+    persistCurrentSession(s);
+    s.logger.info('desk.play', `Đã sẵn sàng phiên làm việc [${s.sessionId}] (${s.sessionName})`, {
+      sessionId: s.sessionId,
+      mode: s.mode?.id,
+      level: s.level,
+      streamCount: s.stream?.length || 0,
+      sectorsCount: s.fin?.sectors?.length || 0,
+    });
+  } catch (sanitizeErr) {
+    s.logger.error('desk.autoHeal', 'Phát hiện lỗi tương thích ở dữ liệu phiên cũ, tự động phục hồi (Auto-Heal) về trạng thái chuẩn', sanitizeErr);
+    s.fin = createFinanceState(bundle, { level: s.level || 5, modeId: s.mode?.id || 'pro', seed: `heal-${Date.now()}` });
+    const healShift = buildShift(bundle, { seed: Date.now(), modeId: s.mode?.id || 'pro', level: s.level || 5 });
+    s.stream = healShift.docs.map((doc, idx) => ({ ...doc, push: decoratePushVoucher(doc, idx) }));
+    sanitizeState(s, bundle);
+    persistCurrentSession(s);
+  }
 
   // Áp dụng cấu hình giao diện thiết bị (BlackBerry Key2, iPhone 13 Pro, hoặc Tự động)
   if (s.deviceProfile === 'bbkey2') {
@@ -529,9 +554,40 @@ function switchModeLive(s, nextModeId) {
   render(screenRoot, s);
 }
 
+function safeRenderSection(s, sectionName, builderFn) {
+  try {
+    return builderFn();
+  } catch (err) {
+    const logger = s?.logger || defaultLogger;
+    logger.error(`desk.render.${sectionName}`, `Lỗi khi vẽ phân hệ [${sectionName}]: ${err?.message || String(err)}`, err);
+    const errBox = el('div', 'pal-panel');
+    errBox.style.cssText = 'margin: 10px; padding: 14px; background: rgba(244,63,94,0.12); border: 1px solid #F43F5E; border-left: 4px solid #F43F5E; border-radius: 4px; color: #F8FAFC; font-family: var(--font-mono); font-size: 11px;';
+    const title = el('div', '', `⚠️ LỖI HIỂN THỊ PHÂN HỆ [${sectionName}]: ${err?.message || String(err)}`);
+    title.style.cssText = 'font-weight: 800; color: #FDA4AF; margin-bottom: 6px;';
+    const pre = el('pre', '', err?.stack || String(err));
+    pre.style.cssText = 'margin: 6px 0; padding: 8px; background: #070B11; color: #94A3B8; font-size: 10px; overflow-x: auto; border-radius: 3px; white-space: pre-wrap;';
+    const btnRow = el('div', '');
+    btnRow.style.cssText = 'display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap;';
+    const openLogBtn = el('button', 'btn btn--ballpoint', '📋 Mở Phiên Ghi Log');
+    openLogBtn.style.cssText = 'min-height: 28px; padding: 4px 10px; font-size: 11px;';
+    openLogBtn.addEventListener('click', () => {
+      s.showLogModal = true;
+      render(screenRoot, s);
+    });
+    const resetBtn = el('button', 'btn btn--ghost', '🔄 Tạo Phiên Mới Sạch');
+    resetBtn.style.cssText = 'min-height: 28px; padding: 4px 10px; font-size: 11px; border: 1px solid #38BDF8; color: #38BDF8;';
+    resetBtn.addEventListener('click', () => {
+      mount(screenRoot, { newSession: true, mode: 'pro', level: 5 }, s.ctx);
+    });
+    btnRow.append(openLogBtn, resetBtn);
+    errBox.append(title, pre, btnRow);
+    return errBox;
+  }
+}
+
 function render(root, s) {
   root.replaceChildren();
-  const isPro = s.mode.id === 'pro';
+  const isPro = s.mode?.id === 'pro';
 
   // Lắng nghe phím tắt vật lý cho BlackBerry Key2 và Desktop
   setupKeydownAndHeaderListeners(s);
@@ -548,34 +604,39 @@ function render(root, s) {
     padding-bottom: 74px; /* khoảng trống cho bottom nav bar trên mobile */
   `;
 
-  shell.append(renderCommandSubBar(s, isPro));
+  shell.append(safeRenderSection(s, 'CommandSubBar', () => renderCommandSubBar(s, isPro)));
 
   if (s.showSessionDrawer) {
-    shell.append(renderSessionManagerDrawer(s, isPro));
+    shell.append(safeRenderSection(s, 'SessionDrawer', () => renderSessionManagerDrawer(s, isPro)));
   }
 
-  shell.append(renderKpiRibbon(s, isPro));
+  shell.append(safeRenderSection(s, 'KpiRibbon', () => renderKpiRibbon(s, isPro)));
 
   const workspace = el('div', 'erp-workspace');
   workspace.append(
-    renderLeftPushStream(s, isPro),
-    renderCenterWorkstation(s, isPro),
-    renderRightTelemetryPanel(s, isPro)
+    safeRenderSection(s, 'LeftPushStream', () => renderLeftPushStream(s, isPro)),
+    safeRenderSection(s, 'CenterWorkstation', () => renderCenterWorkstation(s, isPro)),
+    safeRenderSection(s, 'RightTelemetryPanel', () => renderRightTelemetryPanel(s, isPro))
   );
   shell.append(workspace);
 
   // Modal AI CFO nếu đang mở
   if (s.showCfoModal) {
-    shell.append(renderCfoModal(s, isPro));
+    shell.append(safeRenderSection(s, 'CfoModal', () => renderCfoModal(s, isPro)));
   }
 
   // Modal Cài đặt LLM & Thiết bị nếu đang mở
   if (s.showSettingsModal) {
-    shell.append(renderSettingsModal(s, isPro));
+    shell.append(safeRenderSection(s, 'SettingsModal', () => renderSettingsModal(s, isPro)));
+  }
+
+  // Modal Phiên Ghi Log Hệ thống nếu đang mở
+  if (s.showLogModal) {
+    shell.append(safeRenderSection(s, 'LogModal', () => renderLogModal(s, isPro)));
   }
 
   // Mobile Bottom Navigation Bar (iPhone 13 Pro & di động)
-  shell.append(renderMobileBottomNav(s));
+  shell.append(safeRenderSection(s, 'MobileBottomNav', () => renderMobileBottomNav(s)));
 
   root.append(shell);
 }
@@ -3744,6 +3805,23 @@ function setupKeydownAndHeaderListeners(s) {
     };
   }
 
+  const btnLogsHeader = document.getElementById('btn-open-logs-header');
+  if (btnLogsHeader) {
+    const logInfo = (s.logger || defaultLogger).getSessionInfo();
+    btnLogsHeader.textContent =
+      logInfo.errorCount > 0
+        ? `📋 Log (⚠ ${logInfo.errorCount} lỗi)`
+        : `📋 Nhật ký Log (${logInfo.totalEntries})`;
+    if (logInfo.errorCount > 0) {
+      btnLogsHeader.style.borderColor = '#F43F5E';
+      btnLogsHeader.style.color = '#FDA4AF';
+    }
+    btnLogsHeader.onclick = () => {
+      s.showLogModal = !s.showLogModal;
+      render(screenRoot, s);
+    };
+  }
+
   if (keydownHandler) return;
 
   keydownHandler = (e) => {
@@ -3764,9 +3842,10 @@ function setupKeydownAndHeaderListeners(s) {
     const key = e.key.toUpperCase();
 
     if (e.key === 'Escape') {
-      if (s.showCfoModal || s.showSettingsModal) {
+      if (s.showCfoModal || s.showSettingsModal || s.showLogModal) {
         s.showCfoModal = false;
         s.showSettingsModal = false;
+        s.showLogModal = false;
         render(screenRoot, s);
         return;
       }
@@ -3798,6 +3877,9 @@ function setupKeydownAndHeaderListeners(s) {
     } else if (key === 'S') {
       s.showSettingsModal = !s.showSettingsModal;
       render(screenRoot, s);
+    } else if (key === 'L') {
+      s.showLogModal = !s.showLogModal;
+      render(screenRoot, s);
     } else if (key === 'H') {
       handleHarvestAllSectors(s);
     } else if (key === 'A') {
@@ -3826,3 +3908,278 @@ function setupKeydownAndHeaderListeners(s) {
   window.addEventListener('keydown', keydownHandler);
 }
 
+
+
+// ============================================================================
+// 10. HỘP THOẠI PHIÊN GHI LOG HỆ THỐNG & CHẨN ĐOÁN LỖI (DIAGNOSTIC LOG CONSOLE)
+// ============================================================================
+function renderLogModal(s, isPro) {
+  const logger = s.logger || defaultLogger;
+  const meta = logger.getSessionInfo();
+  const filterLevel = s.logFilterLevel || 'ALL';
+  const entries = logger.getEntries(filterLevel);
+
+  const overlay = el('div', 'modal-overlay');
+  overlay.style.cssText = `
+    position: fixed; inset: 0; z-index: 1200;
+    background: rgba(4, 7, 13, 0.85); backdrop-filter: blur(4px);
+    display: flex; align-items: center; justify-content: center; padding: 14px;
+  `;
+
+  const modal = el('div', 'modal-card');
+  modal.style.cssText = `
+    width: 100%; max-width: 860px; max-height: 88vh;
+    background: ${isPro ? '#0A0F18' : '#0F172A'};
+    border: 1px solid #38BDF8; border-top: 3px solid #38BDF8;
+    border-radius: 6px; display: flex; flex-direction: column; overflow: hidden;
+    box-shadow: 0 24px 60px rgba(0,0,0,0.75);
+  `;
+
+  const head = el('div', '');
+  head.style.cssText = `
+    padding: 12px 16px; background: #111A29; border-bottom: 1px solid #1E293B;
+    display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;
+  `;
+  head.innerHTML = `
+    <div>
+      <div style="font-family: var(--font-mono); font-size: 13px; font-weight: 900; color: #38BDF8;">
+        📋 PHIÊN GHI LOG & CHẨN ĐOÁN HỆ THỐNG // ${meta.logSessionId}
+      </div>
+      <div style="font-family: var(--font-mono); font-size: 11px; color: #94A3B8; margin-top: 2px;">
+        Tổng bản ghi: <strong style="color:#F8FAFC;">${meta.totalEntries}</strong> ·
+        Lỗi (ERROR/FATAL): <strong style="color:${meta.errorCount > 0 ? '#F43F5E' : '#10B981'};">${meta.errorCount}</strong> ·
+        Cảnh báo (WARN): <strong style="color:#F59E0B;">${meta.warnCount}</strong>
+      </div>
+    </div>
+  `;
+
+  const closeBtn = el('button', 'btn btn--ghost', '✕ Đóng [ESC]');
+  closeBtn.style.cssText = 'min-height: 30px; padding: 4px 10px; font-family: var(--font-mono); font-size: 11px;';
+  closeBtn.addEventListener('click', () => {
+    s.showLogModal = false;
+    render(screenRoot, s);
+  });
+  head.append(closeBtn);
+  modal.append(head);
+
+  // Thanh bộ lọc & hành động nhanh
+  const toolbar = el('div', '');
+  toolbar.style.cssText = `
+    padding: 10px 16px; background: #0D1420; border-bottom: 1px solid #1E293B;
+    display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;
+  `;
+
+  const filterBox = el('div', '');
+  filterBox.style.cssText = 'display: flex; gap: 6px; flex-wrap: wrap;';
+  for (const lv of [
+    { id: 'ALL', label: `Tất cả (${meta.totalEntries})` },
+    { id: 'ERROR', label: `🚨 Lỗi (${meta.errorCount})` },
+    { id: 'WARN', label: `⚠️ Cảnh báo (${meta.warnCount})` },
+    { id: 'INFO', label: 'ℹ️ Thông tin' },
+  ]) {
+    const fBtn = el('button', 'btn', lv.label);
+    const active = filterLevel === lv.id;
+    fBtn.style.cssText = `
+      min-height: 28px; padding: 3px 10px; font-family: var(--font-mono); font-size: 11px;
+      background: ${active ? 'rgba(56,189,248,0.2)' : '#111927'};
+      color: ${active ? '#38BDF8' : '#94A3B8'};
+      border: 1px solid ${active ? '#38BDF8' : '#1E293B'};
+    `;
+    fBtn.addEventListener('click', () => {
+      s.logFilterLevel = lv.id;
+      render(screenRoot, s);
+    });
+    filterBox.append(fBtn);
+  }
+
+  const actionBox = el('div', '');
+  actionBox.style.cssText = 'display: flex; gap: 6px; flex-wrap: wrap;';
+
+  const copyBtn = el('button', 'btn btn--ballpoint', '📋 Sao chép Toàn bộ Log');
+  copyBtn.style.cssText = 'min-height: 28px; padding: 4px 10px; font-family: var(--font-mono); font-size: 11px;';
+  copyBtn.addEventListener('click', () => {
+    const text = logger.formatLogText();
+    if (navigator.clipboard?.writeText) {
+      navigator.clipboard.writeText(text).then(() => {
+        copyBtn.textContent = '✓ Đã sao chép vào Clipboard!';
+      });
+    }
+  });
+
+  const downloadBtn = el('button', 'btn btn--ghost', '💾 Tải File .JSON');
+  downloadBtn.style.cssText = 'min-height: 28px; padding: 4px 10px; font-family: var(--font-mono); font-size: 11px; border: 1px solid #334155;';
+  downloadBtn.addEventListener('click', () => {
+    const blob = new Blob([logger.exportLogJson()], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${meta.logSessionId}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+  });
+
+  const clearBtn = el('button', 'btn btn--ghost', '🗑️ Xoá Log');
+  clearBtn.style.cssText = 'min-height: 28px; padding: 4px 10px; font-family: var(--font-mono); font-size: 11px; border: 1px solid #334155; color: #FDA4AF;';
+  clearBtn.addEventListener('click', () => {
+    logger.clearLogs();
+    render(screenRoot, s);
+  });
+
+  actionBox.append(copyBtn, downloadBtn, clearBtn);
+  toolbar.append(filterBox, actionBox);
+  modal.append(toolbar);
+
+  // Danh sách bản ghi log
+  const list = el('div', '');
+  list.style.cssText = 'padding: 12px 16px; overflow-y: auto; flex: 1; display: flex; flex-direction: column; gap: 8px; max-height: 55vh;';
+
+  if (entries.length === 0) {
+    const empty = el('div', '', 'Chưa có bản ghi log nào khớp với bộ lọc hiện tại.');
+    empty.style.cssText = 'padding: 24px; text-align: center; color: #64748B; font-family: var(--font-mono); font-size: 12px;';
+    list.append(empty);
+  } else {
+    for (const item of entries) {
+      const isErr = item.level === 'ERROR' || item.level === 'FATAL';
+      const isWarn = item.level === 'WARN';
+      const borderColor = isErr ? '#F43F5E' : isWarn ? '#F59E0B' : '#38BDF8';
+      const row = el('div', '');
+      row.style.cssText = `
+        padding: 8px 12px; background: #070B11; border: 1px solid #1E293B;
+        border-left: 3px solid ${borderColor}; border-radius: 4px;
+        font-family: var(--font-mono); font-size: 11px;
+      `;
+      const headerLine = el('div', '');
+      headerLine.style.cssText = 'display: flex; justify-content: space-between; gap: 8px; flex-wrap: wrap; margin-bottom: 4px;';
+      headerLine.innerHTML = `
+        <span>
+          <strong style="color:${borderColor};">[${item.level}]</strong>
+          <span style="color:#38BDF8; font-weight:700;">[${item.module}]</span>
+          <span style="color:#F8FAFC;">${item.message}</span>
+        </span>
+        <span style="color:#64748B; font-size:10px;">${item.timeStr} · ${item.id}</span>
+      `;
+      row.append(headerLine);
+
+      if (item.detail) {
+        const detailPre = el('pre', '', item.detail.stack ? item.detail.stack : JSON.stringify(item.detail, null, 2));
+        detailPre.style.cssText = `
+          margin: 4px 0 0 0; padding: 6px 8px; background: #0D1420;
+          color: ${isErr ? '#FDA4AF' : '#94A3B8'}; font-size: 10px;
+          border-radius: 3px; overflow-x: auto; white-space: pre-wrap;
+        `;
+        row.append(detailPre);
+      }
+      list.append(row);
+    }
+  }
+  modal.append(list);
+
+  // Chân hộp thoại: Công cụ tự cứu hộ nhanh
+  const foot = el('div', '');
+  foot.style.cssText = `
+    padding: 10px 16px; background: #111A29; border-top: 1px solid #1E293B;
+    display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;
+  `;
+  const helpTxt = el('span', '', '🛠️ Công cụ Khắc phục & Phục hồi Nhanh:');
+  helpTxt.style.cssText = 'font-family: var(--font-mono); font-size: 11px; color: #94A3B8;';
+
+  const recBtns = el('div', '');
+  recBtns.style.cssText = 'display: flex; gap: 8px; flex-wrap: wrap;';
+
+  const newSesBtn = el('button', 'btn btn--ghost', '🔄 Tạo Phiên Chơi Mới Sạch');
+  newSesBtn.style.cssText = 'min-height: 28px; padding: 4px 10px; font-family: var(--font-mono); font-size: 11px; border: 1px solid #34D399; color: #34D399;';
+  newSesBtn.addEventListener('click', () => {
+    logger.info('desk.recovery', 'Người dùng kích hoạt Tạo Phiên Chơi Mới Sạch từ Bảng Ghi Log.');
+    s.showLogModal = false;
+    mount(screenRoot, { newSession: true, mode: 'pro', level: 5 }, s.ctx);
+  });
+
+  const hardResetBtn = el('button', 'btn btn--ghost', '🧹 Xoá Cache Phiên Cũ & Tải lại');
+  hardResetBtn.style.cssText = 'min-height: 28px; padding: 4px 10px; font-family: var(--font-mono); font-size: 11px; border: 1px solid #F59E0B; color: #FBBF24;';
+  hardResetBtn.addEventListener('click', () => {
+    logger.warn('desk.recovery', 'Người dùng kích hoạt Xoá Cache Phiên Cũ & Khởi tạo lại.');
+    try {
+      window.localStorage?.removeItem('nocooi.save.v1');
+      window.localStorage?.removeItem('nocooi.save.bak');
+    } catch {}
+    mount(screenRoot, { newSession: true, mode: 'pro', level: 5 }, s.ctx);
+  });
+
+  recBtns.append(newSesBtn, hardResetBtn);
+  foot.append(helpTxt, recBtns);
+  modal.append(foot);
+
+  overlay.append(modal);
+  return overlay;
+}
+
+function renderCrashDiagnosticScreen(root, err, params, ctx) {
+  const logger = ctx?.logger || defaultLogger;
+  const meta = logger.getSessionInfo();
+  const entries = logger.getEntries('ALL').slice(0, 25);
+
+  const box = el('div', '');
+  box.style.cssText = `
+    max-width: 840px; margin: 24px auto; padding: 20px;
+    background: #0A0F18; border: 1px solid #F43F5E; border-left: 5px solid #F43F5E;
+    border-radius: 6px; color: #F8FAFC; font-family: var(--font-mono);
+  `;
+
+  const title = el('div', '', `🚨 BẢNG CHẨN ĐOÁN LỖI & PHIÊN GHI LOG KHẨN CẤP (${meta.logSessionId})`);
+  title.style.cssText = 'font-size: 15px; font-weight: 900; color: #FDA4AF; margin-bottom: 8px;';
+
+  const msg = el('div', '', `Thông điệp lỗi: ${err?.message || String(err)}`);
+  msg.style.cssText = 'font-size: 13px; color: #FFFFFF; margin-bottom: 10px;';
+
+  const stackPre = el('pre', '', err?.stack || String(err));
+  stackPre.style.cssText = `
+    padding: 12px; background: #05080E; border: 1px solid #1E293B;
+    color: #FDA4AF; font-size: 11px; border-radius: 4px; overflow-x: auto; white-space: pre-wrap; margin-bottom: 14px;
+  `;
+
+  const btnRow = el('div', '');
+  btnRow.style.cssText = 'display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 16px;';
+
+  const healBtn = el('button', 'btn btn--ballpoint', '🚀 Khởi tạo Phiên Mới Sạch (Bỏ qua phiên cũ lỗi)');
+  healBtn.style.cssText = 'padding: 8px 14px; font-size: 12px; font-weight: 800;';
+  healBtn.addEventListener('click', () => {
+    logger.info('desk.crashRecovery', 'Khởi tạo phiên mới sạch từ màn hình chẩn đoán.');
+    mount(root, { newSession: true, mode: 'pro', level: 5 }, ctx);
+  });
+
+  const clearStorageBtn = el('button', 'btn btn--ghost', '🧹 Xoá Dữ liệu Lưu Cũ trong Trình duyệt & Mở lại');
+  clearStorageBtn.style.cssText = 'padding: 8px 14px; font-size: 12px; border: 1px solid #F59E0B; color: #FBBF24;';
+  clearStorageBtn.addEventListener('click', () => {
+    try {
+      window.localStorage?.removeItem('nocooi.save.v1');
+      window.localStorage?.removeItem('nocooi.save.bak');
+    } catch {}
+    logger.warn('desk.crashRecovery', 'Đã xoá nocooi.save.v1 và khởi động lại phiên mới.');
+    mount(root, { newSession: true, mode: 'pro', level: 5 }, ctx);
+  });
+
+  const copyBtn = el('button', 'btn btn--ghost', '📋 Sao chép Toàn bộ Phiên Log');
+  copyBtn.style.cssText = 'padding: 8px 14px; font-size: 12px; border: 1px solid #38BDF8; color: #38BDF8;';
+  copyBtn.addEventListener('click', () => {
+    const text = logger.formatLogText();
+    navigator.clipboard?.writeText(text).then(() => {
+      copyBtn.textContent = '✓ Đã sao chép Phiên Log!';
+    });
+  });
+
+  btnRow.append(healBtn, clearStorageBtn, copyBtn);
+
+  const logHeader = el('div', '', `📜 NHẬT KÝ HOẠT ĐỘNG TRƯỚC KHI XẢY RA LỖI (${entries.length} bản ghi gần nhất):`);
+  logHeader.style.cssText = 'font-size: 12px; font-weight: 800; color: #38BDF8; margin-bottom: 8px;';
+
+  const logList = el('div', '');
+  logList.style.cssText = 'display: flex; flex-direction: column; gap: 6px; max-height: 280px; overflow-y: auto;';
+  for (const item of entries) {
+    const itemEl = el('div', '', `[${item.timeStr}] [${item.level}] [${item.module}] ${item.message}`);
+    itemEl.style.cssText = `padding: 6px 10px; background: #070B11; border-left: 3px solid ${item.level === 'ERROR' || item.level === 'FATAL' ? '#F43F5E' : '#38BDF8'}; font-size: 11px; color: #CBD5E1;`;
+    logList.append(itemEl);
+  }
+
+  box.append(title, msg, stackPre, btnRow, logHeader, logList);
+  return box;
+}

@@ -3,7 +3,7 @@
  * Nguồn sự thật: ADR-014, FE-002, FE-023
  */
 
-import { defaultStore } from '../services/store.js?v=20261101_v2';
+import { defaultStore } from '../services/store.js?v=20261101_v3';
 
 let unmountHandler = null;
 

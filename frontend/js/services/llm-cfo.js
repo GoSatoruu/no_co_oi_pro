@@ -6,7 +6,7 @@
  * - Tuân thủ AGENTS.md §3: tầng services là nơi duy nhất được gọi fetch.
  */
 
-import { buildCfoContextSnapshot } from '../core/finance.js';
+import { buildCfoContextSnapshot } from '../core/finance.js?v=20261101_v3';
 
 export const DEFAULT_LLM_CONFIG = {
   provider: 'offline_heuristic', // 'offline_heuristic' | 'openai_compatible' | 'gemini' | 'anthropic'

@@ -280,3 +280,39 @@
 
 ### Cần người khác / câu hỏi cho chủ dự án
 - Không có.
+
+
+---
+
+## 2026-11-01 · `FE-026` · `gemini-4-argon` · Trạng thái: `done`
+
+### File đã đổi
+| File | Thao tác | Nội dung thay đổi |
+|---|---|---|
+| `frontend/js/services/logger.js` | Thêm | Dịch vụ **Phiên Ghi Log & Chẩn đoán Hệ thống** (`createLogger`, `defaultLogger`, `installGlobalErrorHandlers`), lưu trữ log có cấu trúc (`INFO`, `WARN`, `ERROR`, `FATAL` kèm `stack trace`) vào `localStorage` (`nocooi.logs.v1`), hỗ trợ xuất báo cáo Text/JSON và gửi log trực tiếp về dev server (`/__client_log`). |
+| `frontend/js/screens/desk.js` | Sửa | Sửa lỗi đệ quy trong `safeGetSettings(store)`; bổ sung cơ chế **Auto-Heal** tự động phục hồi khi phiên lưu cũ bị lỗi; bọc từng phân hệ trong `safeRenderSection`; thêm hộp thoại **Phiên Ghi Log Hệ thống (`renderLogModal`)** (mở bằng nút `📋 Nhật ký Log` hoặc phím `[L]`) và màn hình **Chẩn đoán Khẩn cấp (`renderCrashDiagnosticScreen`)**. |
+| `frontend/js/main.js` | Sửa | Cài đặt `installGlobalErrorHandlers`, ghi log quá trình khởi động, kiểm tra `document.readyState` để không bỏ lỡ sự kiện `DOMContentLoaded`. |
+| `frontend/index.html` | Sửa | Thêm nút `📋 Nhật ký Log` (`#btn-open-logs-header`) trên thanh Topbar và cập nhật hậu tố `?v=20261101_v3`. |
+| `tests/js/logger.test.js` | Thêm | Bộ unit test kiểm tra tạo phiên ghi log, lọc mức độ lỗi, lưu trữ `localStorage`, xuất báo cáo Text/JSON và xoá log. |
+| `README.md` | Sửa | Cập nhật mục Changelog `2026-11-01 · FE-026 (LOG-SESSION & AUTO-HEAL) · gemini-4-argon`. |
+
+### Hành vi thay đổi
+- **Trước:** Hàm `safeGetSettings(store)` gọi đệ quy chính nó khi `store.getSettings` tồn tại (gây `Maximum call stack size exceeded`); khi có lỗi phát sinh chỉ hiện thông báo 1 dòng không có stack trace hay lịch sử phiên ghi log để tra cứu nguyên nhân.
+- **Sau:**
+  1. Khắc phục triệt để lỗi `safeGetSettings(store)` và nâng cấp máy chủ dev cổng 5500 gửi header `Cache-Control: no-store` chống cache trình duyệt.
+  2. Tích hợp **Phiên Ghi Log Hệ thống (`📋 Nhật ký Log` / Phím `[L]`)**: ghi nhận mọi bước khởi tạo, cảnh báo, lỗi kèm `stack trace` (tên file, số dòng), cho phép lọc theo mức độ, sao chép toàn bộ log vào Clipboard, tải file `.json`, hoặc bấm 1 nút để **Tạo Phiên Chơi Mới Sạch** / **Xoá Cache Phiên Cũ**.
+  3. Cơ chế **Auto-Heal**: nếu phiên cũ trong `localStorage` bị lỗi cấu trúc, hệ thống tự động ghi lỗi vào Log và chuyển sang phiên mới an toàn ngay lập tức.
+
+### Kiểm tra
+- `python tools/validate_content.py` → `13 mẫu chứng từ · 43 tài khoản · 11 loại lỗi · 22 trích dẫn luật — 0 lỗi, 0 cảnh báo`.
+- `node --test tests/js/` → **44/44 test pass** (`0 fail`).
+- `node verify_old_store.mjs` → Kiểm tra mount với cả `fullStore` (có `getSettings`) và `legacyCachedStore` + bật `LogModal`: `PASS` với `0 errors`.
+
+### README
+- `đã cập nhật` — thêm mục Changelog `2026-11-01 · FE-026 (LOG-SESSION & AUTO-HEAL) · gemini-4-argon`.
+
+### Chưa xong / rủi ro
+- Không có.
+
+### Cần người khác / câu hỏi cho chủ dự án
+- Không có.
